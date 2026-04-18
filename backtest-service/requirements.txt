@@ -1,0 +1,12 @@
+# Core API
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic>=2.0
+python-dotenv>=1.0.1
+
+# Data + backtests — open-source vectorbt (runner prefers vectorbtpro when installed in this venv).
+pandas>=2.0.0
+numpy>=1.26.0
+yfinance>=0.2.40
+vectorbt>=0.26.0
+# vectorbtpro: install from your Polak Works license into the same venv; `import vectorbtpro as vbt` is used automatically.

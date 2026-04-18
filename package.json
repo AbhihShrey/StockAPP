@@ -1,0 +1,14 @@
+{
+  "name": "investaiv1",
+  "private": true,
+  "workspaces": ["client", "server"],
+  "scripts": {
+    "dev": "concurrently -n server,client -c cyan,magenta \"npm run dev -w server\" \"npm run dev -w client\"",
+    "dev:backtest": "cd backtest-service && (test -x .venv/bin/python && .venv/bin/python || python3) -m uvicorn app:app --host 127.0.0.1 --port 8765 --reload",
+    "dev:backtest:conda": "cd backtest-service && conda run -n vbt --no-capture-output python -m uvicorn app:app --host 127.0.0.1 --port 8765 --reload",
+    "test:vwap-universe": "cd backtest-service && (test -x .venv/bin/python && .venv/bin/python || python3) scripts/vwap_universe_benchmark.py"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

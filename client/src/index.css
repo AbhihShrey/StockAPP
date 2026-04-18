@@ -1,0 +1,563 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  /* Pure neutral (no tint) — this prevents “blue-ish” glass cards anywhere. */
+  --color-surface-0: oklch(0.10 0 0);
+  --color-surface-1: oklch(0.13 0 0);
+  --color-surface-2: oklch(0.17 0 0);
+  --color-border-subtle: oklch(0.24 0 0 / 0.62);
+  --color-accent: oklch(0.72 0.17 165);
+  --color-accent-muted: oklch(0.72 0.17 165 / 0.15);
+  --color-success: oklch(0.72 0.17 165);
+  --color-danger: oklch(0.64 0.19 25);
+  --color-warning: oklch(0.78 0.16 85);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--color-surface-0);
+  background-image:
+    radial-gradient(ellipse 120% 80% at 50% -30%, oklch(1 0 0 / 0.06), transparent),
+    radial-gradient(ellipse 80% 50% at 100% 100%, oklch(0.40 0.10 165 / 0.06), transparent);
+  background-attachment: fixed;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+@keyframes dash-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.dash-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: dash-marquee 34s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-marquee-track {
+    animation: none;
+  }
+}
+
+/* Welcome / landing page — flowing line accents */
+@keyframes welcome-line-flow {
+  from {
+    transform: translateX(-42%);
+  }
+  to {
+    transform: translateX(42%);
+  }
+}
+
+@keyframes welcome-line-flow-reverse {
+  from {
+    transform: translateX(38%);
+  }
+  to {
+    transform: translateX(-38%);
+  }
+}
+
+@keyframes welcome-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.welcome-hero-fade {
+  animation: welcome-fade-up 0.75s ease-out both;
+}
+
+.welcome-line-layer {
+  position: absolute;
+  inset: -20% -30%;
+  width: 160%;
+  pointer-events: none;
+  opacity: 0.88;
+  background: repeating-linear-gradient(
+    105deg,
+    transparent 0,
+    transparent 70px,
+    oklch(0.72 0.17 165 / 0.2) 70px,
+    oklch(0.72 0.17 165 / 0.2) 73px
+  );
+  animation: welcome-line-flow 22s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.welcome-line-layer--slow {
+  opacity: 0.62;
+  animation-duration: 34s;
+  background: repeating-linear-gradient(
+    105deg,
+    transparent 0,
+    transparent 108px,
+    oklch(0.74 0 0 / 0.14) 108px,
+    oklch(0.74 0 0 / 0.14) 111px
+  );
+}
+
+.welcome-line-layer--reverse {
+  opacity: 0.72;
+  animation-name: welcome-line-flow-reverse;
+  animation-duration: 28s;
+}
+
+.welcome-hero-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% -20%, oklch(0.72 0.17 165 / 0.28), transparent 55%),
+    radial-gradient(ellipse 60% 50% at 100% 60%, oklch(1 0 0 / 0.07), transparent 50%);
+}
+
+@keyframes welcome-sheen {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 200% 50%;
+  }
+}
+
+.welcome-sheen-layer {
+  position: absolute;
+  inset: -30% -50%;
+  pointer-events: none;
+  opacity: 0.52;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    oklch(0.72 0.17 165 / 0.18) 42%,
+    oklch(0.72 0.17 165 / 0.32) 50%,
+    oklch(0.72 0.17 165 / 0.18) 58%,
+    transparent 100%
+  );
+  background-size: 220% 100%;
+  animation: welcome-sheen 18s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-sheen-layer {
+    animation: none;
+    opacity: 0.28;
+  }
+}
+
+/* Marketing nav — a few horizontal flowing lines (L → R), subtle */
+@keyframes welcome-nav-line-drift {
+  from {
+    transform: translateX(-18%);
+  }
+  to {
+    transform: translateX(18%);
+  }
+}
+
+.welcome-nav-flow-lines {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  isolation: isolate;
+}
+
+.welcome-nav-flow-line--1 {
+  top: 24%;
+}
+
+.welcome-nav-flow-line {
+  position: absolute;
+  left: -35%;
+  width: 170%;
+  height: 1px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(0.72 0.17 165 / 0.14) 40%,
+    oklch(0.74 0.16 165 / 0.28) 50%,
+    oklch(0.72 0.17 165 / 0.14) 60%,
+    transparent 100%
+  );
+  opacity: 0.38;
+  animation: welcome-nav-line-drift 15s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.welcome-nav-flow-line--2 {
+  top: 38%;
+  opacity: 0.3;
+  animation-duration: 21s;
+  animation-delay: -3s;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(0.70 0 0 / 0.10) 44%,
+    oklch(0.80 0 0 / 0.18) 50%,
+    oklch(0.70 0 0 / 0.10) 56%,
+    transparent 100%
+  );
+}
+
+.welcome-nav-flow-line--3 {
+  top: 58%;
+  opacity: 0.34;
+  animation-duration: 18s;
+  animation-delay: -6s;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(0.72 0.17 165 / 0.12) 42%,
+    oklch(0.74 0.16 165 / 0.26) 50%,
+    oklch(0.72 0.17 165 / 0.12) 58%,
+    transparent 100%
+  );
+}
+
+.welcome-nav-flow-line--4 {
+  top: 78%;
+  opacity: 0.28;
+  animation-duration: 26s;
+  animation-delay: -1.5s;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(0.72 0.17 165 / 0.1) 40%,
+    oklch(0.74 0.16 165 / 0.22) 50%,
+    oklch(0.72 0.17 165 / 0.1) 60%,
+    transparent 100%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-nav-flow-line {
+    animation: none;
+    transform: none;
+    opacity: 0.22;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-hero-fade {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .welcome-line-layer,
+  .welcome-line-layer--slow,
+  .welcome-line-layer--reverse {
+    animation: none;
+    transform: none;
+    opacity: 0.4;
+  }
+}
+
+@keyframes welcome-modal-backdrop {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes welcome-modal-panel {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.welcome-modal-backdrop-enter {
+  animation: welcome-modal-backdrop 0.35s ease-out both;
+}
+
+.welcome-modal-panel-enter {
+  animation: welcome-modal-panel 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-modal-backdrop-enter,
+  .welcome-modal-panel-enter {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Scroll-driven section reveals */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(36px);
+  transition:
+    opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-on-scroll {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
+}
+
+/* In-app route — main panel slides in from the right (sidebar stays put) */
+@keyframes app-page-enter {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.app-page-enter {
+  animation: app-page-enter 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-page-enter {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Dashboard modules — staggered cascade (fade + rise) */
+@keyframes dash-module-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dash-module-enter {
+  animation: dash-module-in 0.58s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--dash-stagger, 0ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-module-enter {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Related strength panel — keeps fixed size + animates in on sector select */
+@keyframes related-panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.related-panel-shell {
+  min-height: 18rem;
+}
+
+.related-panel-empty {
+  min-height: 18rem;
+}
+
+.related-panel-enter {
+  animation: related-panel-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .related-panel-enter {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Progress / metric bars — shimmer on filled segment */
+@keyframes bar-fill-shimmer {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(120%);
+  }
+}
+
+.metric-bar-fill-inner {
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-bar-fill-inner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 55%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    oklch(1 0 0 / 0.22),
+    oklch(1 0 0 / 0.08),
+    transparent
+  );
+  animation: bar-fill-shimmer 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.metric-bar-fill-spring {
+  transition: width 1.05s cubic-bezier(0.34, 1.45, 0.64, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .metric-bar-fill-inner::after {
+    animation: none;
+    opacity: 0;
+  }
+
+  .metric-bar-fill-spring {
+    transition: width 0.35s ease-out;
+  }
+}
+
+/* Route navigation progress (top edge) */
+@keyframes nav-progress-slide {
+  from {
+    transform: scaleX(0.08);
+    opacity: 0.35;
+  }
+  40% {
+    opacity: 1;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+.nav-progress-bar {
+  width: 100%;
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+}
+
+.nav-progress-bar--enter {
+  animation: nav-progress-slide 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.nav-progress-bar--leave {
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-progress-bar--enter {
+    animation: none;
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+/* Backtest / lab icon motion */
+@keyframes backtest-flask {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.backtest-flask-spin {
+  animation: backtest-flask 1.05s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backtest-flask-spin {
+    animation: none;
+  }
+}
+
+@keyframes priceShimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+.price-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.85) 40%,
+    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0.85) 60%,
+    rgba(255, 255, 255, 0.85) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: priceShimmer 650ms ease-out 1;
+}
+
+@keyframes econ-actual-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.econ-actual-in {
+  animation: econ-actual-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
