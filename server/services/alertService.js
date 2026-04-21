@@ -1,0 +1,113 @@
+import db from '../db.js'
+
+export const VALID_CONDITIONS = ['vwap_above', 'vwap_below', 'price_above', 'price_below', 'orhl_above', 'orhl_below']
+export const ORHL_CONDITIONS = ['orhl_above', 'orhl_below']
+export const ORHL_VALID_MINUTES = [15, 30, 60]
+
+export function conditionLabel(condition, threshold) {
+  switch (condition) {
+    case 'vwap_above': return 'Crosses above VWAP'
+    case 'vwap_below': return 'Crosses below VWAP'
+    case 'price_above': return `Above $${Number(threshold).toFixed(2)}`
+    case 'price_below': return `Below $${Number(threshold).toFixed(2)}`
+    case 'orhl_above': return `Crosses above OR High (${threshold}min)`
+    case 'orhl_below': return `Crosses below OR Low (${threshold}min)`
+    default: return condition
+  }
+}
+
+export function getActiveAlerts() {
+  return db.prepare(`
+    SELECT a.*, u.email, u.email_alerts_enabled, u.alert_email
+    FROM alerts a
+    JOIN users u ON u.id = a.user_id
+    WHERE a.is_active = 1
+      AND (a.last_fired_at IS NULL OR (unixepoch() - a.last_fired_at) >= a.cooldown_minutes * 60)
+  `).all()
+}
+
+export function getAlertsByUser(userId) {
+  return db.prepare('SELECT * FROM alerts WHERE user_id = ? ORDER BY created_at DESC').all(userId)
+}
+
+export function getAlertHistoryByUser(userId, limit = 50) {
+  return db.prepare(`
+    SELECT * FROM alert_history WHERE user_id = ?
+    ORDER BY triggered_at DESC LIMIT ?
+  `).all(userId, limit)
+}
+
+export function createAlert(userId, { symbol, condition, threshold, cooldown_minutes }) {
+  const sym = String(symbol ?? '').trim().toUpperCase()
+  if (!sym || sym.length > 12) return { ok: false, error: 'Invalid symbol.' }
+  if (!VALID_CONDITIONS.includes(condition)) return { ok: false, error: 'Invalid condition.' }
+
+  const needsThreshold = condition === 'price_above' || condition === 'price_below'
+  if (needsThreshold && (threshold == null || Number.isNaN(Number(threshold)))) {
+    return { ok: false, error: 'A price threshold is required for this condition.' }
+  }
+
+  const isOrhl = ORHL_CONDITIONS.includes(condition)
+  if (isOrhl) {
+    const mins = Number(threshold)
+    if (!ORHL_VALID_MINUTES.includes(mins)) {
+      return { ok: false, error: 'Opening range must be 15, 30, or 60 minutes.' }
+    }
+  }
+
+  const cooldown = Number.isFinite(Number(cooldown_minutes)) && Number(cooldown_minutes) >= 0
+    ? Math.floor(Number(cooldown_minutes))
+    : 60
+
+  const count = db.prepare('SELECT COUNT(*) as n FROM alerts WHERE user_id = ? AND is_active = 1').get(userId).n
+  if (count >= 30) return { ok: false, error: 'Active alert limit is 30.' }
+
+  const thresholdVal = (needsThreshold || isOrhl) ? Number(threshold) : null
+
+  const { lastInsertRowid: id } = db.prepare(`
+    INSERT INTO alerts (user_id, symbol, condition, threshold, cooldown_minutes)
+    VALUES (?, ?, ?, ?, ?)
+  `).run(userId, sym, condition, thresholdVal, cooldown)
+
+  return {
+    ok: true,
+    alert: { id, symbol: sym, condition, threshold: thresholdVal, is_active: 1, cooldown_minutes: cooldown, last_fired_at: null },
+  }
+}
+
+export function toggleAlert(userId, alertId, isActive) {
+  const result = db.prepare('UPDATE alerts SET is_active = ? WHERE id = ? AND user_id = ?')
+    .run(isActive ? 1 : 0, alertId, userId)
+  if (result.changes === 0) return { ok: false, error: 'Alert not found.' }
+  return { ok: true }
+}
+
+export function deleteAlert(userId, alertId) {
+  const result = db.prepare('DELETE FROM alerts WHERE id = ? AND user_id = ?').run(alertId, userId)
+  if (result.changes === 0) return { ok: false, error: 'Alert not found.' }
+  return { ok: true }
+}
+
+export function recordAlertFired(alertId, userId, { symbol, condition, threshold, triggeredPrice, vwapAtTrigger }) {
+  db.prepare(`
+    INSERT INTO alert_history (alert_id, user_id, symbol, condition, threshold, triggered_price, vwap_at_trigger)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `).run(alertId, userId, symbol, condition, threshold ?? null, triggeredPrice ?? null, vwapAtTrigger ?? null)
+
+  // cooldown_minutes = 0 means one-shot (deactivate permanently); otherwise just update last_fired_at
+  const alert = db.prepare('SELECT cooldown_minutes FROM alerts WHERE id = ?').get(alertId)
+  if (!alert || alert.cooldown_minutes === 0) {
+    db.prepare('UPDATE alerts SET is_active = 0, last_fired_at = unixepoch() WHERE id = ?').run(alertId)
+  } else {
+    db.prepare('UPDATE alerts SET last_fired_at = unixepoch() WHERE id = ?').run(alertId)
+  }
+}
+
+export function getNotificationSettings(userId) {
+  return db.prepare('SELECT email_alerts_enabled, alert_email FROM users WHERE id = ?').get(userId)
+}
+
+export function saveNotificationSettings(userId, { email_alerts_enabled, alert_email }) {
+  db.prepare('UPDATE users SET email_alerts_enabled = ?, alert_email = ? WHERE id = ?')
+    .run(email_alerts_enabled ? 1 : 0, alert_email ?? null, userId)
+}

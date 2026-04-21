@@ -5,12 +5,9 @@ import {
   fetchMostActives,
   normalizeFmpMoverRow,
 } from './fmp.js'
+import { quoteSnapshotCacheMs } from './marketQuoteCacheMs.js'
 
-/** Default 2 min — premium tier allows frequent refresh; override with MARKET_DATA_CACHE_MS. */
-const CACHE_TTL_MS =
-  Number(process.env.MARKET_DATA_CACHE_MS) ||
-  Number(process.env.ALPHA_VANTAGE_CACHE_MS) ||
-  2 * 60_000
+const CACHE_TTL_MS = quoteSnapshotCacheMs()
 
 let cache = { at: 0, value: null }
 

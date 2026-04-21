@@ -10,7 +10,7 @@ import { apiUrl } from '../lib/apiBase'
 import { MAG7_TICKERS, OVERVIEW_TICKERS } from '../lib/tradingViewSymbol'
 
 const TILE_CHART_HEIGHT = 198
-const GRID_POLL_MS = 120_000
+const GRID_POLL_MS = 30_000
 
 function MiniChartCard({ ticker, score, onExpand, refreshKey }) {
   const showScore = score !== undefined

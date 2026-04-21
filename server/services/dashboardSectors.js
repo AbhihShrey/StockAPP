@@ -1,10 +1,8 @@
 import { fetchBatchQuotesBySymbols, fetchHistoricalEodLight } from './fmp.js'
 import { SECTOR_ETFS } from './sectorQuadrant.js'
+import { quoteSnapshotCacheMs } from './marketQuoteCacheMs.js'
 
-const CACHE_TTL_MS =
-  Number(process.env.MARKET_DATA_CACHE_MS) ||
-  Number(process.env.ALPHA_VANTAGE_CACHE_MS) ||
-  2 * 60_000
+const CACHE_TTL_MS = quoteSnapshotCacheMs()
 
 let cache = { at: 0, value: null }
 

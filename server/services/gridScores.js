@@ -1,4 +1,5 @@
 import { fetchBatchQuotesBySymbols } from './fmp.js'
+import { quoteSnapshotCacheMs } from './marketQuoteCacheMs.js'
 
 /** Must match `FIB_SCREENER_GRID` order in `client/src/lib/tradingViewSymbol.js`. */
 export const FIB_GRID_TICKERS = [
@@ -19,10 +20,7 @@ export const FIB_GRID_TICKERS = [
   'ACN',
 ]
 
-const CACHE_TTL_MS =
-  Number(process.env.MARKET_DATA_CACHE_MS) ||
-  Number(process.env.ALPHA_VANTAGE_CACHE_MS) ||
-  2 * 60_000
+const CACHE_TTL_MS = quoteSnapshotCacheMs()
 
 let cache = { at: 0, value: null }
 

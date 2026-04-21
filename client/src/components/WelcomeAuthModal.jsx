@@ -35,8 +35,7 @@ export function WelcomeAuthModal({ open, mode, onClose, onSwitchMode }) {
       e.preventDefault()
       setErr(null)
       setBusy(true)
-      await new Promise((r) => setTimeout(r, 280))
-      const res = mode === 'signin' ? login(email, password) : signup(email, password)
+      const res = mode === 'signin' ? await login(email, password) : await signup(email, password)
       setBusy(false)
       if (!res.ok) {
         setErr(res.error ?? 'Something went wrong.')
@@ -72,7 +71,7 @@ export function WelcomeAuthModal({ open, mode, onClose, onSwitchMode }) {
             <p className="mt-1 text-sm text-zinc-500">
               {mode === 'signin'
                 ? 'Welcome back — your workspace is one step away.'
-                : 'Choose a password you’ll remember. Stored locally for this demo.'}
+                : 'Choose a password you will remember. Your data is stored securely on the server.'}
             </p>
           </div>
           <button

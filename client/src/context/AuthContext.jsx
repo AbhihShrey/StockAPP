@@ -1,107 +1,97 @@
 import { createContext, useCallback, useContext, useMemo, useState } from 'react'
+import { apiUrl } from '../lib/apiBase'
 
-const SESSION_KEY = 'investaiv1_session_v1'
-const ACCOUNTS_KEY = 'investaiv1_accounts_v1'
+const TOKEN_KEY = 'investaiv1_token_v2'
 
-/** @returns {{ email: string } | null} */
-function readSession() {
+function readStoredToken() {
+  try { return window.localStorage.getItem(TOKEN_KEY) ?? null } catch { return null }
+}
+
+function writeToken(token) {
+  try { window.localStorage.setItem(TOKEN_KEY, token) } catch {}
+}
+
+function clearToken() {
+  try { window.localStorage.removeItem(TOKEN_KEY) } catch {}
+}
+
+function parseJwtPayload(token) {
   try {
-    const raw = window.localStorage.getItem(SESSION_KEY)
-    if (!raw) return null
-    const j = JSON.parse(raw)
-    const email = typeof j?.email === 'string' ? j.email.trim().toLowerCase() : ''
-    return email ? { email } : null
+    const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+    const payload = JSON.parse(atob(b64))
+    if (payload.exp && Date.now() / 1000 > payload.exp) return null
+    return payload
   } catch {
     return null
   }
 }
 
-/** @returns {Record<string, string>} email -> encoded secret (demo local store only) */
-function readAccounts() {
-  try {
-    const raw = window.localStorage.getItem(ACCOUNTS_KEY)
-    const j = raw ? JSON.parse(raw) : null
-    return j && typeof j === 'object' && !Array.isArray(j) ? j : {}
-  } catch {
-    return {}
-  }
-}
-
-function writeAccounts(acc) {
-  window.localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(acc))
-}
-
-function writeSession(email) {
-  window.localStorage.setItem(SESSION_KEY, JSON.stringify({ email: email.trim().toLowerCase() }))
-}
-
-function clearSession() {
-  window.localStorage.removeItem(SESSION_KEY)
-}
-
-function encodeSecret(password) {
-  try {
-    return window.btoa(unescape(encodeURIComponent(password)))
-  } catch {
-    return ''
-  }
+function readSession() {
+  const token = readStoredToken()
+  if (!token) return { user: null, token: null }
+  const payload = parseJwtPayload(token)
+  if (!payload) { clearToken(); return { user: null, token: null } }
+  return { user: { id: payload.sub, email: payload.email }, token }
 }
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => readSession())
+  const [state, setState] = useState(() => readSession())
 
-  const login = useCallback((email, password) => {
-    const em = String(email ?? '')
-      .trim()
-      .toLowerCase()
+  const login = useCallback(async (email, password) => {
+    const em = String(email ?? '').trim().toLowerCase()
     if (!em || !password) return { ok: false, error: 'Email and password are required.' }
-    const accounts = readAccounts()
-    if (accounts[em] !== encodeSecret(password)) {
-      return { ok: false, error: 'Invalid email or password.' }
+    try {
+      const res = await fetch(apiUrl('/api/auth/login'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: em, password }),
+      })
+      const json = await res.json()
+      if (!res.ok) return { ok: false, error: json.message ?? 'Sign in failed.' }
+      writeToken(json.token)
+      setState({ user: json.user, token: json.token })
+      return { ok: true }
+    } catch {
+      return { ok: false, error: 'Network error. Please try again.' }
     }
-    writeSession(em)
-    setUser({ email: em })
-    return { ok: true }
   }, [])
 
-  const signup = useCallback((email, password) => {
-    const em = String(email ?? '')
-      .trim()
-      .toLowerCase()
+  const signup = useCallback(async (email, password) => {
+    const em = String(email ?? '').trim().toLowerCase()
     if (!em || !password) return { ok: false, error: 'Email and password are required.' }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) {
-      return { ok: false, error: 'Enter a valid email address.' }
+    try {
+      const res = await fetch(apiUrl('/api/auth/signup'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: em, password }),
+      })
+      const json = await res.json()
+      if (!res.ok) return { ok: false, error: json.message ?? 'Sign up failed.' }
+      writeToken(json.token)
+      setState({ user: json.user, token: json.token })
+      return { ok: true }
+    } catch {
+      return { ok: false, error: 'Network error. Please try again.' }
     }
-    if (password.length < 8) {
-      return { ok: false, error: 'Password must be at least 8 characters.' }
-    }
-    const accounts = readAccounts()
-    if (accounts[em]) {
-      return { ok: false, error: 'An account with this email already exists. Sign in instead.' }
-    }
-    accounts[em] = encodeSecret(password)
-    writeAccounts(accounts)
-    writeSession(em)
-    setUser({ email: em })
-    return { ok: true }
   }, [])
 
   const logout = useCallback(() => {
-    clearSession()
-    setUser(null)
+    clearToken()
+    setState({ user: null, token: null })
   }, [])
 
   const value = useMemo(
     () => ({
-      user,
-      isAuthenticated: Boolean(user?.email),
+      user: state.user,
+      token: state.token,
+      isAuthenticated: Boolean(state.user),
       login,
       signup,
       logout,
     }),
-    [user, login, signup, logout],
+    [state, login, signup, logout],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -1,6 +1,9 @@
 import {
   ArrowUpDown,
   BarChart3,
+  Bell,
+  BellRing,
+  Bookmark,
   FlaskConical,
   Grid3x3,
   LayoutDashboard,
@@ -14,18 +17,21 @@ import {
   TrendingUp,
   X,
 } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { CommandBar } from './CommandBar'
 import { MarketingHomeFab } from './MarketingHomeFab'
 import { WelcomeHomeNav } from './WelcomeHomeNav'
 import { useAuth } from '../context/AuthContext'
+import { useAlerts } from '../context/AlertContext'
 
 const MAIN_MAX_W = 'max-w-[104rem]'
 
 const nav = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/markets', label: 'Markets', icon: ArrowUpDown },
+  { to: '/watchlist', label: 'Watchlist', icon: Bookmark },
+  { to: '/alerts', label: 'Alerts', icon: Bell },
   { to: '/news', label: 'News', icon: Newspaper },
   { to: '/charts', label: 'Charts', icon: BarChart3 },
   { to: '/sectors', label: 'Sectors', icon: Grid3x3 },
@@ -184,6 +190,138 @@ function SidebarBody({ collapsed, onNavigate, onToggleCollapse, location, user, 
   )
 }
 
+function conditionLabel(condition, threshold) {
+  switch (condition) {
+    case 'vwap_above': return 'above VWAP'
+    case 'vwap_below': return 'below VWAP'
+    case 'price_above': return `above $${Number(threshold).toFixed(2)}`
+    case 'price_below': return `below $${Number(threshold).toFixed(2)}`
+    case 'orhl_above': return `above OR High (${threshold}min)`
+    case 'orhl_below': return `below OR Low (${threshold}min)`
+    default: return condition
+  }
+}
+
+function NotificationBell() {
+  const { notifications, unreadCount, markAllRead } = useAlerts()
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    function onClickOutside(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
+    }
+    document.addEventListener('mousedown', onClickOutside)
+    return () => document.removeEventListener('mousedown', onClickOutside)
+  }, [])
+
+  const toggle = () => {
+    setOpen((v) => !v)
+    if (!open && unreadCount > 0) markAllRead()
+  }
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={toggle}
+        className="relative inline-flex items-center justify-center rounded-lg p-2 text-zinc-400 transition hover:bg-white/5 hover:text-zinc-200"
+        aria-label="Notifications"
+      >
+        {unreadCount > 0 ? <BellRing className="size-5 text-accent" /> : <Bell className="size-5" />}
+        {unreadCount > 0 && (
+          <span className="absolute right-1 top-1 flex size-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-zinc-950">
+            {unreadCount > 9 ? '9+' : unreadCount}
+          </span>
+        )}
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-2xl border border-white/10 bg-neutral-950/95 shadow-2xl shadow-black/50 backdrop-blur-xl">
+          <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+            <p className="text-sm font-semibold text-zinc-100">Alerts</p>
+            {notifications.length > 0 && (
+              <button type="button" onClick={markAllRead} className="text-xs text-zinc-500 hover:text-zinc-300 transition">
+                Mark all read
+              </button>
+            )}
+          </div>
+          <div className="max-h-72 overflow-y-auto">
+            {notifications.length === 0 ? (
+              <p className="px-4 py-6 text-center text-sm text-zinc-600">No notifications yet.</p>
+            ) : (
+              notifications.slice(0, 20).map((n) => (
+                <div key={n.id} className={['border-b border-white/[0.06] px-4 py-3', !n.read ? 'bg-accent/5' : ''].join(' ')}>
+                  <p className="text-sm font-medium text-zinc-100">
+                    <span className="text-accent">{n.symbol}</span> {conditionLabel(n.condition, n.threshold)}
+                  </p>
+                  <p className="mt-0.5 text-xs text-zinc-500">
+                    At ${n.triggeredPrice?.toFixed(2)}
+                    {n.vwapAtTrigger ? ` · VWAP $${n.vwapAtTrigger.toFixed(2)}` : ''}
+                    {' · '}
+                    {new Date(n.triggeredAt * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+          <div className="border-t border-white/10 px-4 py-2.5">
+            <Link to="/alerts" onClick={() => setOpen(false)} className="text-xs text-zinc-500 hover:text-zinc-300 transition">
+              Manage alerts →
+            </Link>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function AlertToasts() {
+  const { notifications } = useAlerts()
+  const [visible, setVisible] = useState([])
+  const shownRef = useRef(new Set())
+
+  useEffect(() => {
+    const newOnes = notifications.filter((n) => !shownRef.current.has(n.id))
+    if (newOnes.length === 0) return
+    newOnes.forEach((n) => shownRef.current.add(n.id))
+    setVisible((prev) => [...newOnes, ...prev].slice(0, 5))
+    newOnes.forEach((n) => {
+      setTimeout(() => setVisible((prev) => prev.filter((t) => t.id !== n.id)), 6000)
+    })
+  }, [notifications])
+
+  if (visible.length === 0) return null
+
+  return (
+    <div className="fixed bottom-5 right-5 z-[100] flex flex-col gap-2">
+      {visible.map((n) => (
+        <div
+          key={n.id}
+          className="flex items-start gap-3 rounded-2xl border border-accent/20 bg-neutral-950/95 px-4 py-3 shadow-2xl shadow-black/50 backdrop-blur-xl"
+        >
+          <BellRing className="mt-0.5 size-4 shrink-0 text-accent" />
+          <div>
+            <p className="text-sm font-semibold text-zinc-100">
+              <span className="text-accent">{n.symbol}</span> alert fired
+            </p>
+            <p className="mt-0.5 text-xs text-zinc-400">
+              {conditionLabel(n.condition, n.threshold)} · ${n.triggeredPrice?.toFixed(2)}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setVisible((prev) => prev.filter((t) => t.id !== n.id))}
+            className="ml-auto rounded-md p-0.5 text-zinc-600 hover:text-zinc-300"
+          >
+            <X className="size-3.5" />
+          </button>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export function Layout() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
@@ -212,6 +350,8 @@ export function Layout() {
     () => [
       { to: '/dashboard', label: 'Dashboard', shortcut: 'G D' },
       { to: '/markets', label: 'Markets', shortcut: 'G M' },
+      { to: '/watchlist', label: 'Watchlist', shortcut: 'G W' },
+      { to: '/alerts', label: 'Alerts', shortcut: 'G A' },
       { to: '/news', label: 'News', shortcut: 'G N' },
       { to: '/charts', label: 'Charts', shortcut: 'G C' },
       { to: '/sectors', label: 'Sectors', shortcut: 'G S' },
@@ -300,21 +440,25 @@ export function Layout() {
                 <span className="truncate text-sm font-semibold text-zinc-100">InvestAIV1</span>
               </Link>
               <div className="flex-1 lg:hidden" />
-              <button
-                type="button"
-                className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1.5 text-xs font-medium text-zinc-300 transition hover:bg-white/[0.08] hover:text-zinc-100 lg:hidden"
-                onClick={() => {
-                  logout()
-                  navigate('/welcome', { replace: true })
-                }}
-              >
-                <LogOut className="size-3.5 opacity-80" aria-hidden />
-                Out
-              </button>
+              <div className="flex items-center gap-1 lg:hidden">
+                <NotificationBell />
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1.5 text-xs font-medium text-zinc-300 transition hover:bg-white/[0.08] hover:text-zinc-100"
+                  onClick={() => {
+                    logout()
+                    navigate('/welcome', { replace: true })
+                  }}
+                >
+                  <LogOut className="size-3.5 opacity-80" aria-hidden />
+                  Out
+                </button>
+              </div>
               <div className="mx-auto hidden flex-1 justify-center lg:flex">
                 <CommandBar items={commandItems} />
               </div>
               <div className="ml-auto hidden items-center gap-2 lg:flex">
+                <NotificationBell />
                 <span className="max-w-[10rem] truncate text-xs text-zinc-500" title={user?.email}>
                   {user?.email}
                 </span>
@@ -342,6 +486,7 @@ export function Layout() {
       </div>
 
       <MarketingHomeFab />
+      <AlertToasts />
     </div>
   )
 }

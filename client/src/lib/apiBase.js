@@ -21,3 +21,7 @@ export function apiUrl(path) {
   }
   return p
 }
+
+export function authHeaders(token) {
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}

@@ -4,6 +4,9 @@ dist
 *.log
 .env
 **/.env
+
+# Local SQLite (users, watchlists, alerts)
+server/data/
 .env.local
 backtest-service/.venv
 backtest-service/vectorbt.pro-2026.3.1/

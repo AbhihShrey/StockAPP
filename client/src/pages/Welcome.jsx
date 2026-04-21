@@ -126,7 +126,7 @@ export function Welcome({ redirectIfAuthenticated = true }) {
               Create account
               <ArrowRight className="size-4 opacity-80" aria-hidden />
             </button>
-            <p className="mt-3 text-center text-xs text-zinc-600">No card required · Local demo accounts</p>
+            <p className="mt-3 text-center text-xs text-zinc-600">No card required · Free to sign up</p>
           </div>
 
           <a
@@ -215,8 +215,7 @@ export function Welcome({ redirectIfAuthenticated = true }) {
       <footer className="border-t border-white/[0.06] py-10">
         <div className="mx-auto max-w-5xl px-4 text-center sm:px-6">
           <p className="text-xs text-zinc-600">
-            © {new Date().getFullYear()} InvestAIV1 · For informational purposes only. Demo sign-in is stored in this
-            browser only.
+            © {new Date().getFullYear()} InvestAIV1 · For informational purposes only.
           </p>
         </div>
       </footer>

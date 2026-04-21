@@ -26,7 +26,7 @@ export function Markets() {
   const [sentiment, setSentiment] = useState(null)
   const [sentimentError, setSentimentError] = useState(null)
   const [scanners, setScanners] = useState(null)
-  const [pollMs, setPollMs] = useState(120_000)
+  const [pollMs, setPollMs] = useState(30_000)
   const [tab, setTab] = useState('overview')
   const [chartSymbol, setChartSymbol] = useState('SPY')
 

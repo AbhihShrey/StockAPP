@@ -2,7 +2,9 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { NavigationProgress } from './components/NavigationProgress'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { AlertProvider } from './context/AlertContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { Alerts } from './pages/Alerts'
 import { Dashboard } from './pages/Dashboard'
 import { Markets } from './pages/Markets'
 import { News } from './pages/News'
@@ -10,6 +12,7 @@ import { PlaceholderPage } from './pages/PlaceholderPage'
 import { Sectors } from './pages/Sectors'
 import { Strategies } from './pages/Strategies'
 import { TechnicalAnalysis } from './pages/TechnicalAnalysis'
+import { Watchlist } from './pages/Watchlist'
 import { Welcome } from './pages/Welcome'
 
 function RootRedirect() {
@@ -41,6 +44,8 @@ function AppRoutes() {
             <Route path="analysis/:symbol" element={<TechnicalAnalysis />} />
             <Route path="sectors" element={<Sectors />} />
             <Route path="strategies" element={<Strategies />} />
+            <Route path="watchlist" element={<Watchlist />} />
+            <Route path="alerts" element={<Alerts />} />
             <Route path="gainers-losers" element={<Navigate to="/markets" replace />} />
             <Route path="technical-analysis" element={<Navigate to="/charts" replace />} />
             <Route path="sector-quadrant" element={<Navigate to="/sectors" replace />} />
@@ -51,11 +56,18 @@ function AppRoutes() {
   )
 }
 
+function AlertWrapper({ children }) {
+  const { token } = useAuth()
+  return <AlertProvider token={token}>{children}</AlertProvider>
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <AlertWrapper>
+          <AppRoutes />
+        </AlertWrapper>
       </AuthProvider>
     </BrowserRouter>
   )

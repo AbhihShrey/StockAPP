@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { DashboardCard } from '../components/DashboardCard'
+import { WatchlistMiniWidget } from '../components/WatchlistMiniWidget'
 import { GlobalAssetMarquee } from '../components/GlobalAssetMarquee'
 import { MarketBreadthGauge } from '../components/MarketBreadthGauge'
 import { MarketSentiment } from '../components/MarketSentiment'
@@ -12,7 +13,7 @@ import { TableRowsSkeleton } from '../components/DataSkeleton'
 import { MiniPriceChart } from '../components/MiniPriceChart'
 import { apiUrl } from '../lib/apiBase'
 
-const DEFAULT_POLL_MS = 120_000
+const DEFAULT_POLL_MS = 30_000
 
 function formatNumber(n) {
   if (n === null || n === undefined || Number.isNaN(n)) return '—'
@@ -248,6 +249,15 @@ export function Dashboard() {
                 <MarketSentiment data={sentiment} loading={loading && !sentiment} error={sentimentError} />
               </DashboardCard>
             </div>
+          </div>
+
+          <div className="dash-module-enter" style={{ ['--dash-stagger']: '110ms' }}>
+            <DashboardCard
+              title="My Watchlist"
+              action={null}
+            >
+              <WatchlistMiniWidget />
+            </DashboardCard>
           </div>
 
           <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-12">
