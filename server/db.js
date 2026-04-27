@@ -6,6 +6,15 @@ import { fileURLToPath } from 'node:url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const DATA_DIR = process.env.DB_DIR?.trim() || path.join(__dirname, 'data')
 
+if (process.env.NODE_ENV === 'production' && !process.env.DB_DIR?.trim()) {
+  throw new Error(
+    '[db] DB_DIR is not set in production. Without it, SQLite writes to an ' +
+    'ephemeral path inside the container and every account is wiped on each ' +
+    'redeploy/restart. Set DB_DIR to a persistent disk mount (e.g. /var/data ' +
+    'on Render Starter+) before launching, or switch to a managed database.',
+  )
+}
+
 if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true })
 }
