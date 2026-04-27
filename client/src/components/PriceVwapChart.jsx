@@ -122,13 +122,13 @@ export function PriceVwapChart({
                 tick={{ fill: '#71717a', fontSize: 11 }}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(v) => (Math.abs(v) >= 1000 ? `${(v / 1000).toFixed(1)}k` : String(v))}
+                tickFormatter={(v) => (Math.abs(v) >= 1000 ? `$${(v / 1000).toFixed(1)}k` : `$${v.toFixed(0)}`)}
               />
               <Tooltip
                 contentStyle={TOOLTIP_STYLE}
                 labelStyle={{ color: '#a1a1aa' }}
                 formatter={(value, name) =>
-                  typeof value === 'number' ? [value.toFixed(2), name] : [value, name]
+                  typeof value === 'number' ? [`$${value.toFixed(2)}`, name] : [value, name]
                 }
               />
               <Legend

@@ -5,6 +5,7 @@ import { RevealOnScroll } from '../components/RevealOnScroll'
 import { WelcomeAuthModal } from '../components/WelcomeAuthModal'
 import { WelcomeMarketingNav } from '../components/WelcomeMarketingNav'
 import { useAuth } from '../context/AuthContext'
+import { getDefaultLanding } from '../lib/prefs'
 
 const OFFERINGS = [
   {
@@ -89,7 +90,7 @@ export function Welcome({ redirectIfAuthenticated = true }) {
   }, [location.pathname, location.state, navigate, openSignup, openSignin])
 
   if (redirectIfAuthenticated && isAuthenticated) {
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to={getDefaultLanding()} replace />
   }
 
   return (
@@ -147,7 +148,7 @@ export function Welcome({ redirectIfAuthenticated = true }) {
                 Everything you need to decide
               </h2>
               <p className="mt-4 text-sm leading-relaxed text-zinc-500 sm:text-base">
-                Scroll up and down—sections ease in again each time they cross the viewport.
+                A focused workspace for reading the market, tracking positions, and stress-testing ideas.
               </p>
             </div>
           </RevealOnScroll>
@@ -213,10 +214,16 @@ export function Welcome({ redirectIfAuthenticated = true }) {
       </section>
 
       <footer className="border-t border-white/[0.06] py-10">
-        <div className="mx-auto max-w-5xl px-4 text-center sm:px-6">
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 px-4 text-center sm:flex-row sm:justify-between sm:px-6">
           <p className="text-xs text-zinc-600">
-            © {new Date().getFullYear()} InvestAIV1 · For informational purposes only.
+            © {new Date().getFullYear()} Vertex · For informational purposes only.
           </p>
+          <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-zinc-500">
+            <Link to="/privacy" className="transition hover:text-zinc-300">Privacy</Link>
+            <Link to="/terms" className="transition hover:text-zinc-300">Terms</Link>
+            <Link to="/disclaimer" className="transition hover:text-zinc-300">Disclaimer</Link>
+            <Link to="/cookies" className="transition hover:text-zinc-300">Cookies</Link>
+          </nav>
         </div>
       </footer>
     </div>

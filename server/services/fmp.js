@@ -42,21 +42,16 @@ function fmpErrorMessage(json) {
  * @param {string} path e.g. `/biggest-gainers` (no base)
  * @param {Record<string, string | number | undefined>} [params]
  */
-export async function fmpGet(path, params = {}) {
-  const url = new URL(`${BASE_URL}${path.startsWith('/') ? path : `/${path}`}`)
-  url.searchParams.set('apikey', getFmpApiKey())
-  for (const [k, v] of Object.entries(params)) {
-    if (v !== undefined && v !== null) url.searchParams.set(k, String(v))
-  }
+const FMP_TIMEOUT_MS = 10_000
 
-  const res = await fetch(url, { headers: { Accept: 'application/json' } })
+async function fmpFetchOnce(url) {
+  const res = await fetch(url, {
+    headers: { Accept: 'application/json' },
+    signal: AbortSignal.timeout(FMP_TIMEOUT_MS),
+  })
   const text = await res.text()
   let json
-  try {
-    json = text ? JSON.parse(text) : null
-  } catch {
-    json = null
-  }
+  try { json = text ? JSON.parse(text) : null } catch { json = null }
 
   const msg = fmpErrorMessage(json)
   if (msg) {
@@ -64,7 +59,6 @@ export async function fmpGet(path, params = {}) {
     err.code = /api\s*key|unauthorized|invalid/i.test(msg) ? 'FMP_KEY_MISSING' : 'FMP_HTTP'
     throw err
   }
-
   if (!res.ok) {
     const err = new Error(`FMP HTTP ${res.status}`)
     if (res.status === 429) err.code = 'FMP_RATE_LIMIT'
@@ -72,9 +66,33 @@ export async function fmpGet(path, params = {}) {
     else err.code = 'FMP_HTTP'
     throw err
   }
-
   return json
 }
+
+function isNetworkError(err) {
+  // TypeError from fetch (DNS failure, TCP reset, AbortError from timeout)
+  return err instanceof TypeError || err?.name === 'AbortError' || err?.name === 'TimeoutError'
+}
+
+export async function fmpGet(path, params = {}) {
+  const url = new URL(`${BASE_URL}${path.startsWith('/') ? path : `/${path}`}`)
+  url.searchParams.set('apikey', getFmpApiKey())
+  for (const [k, v] of Object.entries(params)) {
+    if (v !== undefined && v !== null) url.searchParams.set(k, String(v))
+  }
+
+  try {
+    return await fmpFetchOnce(url)
+  } catch (err) {
+    // One retry on transient network errors (not on auth / HTTP errors)
+    if (isNetworkError(err)) {
+      await new Promise((r) => setTimeout(r, 1_500))
+      return fmpFetchOnce(url)
+    }
+    throw err
+  }
+}
+
 
 function chunkArray(arr, size) {
   const out = []
@@ -172,6 +190,33 @@ export async function fetchEarningsReportsMap(symbols, options = {}) {
   return map
 }
 
+
+function quoteFieldsFromFmpRow(q) {
+  const sym = String(q.symbol ?? '')
+    .trim()
+    .toUpperCase()
+  if (!sym) return null
+  return {
+    sym,
+    row: {
+      volume: toInt(q.volume),
+      avgVolume: toInt(q.avgVolume ?? q.averageVolume ?? q.volAvg),
+      price: toNumber(q.price),
+      open: toNumber(q.open),
+      dayHigh: toNumber(q.dayHigh ?? q.high),
+      dayLow: toNumber(q.dayLow ?? q.low),
+      previousClose: toNumber(q.previousClose ?? q.openPrevious ?? q.closePrevious),
+      changePercent: toNumber(q.changePercentage ?? q.changesPercentage),
+      change: toNumber(q.change),
+      priceAvg50: toNumber(q.priceAvg50),
+      priceAvg200: toNumber(q.priceAvg200),
+      yearHigh: toNumber(q.yearHigh ?? q['52WeekHigh']),
+      yearLow: toNumber(q.yearLow ?? q['52WeekLow']),
+    },
+  }
+}
+
+
 /** One batch-quote request supports many symbols (chunked for URL limits). */
 export async function fetchBatchQuotesBySymbols(symbols, chunkSize = 80) {
   const unique = [
@@ -194,27 +239,11 @@ export async function fetchBatchQuotesBySymbols(symbols, chunkSize = 80) {
   for (const data of batches) {
     const arr = Array.isArray(data) ? data : []
     for (const q of arr) {
-      const sym = String(q.symbol ?? '')
-        .trim()
-        .toUpperCase()
-      if (!sym) continue
-      map.set(sym, {
-        volume: toInt(q.volume),
-        avgVolume: toInt(q.avgVolume ?? q.averageVolume ?? q.volAvg),
-        price: toNumber(q.price),
-        open: toNumber(q.open),
-        dayHigh: toNumber(q.dayHigh ?? q.high),
-        dayLow: toNumber(q.dayLow ?? q.low),
-        previousClose: toNumber(q.previousClose ?? q.openPrevious ?? q.closePrevious),
-        changePercent: toNumber(q.changePercentage ?? q.changesPercentage),
-        change: toNumber(q.change),
-        priceAvg50: toNumber(q.priceAvg50),
-        priceAvg200: toNumber(q.priceAvg200),
-        yearHigh: toNumber(q.yearHigh ?? q['52WeekHigh']),
-        yearLow: toNumber(q.yearLow ?? q['52WeekLow']),
-      })
+      const parsed = quoteFieldsFromFmpRow(q)
+      if (parsed) map.set(parsed.sym, parsed.row)
     }
   }
+
   return map
 }
 

@@ -25,3 +25,25 @@ export function apiUrl(path) {
 export function authHeaders(token) {
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
+
+/**
+ * WebSocket `ws://` or `wss://` origin + path for alert pushes.
+ * Must follow the same rules as `apiUrl()` (dev → :3001, `VITE_API_BASE` if set, else same host).
+ */
+export function getAlertWebSocketUrl() {
+  const raw = import.meta.env.VITE_API_BASE?.trim()
+  if (raw) {
+    try {
+      const u = new URL(raw.startsWith('http') ? raw : `https://${raw}`)
+      u.protocol = u.protocol === 'https:' ? 'wss:' : 'ws:'
+      return `${u.origin}/ws`
+    } catch {
+      return 'ws://localhost:3001/ws'
+    }
+  }
+  if (import.meta.env.DEV) {
+    return 'ws://localhost:3001/ws'
+  }
+  const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+  return `${proto}//${window.location.host}/ws`
+}

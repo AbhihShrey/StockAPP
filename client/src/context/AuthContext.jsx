@@ -50,9 +50,29 @@ export function AuthProvider({ children }) {
       })
       const json = await res.json()
       if (!res.ok) return { ok: false, error: json.message ?? 'Sign in failed.' }
+      if (json.twofa_required) {
+        return { ok: true, twofaRequired: true, challengeToken: json.challenge_token }
+      }
       writeToken(json.token)
       setState({ user: json.user, token: json.token })
       return { ok: true }
+    } catch {
+      return { ok: false, error: 'Network error. Please try again.' }
+    }
+  }, [])
+
+  const completeTwoFactor = useCallback(async (challengeToken, code) => {
+    try {
+      const res = await fetch(apiUrl('/api/auth/2fa/challenge'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ challenge_token: challengeToken, code }),
+      })
+      const json = await res.json()
+      if (!res.ok) return { ok: false, error: json.message ?? '2FA verification failed.' }
+      writeToken(json.token)
+      setState({ user: json.user, token: json.token })
+      return { ok: true, backupCodesRemaining: json.backupCodesRemaining }
     } catch {
       return { ok: false, error: 'Network error. Please try again.' }
     }
@@ -90,8 +110,9 @@ export function AuthProvider({ children }) {
       login,
       signup,
       logout,
+      completeTwoFactor,
     }),
-    [state, login, signup, logout],
+    [state, login, signup, logout, completeTwoFactor],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

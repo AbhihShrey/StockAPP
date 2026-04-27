@@ -8,34 +8,48 @@ import {
   Grid3x3,
   LayoutDashboard,
   LogOut,
+  Mail,
   Menu,
   Newspaper,
+  Landmark,
   Moon,
   PanelLeftClose,
   PanelLeftOpen,
+  PieChart,
+  Search,
+  Settings,
   Sun,
-  TrendingUp,
   X,
 } from 'lucide-react'
+
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { CommandBar } from './CommandBar'
+import { CommandPaletteProvider, openCommandPalette } from './CommandPalette'
 import { MarketingHomeFab } from './MarketingHomeFab'
 import { WelcomeHomeNav } from './WelcomeHomeNav'
 import { useAuth } from '../context/AuthContext'
 import { useAlerts } from '../context/AlertContext'
+import { apiUrl, authHeaders } from '../lib/apiBase'
+import { getDefaultLanding } from '../lib/prefs'
+import { VertexLogo } from './VertexLogo'
 
-const MAIN_MAX_W = 'max-w-[104rem]'
+const MAIN_MAX_W = 'max-w-[88rem]'
+
+const BACKTEST_ENABLED = import.meta.env.VITE_FEATURE_BACKTEST === '1'
 
 const nav = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/markets', label: 'Markets', icon: ArrowUpDown },
   { to: '/watchlist', label: 'Watchlist', icon: Bookmark },
+  { to: '/portfolio', label: 'Portfolio', icon: PieChart },
   { to: '/alerts', label: 'Alerts', icon: Bell },
   { to: '/news', label: 'News', icon: Newspaper },
+  { to: '/insider', label: 'Insider Activity', icon: Landmark },
   { to: '/charts', label: 'Charts', icon: BarChart3 },
   { to: '/sectors', label: 'Sectors', icon: Grid3x3 },
-  { to: '/strategies', label: 'Strategies', icon: FlaskConical },
+  ...(BACKTEST_ENABLED ? [{ to: '/strategies', label: 'Strategies', icon: FlaskConical }] : []),
+  { to: '/settings', label: 'Settings', icon: Settings },
 ]
 
 const linkClass = ({ isActive }) =>
@@ -116,22 +130,18 @@ function SidebarBody({ collapsed, onNavigate, onToggleCollapse, location, user, 
       >
         <div className={['flex w-full items-start gap-2', collapsed ? 'flex-col items-center' : 'justify-between'].join(' ')}>
           <Link
-            to="/dashboard"
+            to={getDefaultLanding()}
             onClick={onNavigate}
             className={[
               'flex min-w-0 rounded-lg outline-none ring-accent/30 focus-visible:ring-2',
               collapsed ? 'flex-col items-center justify-center gap-0' : 'min-w-0 flex-1 items-center gap-2.5',
             ].join(' ')}
-            title="Dashboard"
+            title="Home"
           >
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent-muted text-accent">
-              <TrendingUp className="size-5" strokeWidth={2.25} aria-hidden />
-            </div>
-            {!collapsed ? (
-              <div className="min-w-0 leading-tight">
-                <p className="truncate text-sm font-semibold tracking-tight text-zinc-100">InvestAIV1</p>
-              </div>
-            ) : null}
+            {collapsed
+              ? <VertexLogo size="xs" iconOnly />
+              : <VertexLogo size="xs" layout="horizontal" showTagline={false} />
+            }
           </Link>
           {onToggleCollapse ? (
             <button
@@ -148,6 +158,24 @@ function SidebarBody({ collapsed, onNavigate, onToggleCollapse, location, user, 
             </button>
           ) : null}
         </div>
+        <button
+          type="button"
+          onClick={() => { openCommandPalette(); onNavigate?.() }}
+          className={[
+            'flex w-full items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-2 text-xs text-zinc-400 transition hover:border-white/20 hover:bg-white/[0.06] hover:text-zinc-200',
+            collapsed ? 'justify-center px-1' : '',
+          ].join(' ')}
+          aria-label="Search stocks (⌘K)"
+          title="Search stocks (⌘K / Ctrl+K)"
+        >
+          <Search className="size-3.5 shrink-0" aria-hidden />
+          {collapsed ? null : (
+            <>
+              <span className="min-w-0 flex-1 truncate text-left">Search…</span>
+              <span className="shrink-0 rounded border border-white/10 px-1 py-0.5 text-[9px] font-medium text-zinc-500">⌘K</span>
+            </>
+          )}
+        </button>
         <MarketStatusPill collapsed={collapsed} />
       </div>
       <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto p-3" aria-label="Primary">
@@ -186,24 +214,39 @@ function SidebarBody({ collapsed, onNavigate, onToggleCollapse, location, user, 
           onNavigate={onNavigate}
         />
       </div>
+      {!collapsed ? (
+        <div className="shrink-0 border-t border-border-subtle px-3 pb-3 pt-2.5">
+          <nav className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-zinc-600" aria-label="Legal">
+            <Link to="/privacy" onClick={onNavigate} className="transition hover:text-zinc-300">Privacy</Link>
+            <Link to="/terms" onClick={onNavigate} className="transition hover:text-zinc-300">Terms</Link>
+            <Link to="/disclaimer" onClick={onNavigate} className="transition hover:text-zinc-300">Disclaimer</Link>
+            <Link to="/cookies" onClick={onNavigate} className="transition hover:text-zinc-300">Cookies</Link>
+          </nav>
+        </div>
+      ) : null}
     </div>
   )
 }
 
 function conditionLabel(condition, threshold) {
+  const orhlM =
+    threshold != null && threshold !== '' && Number.isFinite(Number(threshold))
+      ? `${Number(threshold)} min`
+      : 'OR'
   switch (condition) {
     case 'vwap_above': return 'above VWAP'
     case 'vwap_below': return 'below VWAP'
     case 'price_above': return `above $${Number(threshold).toFixed(2)}`
     case 'price_below': return `below $${Number(threshold).toFixed(2)}`
-    case 'orhl_above': return `above OR High (${threshold}min)`
-    case 'orhl_below': return `below OR Low (${threshold}min)`
+    case 'orhl_above': return `above OR High (${orhlM})`
+    case 'orhl_below': return `below OR Low (${orhlM})`
+    case 'earnings_report': return 'reports earnings today'
     default: return condition
   }
 }
 
 function NotificationBell() {
-  const { notifications, unreadCount, markAllRead } = useAlerts()
+  const { notifications, unreadCount, markAllRead, clearAll } = useAlerts()
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
 
@@ -241,28 +284,42 @@ function NotificationBell() {
           <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
             <p className="text-sm font-semibold text-zinc-100">Alerts</p>
             {notifications.length > 0 && (
-              <button type="button" onClick={markAllRead} className="text-xs text-zinc-500 hover:text-zinc-300 transition">
-                Mark all read
-              </button>
+              <div className="flex items-center gap-3">
+                <button type="button" onClick={markAllRead} className="text-xs text-zinc-500 hover:text-zinc-300 transition">
+                  Mark all read
+                </button>
+                <button type="button" onClick={clearAll} className="text-xs text-zinc-500 hover:text-rose-400 transition">
+                  Clear all
+                </button>
+              </div>
             )}
           </div>
           <div className="max-h-72 overflow-y-auto">
             {notifications.length === 0 ? (
               <p className="px-4 py-6 text-center text-sm text-zinc-600">No notifications yet.</p>
             ) : (
-              notifications.slice(0, 20).map((n) => (
-                <div key={n.id} className={['border-b border-white/[0.06] px-4 py-3', !n.read ? 'bg-accent/5' : ''].join(' ')}>
-                  <p className="text-sm font-medium text-zinc-100">
-                    <span className="text-accent">{n.symbol}</span> {conditionLabel(n.condition, n.threshold)}
-                  </p>
-                  <p className="mt-0.5 text-xs text-zinc-500">
-                    At ${n.triggeredPrice?.toFixed(2)}
-                    {n.vwapAtTrigger ? ` · VWAP $${n.vwapAtTrigger.toFixed(2)}` : ''}
-                    {' · '}
-                    {new Date(n.triggeredAt * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </p>
-                </div>
-              ))
+              notifications.slice(0, 20).map((n) => {
+                const isEarnings = n.condition === 'earnings_report'
+                const time = new Date(n.triggeredAt * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'America/New_York' })
+                return (
+                  <div key={n.id} className={['border-b border-white/[0.06] px-4 py-3', !n.read ? 'bg-accent/5' : ''].join(' ')}>
+                    <p className="text-sm font-medium text-zinc-100">
+                      <span className="text-accent">{n.symbol}</span> {conditionLabel(n.condition, n.threshold)}
+                    </p>
+                    <p className="mt-0.5 text-xs text-zinc-500">
+                      {isEarnings
+                        ? n.message || 'Earnings report today'
+                        : <>
+                            At ${n.triggeredPrice?.toFixed(2)}
+                            {n.vwapAtTrigger ? ` · VWAP $${n.vwapAtTrigger.toFixed(2)}` : ''}
+                          </>
+                      }
+                      {' · '}
+                      {time} ET
+                    </p>
+                  </div>
+                )
+              })
             )}
           </div>
           <div className="border-t border-white/10 px-4 py-2.5">
@@ -276,13 +333,97 @@ function NotificationBell() {
   )
 }
 
+function EmailVerificationBanner({ token }) {
+  const [verified, setVerified] = useState(true) // optimistic — hide until we know
+  const [resendBusy, setResendBusy] = useState(false)
+  const [resendStatus, setResendStatus] = useState(null) // 'sent' | 'error' | null
+  const [dismissed, setDismissed] = useState(false)
+
+  useEffect(() => {
+    if (!token) return
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await fetch(apiUrl('/api/auth/me'), { headers: authHeaders(token) })
+        const data = await res.json().catch(() => ({}))
+        if (cancelled) return
+        if (res.ok && data.ok && data.user) setVerified(Boolean(data.user.emailVerified))
+      } catch {
+        // ignore — we keep the banner hidden on a network error
+      }
+    })()
+    return () => { cancelled = true }
+  }, [token])
+
+  const handleResend = async () => {
+    setResendBusy(true)
+    setResendStatus(null)
+    try {
+      const res = await fetch(apiUrl('/api/auth/resend-verification'), {
+        method: 'POST',
+        headers: authHeaders(token),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data.ok) {
+        setResendStatus('error')
+      } else if (data.alreadyVerified) {
+        setVerified(true)
+      } else {
+        setResendStatus('sent')
+      }
+    } catch {
+      setResendStatus('error')
+    } finally {
+      setResendBusy(false)
+    }
+  }
+
+  if (verified || dismissed) return null
+
+  return (
+    <div className="border-b border-amber-500/20 bg-amber-500/[0.07]">
+      <div className="mx-auto flex max-w-[88rem] flex-col gap-2 px-4 py-2 text-xs text-amber-200 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+        <div className="flex items-center gap-2">
+          <Mail className="size-3.5 shrink-0" aria-hidden />
+          <span>
+            <strong className="font-semibold">Verify your email</strong> to receive alert and digest emails. Check your inbox for the link.
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          {resendStatus === 'sent' ? (
+            <span className="text-emerald-300">Sent — check your inbox.</span>
+          ) : resendStatus === 'error' ? (
+            <span className="text-rose-300">Could not send. Try again later.</span>
+          ) : null}
+          <button
+            type="button"
+            disabled={resendBusy}
+            onClick={handleResend}
+            className="rounded-md border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 font-medium text-amber-100 transition hover:bg-amber-500/20 disabled:opacity-60"
+          >
+            {resendBusy ? 'Sending…' : 'Resend'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setDismissed(true)}
+            className="rounded-md p-1 text-amber-300/80 transition hover:text-amber-100"
+            aria-label="Dismiss"
+          >
+            <X className="size-3.5" />
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function AlertToasts() {
   const { notifications } = useAlerts()
   const [visible, setVisible] = useState([])
   const shownRef = useRef(new Set())
 
   useEffect(() => {
-    const newOnes = notifications.filter((n) => !shownRef.current.has(n.id))
+    const newOnes = notifications.filter((n) => !shownRef.current.has(n.id) && !n.suppressedByQuietHours)
     if (newOnes.length === 0) return
     newOnes.forEach((n) => shownRef.current.add(n.id))
     setVisible((prev) => [...newOnes, ...prev].slice(0, 5))
@@ -294,19 +435,23 @@ function AlertToasts() {
   if (visible.length === 0) return null
 
   return (
-    <div className="fixed bottom-5 right-5 z-[100] flex flex-col gap-2">
-      {visible.map((n) => (
+    <div className="pointer-events-none fixed right-4 top-20 z-[100] flex max-w-sm flex-col gap-2 sm:right-6">
+      {visible.map((n) => {
+        const isEarnings = n.condition === 'earnings_report'
+        return (
         <div
           key={n.id}
-          className="flex items-start gap-3 rounded-2xl border border-accent/20 bg-neutral-950/95 px-4 py-3 shadow-2xl shadow-black/50 backdrop-blur-xl"
+          className="pointer-events-auto flex items-start gap-3 rounded-2xl border border-accent/20 bg-neutral-950/95 px-4 py-3 shadow-2xl shadow-black/50 backdrop-blur-xl"
         >
           <BellRing className="mt-0.5 size-4 shrink-0 text-accent" />
           <div>
             <p className="text-sm font-semibold text-zinc-100">
-              <span className="text-accent">{n.symbol}</span> alert fired
+              <span className="text-accent">{n.symbol}</span> {isEarnings ? 'earnings today' : 'alert fired'}
             </p>
             <p className="mt-0.5 text-xs text-zinc-400">
-              {conditionLabel(n.condition, n.threshold)} · ${n.triggeredPrice?.toFixed(2)}
+              {isEarnings
+                ? (n.message || conditionLabel(n.condition, n.threshold))
+                : `${conditionLabel(n.condition, n.threshold)} · $${n.triggeredPrice?.toFixed(2)}`}
             </p>
           </div>
           <button
@@ -317,7 +462,8 @@ function AlertToasts() {
             <X className="size-3.5" />
           </button>
         </div>
-      ))}
+        )
+      })}
     </div>
   )
 }
@@ -327,7 +473,7 @@ export function Layout() {
   const [collapsed, setCollapsed] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
-  const { user, logout } = useAuth()
+  const { user, token, logout } = useAuth()
 
   useEffect(() => {
     try {
@@ -351,11 +497,14 @@ export function Layout() {
       { to: '/dashboard', label: 'Dashboard', shortcut: 'G D' },
       { to: '/markets', label: 'Markets', shortcut: 'G M' },
       { to: '/watchlist', label: 'Watchlist', shortcut: 'G W' },
+      { to: '/portfolio', label: 'Portfolio', shortcut: 'G P' },
       { to: '/alerts', label: 'Alerts', shortcut: 'G A' },
       { to: '/news', label: 'News', shortcut: 'G N' },
+      { to: '/insider', label: 'Insider Activity', shortcut: 'G I' },
       { to: '/charts', label: 'Charts', shortcut: 'G C' },
       { to: '/sectors', label: 'Sectors', shortcut: 'G S' },
-      { to: '/strategies', label: 'Backtesting', shortcut: 'G B' },
+      ...(BACKTEST_ENABLED ? [{ to: '/strategies', label: 'Backtesting', shortcut: 'G B' }] : []),
+      { to: '/settings', label: 'Settings', shortcut: 'G ,' },
     ],
     [],
   )
@@ -368,7 +517,8 @@ export function Layout() {
   }, [logout, navigate])
 
   return (
-    <div className="min-h-dvh font-sans text-zinc-200 antialiased">
+    <CommandPaletteProvider>
+    <div className="h-dvh overflow-hidden font-sans text-zinc-200 antialiased">
       {mobileOpen ? (
         <button
           type="button"
@@ -378,11 +528,11 @@ export function Layout() {
         />
       ) : null}
 
-      <div className="flex min-w-0 flex-1">
+      <div className="flex h-full min-w-0">
         {/* Desktop sidebar — width animates */}
         <aside
           className={[
-            'sticky top-0 z-20 hidden h-dvh shrink-0 overflow-x-hidden border-r border-border-subtle bg-surface-0/70 backdrop-blur-xl transition-[width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:flex lg:flex-col',
+            'z-20 hidden h-dvh shrink-0 overflow-x-hidden border-r border-border-subtle bg-surface-0/70 backdrop-blur-xl transition-[width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:flex lg:flex-col',
             collapsed ? 'w-[5.5rem]' : 'w-64',
           ].join(' ')}
         >
@@ -424,7 +574,7 @@ export function Layout() {
           </div>
         </aside>
 
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
           <header className="sticky top-0 z-30 border-b border-border-subtle bg-surface-0/80 backdrop-blur-xl">
             <div className={`mx-auto flex h-14 w-full items-center gap-3 px-4 sm:px-6 lg:px-8 ${MAIN_MAX_W}`}>
               <button
@@ -435,9 +585,8 @@ export function Layout() {
               >
                 <Menu className="size-5" />
               </button>
-              <Link to="/dashboard" className="flex min-w-0 items-center gap-2 lg:hidden">
-                <TrendingUp className="size-5 shrink-0 text-accent" strokeWidth={2.25} aria-hidden />
-                <span className="truncate text-sm font-semibold text-zinc-100">InvestAIV1</span>
+              <Link to={getDefaultLanding()} className="flex min-w-0 items-center lg:hidden">
+                <VertexLogo size="xs" layout="horizontal" showTagline={false} />
               </Link>
               <div className="flex-1 lg:hidden" />
               <div className="flex items-center gap-1 lg:hidden">
@@ -454,20 +603,17 @@ export function Layout() {
                   Out
                 </button>
               </div>
-              <div className="mx-auto hidden flex-1 justify-center lg:flex">
+              <div className="hidden min-w-0 flex-1 items-center justify-center lg:flex">
                 <CommandBar items={commandItems} />
               </div>
-              <div className="ml-auto hidden items-center gap-2 lg:flex">
+              <div className="hidden shrink-0 items-center gap-1.5 lg:flex">
                 <NotificationBell />
-                <span className="max-w-[10rem] truncate text-xs text-zinc-500" title={user?.email}>
+                <span className="hidden max-w-[8rem] truncate text-xs text-zinc-500 xl:block" title={user?.email}>
                   {user?.email}
                 </span>
                 <button
                   type="button"
-                  onClick={() => {
-                    logout()
-                    navigate('/welcome', { replace: true })
-                  }}
+                  onClick={signOutToWelcome}
                   className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1.5 text-xs font-medium text-zinc-300 transition hover:bg-white/[0.08] hover:text-zinc-100"
                 >
                   <LogOut className="size-3.5 opacity-80" aria-hidden />
@@ -477,6 +623,7 @@ export function Layout() {
             </div>
           </header>
 
+          <EmailVerificationBanner token={token} />
           <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-5 lg:px-6 lg:py-8">
             <div key={location.pathname} className={`app-page-enter mx-auto w-full ${MAIN_MAX_W}`}>
               <Outlet />
@@ -488,5 +635,6 @@ export function Layout() {
       <MarketingHomeFab />
       <AlertToasts />
     </div>
+    </CommandPaletteProvider>
   )
 }

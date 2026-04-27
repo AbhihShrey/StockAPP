@@ -4,6 +4,7 @@ import { DashboardCard } from '../components/DashboardCard'
 import { LightweightSpyChart } from '../components/LightweightSpyChart'
 import { MarketInternalsPanel } from '../components/MarketInternalsPanel'
 import { TableShell } from '../components/TableShell'
+import { MarketHeatmap } from '../components/markets/MarketHeatmap'
 import { MiniTerminalCard } from '../components/markets/MiniTerminalCard'
 import { MarketsSentimentStrip } from '../components/markets/MarketsSentimentStrip'
 import { formatPct, formatVolRatio, ScannerTopFiveTable } from '../components/markets/ScannerTopFiveTable'
@@ -90,12 +91,7 @@ export function Markets() {
   const groups = assets?.groups
   const mergedBreadth = internals ? { ...internals, pctAbove200dma: breadth200?.pctAbove200dma } : internals
   const globalReady = Boolean(groups && typeof groups === 'object')
-  const anyGlobal =
-    (groups?.indices?.length ?? 0) +
-      (groups?.yields?.length ?? 0) +
-      (groups?.commodities?.length ?? 0) +
-      (groups?.currencies?.length ?? 0) >
-    0
+  const anyGlobal = ((groups?.indices?.length ?? 0) + (groups?.yields?.length ?? 0) + (groups?.commodities?.length ?? 0) + (groups?.currencies?.length ?? 0)) > 0
 
   const skeletonCards = (count) =>
     Array.from({ length: count }).map((_, i) => (
@@ -108,11 +104,8 @@ export function Markets() {
 
   return (
     <div className="app-page-enter space-y-6">
-      <header className="space-y-1">
+      <header>
         <h1 className="text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">Markets</h1>
-        <p className="max-w-2xl text-sm text-zinc-500">
-          Global macro pulse, breadth, sentiment, and actionable scanners — modular layout.
-        </p>
       </header>
 
       {loading ? (
@@ -127,19 +120,12 @@ export function Markets() {
       ) : (
         <>
           {/* 1. Global macro — mini terminals */}
-          <DashboardCard title="Global macro command center">
+          <DashboardCard title="Global macro">
             {!globalReady ? (
-              <div className="space-y-4">
-                <p className="text-sm text-zinc-500">
-                  Global macro feed unavailable. If this persists, verify `FMP_API_KEY` in `server/.env`.
-                </p>
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">{skeletonCards(8)}</div>
-              </div>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">{skeletonCards(8)}</div>
             ) : !anyGlobal ? (
               <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                <p className="text-sm text-zinc-500">
-                  Data is loading or your data provider returned an empty snapshot.
-                </p>
+                <p className="text-sm text-zinc-500">Market data loading…</p>
               </div>
             ) : (
               <div className="space-y-6">
@@ -181,7 +167,7 @@ export function Markets() {
             )}
           </DashboardCard>
 
-          <div className="flex flex-wrap gap-2 rounded-xl border border-white/10 bg-white/[0.02] p-2">
+          <div className="flex flex-wrap gap-2 rounded-xl border border-border-subtle bg-surface-1/40 p-2">
             {TABS.map((t) => (
               <button
                 key={t.id}
@@ -189,7 +175,9 @@ export function Markets() {
                 onClick={() => setTab(t.id)}
                 className={[
                   'rounded-lg px-4 py-2 text-xs font-medium transition',
-                  tab === t.id ? 'bg-white/10 text-zinc-100 ring-1 ring-white/15' : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300',
+                  tab === t.id
+                    ? 'bg-accent-muted text-accent shadow-[inset_0_0_0_1px_oklch(0.72_0.17_165/0.25)]'
+                    : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300',
                 ].join(' ')}
               >
                 {t.label}
@@ -198,126 +186,62 @@ export function Markets() {
           </div>
 
           {tab === 'overview' && (
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:items-start">
-              <div className="space-y-4 lg:col-span-7">
-                <DashboardCard
-                  title={chartSymbol}
-                  action={
-                    <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 p-0.5">
-                      {['SPY', 'QQQ'].map((s) => (
-                        <button
-                          key={s}
-                          type="button"
-                          onClick={() => setChartSymbol(s)}
-                          className={[
-                            'rounded-md px-2.5 py-1 text-xs font-medium',
-                            chartSymbol === s ? 'bg-white/15 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300',
-                          ].join(' ')}
-                        >
-                          {s}
-                        </button>
-                      ))}
-                      <span className="px-2 text-[11px] text-zinc-600">1y · daily</span>
-                    </div>
-                  }
-                >
-                  <LightweightSpyChart symbol={chartSymbol} />
-                </DashboardCard>
-
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                  <div className="dash-module-enter" style={{ '--dash-stagger': '120ms' }}>
-                    <TableShell
-                      title="Live scanners (Top 5)"
-                      subtitle="Actionable lists — volume rockets, gaps, VWAP stretch"
-                    >
-                      <div className="grid grid-cols-1 gap-3 p-5">
-                        <ScannerTopFiveTable
-                          title="Volume rockets"
-                          subtitle="≥5× avg volume (or top ratios)"
-                          rows={scanners?.volumeRockets}
-                          navigate={navigate}
-                          containerClassName="max-h-[14rem]"
-                          columns={[
-                            { key: 'ticker', label: 'Symbol' },
-                            { key: 'vol', label: 'Rel. vol', right: true, render: (r) => formatVolRatio(r.volumeRatio) },
-                            { key: 'chg', label: 'Chg%', right: true, render: (r) => formatPct(r.changePercent) },
-                          ]}
-                        />
-                        <ScannerTopFiveTable
-                          title="VWAP stretch"
-                          subtitle="Last vs session VWAP"
-                          rows={scanners?.vwapDeviations}
-                          navigate={navigate}
-                          containerClassName="max-h-[14rem]"
-                          columns={[
-                            { key: 'ticker', label: 'Symbol' },
-                            { key: 'v', label: 'Vs VWAP', right: true, render: (r) => formatPct(r.vwapDeviationPct) },
-                          ]}
-                        />
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:items-start">
+                <div className="space-y-4 lg:col-span-7">
+                  <DashboardCard
+                    title={chartSymbol}
+                    action={
+                      <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 p-0.5">
+                        {['SPY', 'QQQ'].map((s) => (
+                          <button
+                            key={s}
+                            type="button"
+                            onClick={() => setChartSymbol(s)}
+                            className={[
+                              'rounded-md px-2.5 py-1 text-xs font-medium',
+                              chartSymbol === s ? 'bg-white/15 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300',
+                            ].join(' ')}
+                          >
+                            {s}
+                          </button>
+                        ))}
+                        <span className="px-2 text-[11px] text-zinc-600">1y · daily</span>
                       </div>
-                    </TableShell>
-                  </div>
-
-                  <div className="dash-module-enter" style={{ '--dash-stagger': '160ms' }}>
-                    <TableShell
-                      title="Liquidity leaders"
-                      subtitle="Highest share volume among scanned movers (not dark-pool prints)"
-                    >
-                      <div className="p-5">
-                        <ScannerTopFiveTable
-                          hideHeader
-                          rows={scanners?.liquidityLeaders}
-                          navigate={navigate}
-                          columns={[
-                            { key: 'ticker', label: 'Symbol' },
-                            {
-                              key: 'price',
-                              label: 'Price',
-                              right: true,
-                              render: (r) =>
-                                r.price == null
-                                  ? '—'
-                                  : new Intl.NumberFormat(undefined, {
-                                      style: 'currency',
-                                      currency: 'USD',
-                                      maximumFractionDigits: 2,
-                                    }).format(r.price),
-                            },
-                            { key: 'chg', label: 'Chg%', right: true, render: (r) => formatPct(r.changePercent) },
-                          ]}
-                        />
-                      </div>
-                    </TableShell>
-                  </div>
+                    }
+                  >
+                    <LightweightSpyChart symbol={chartSymbol} />
+                  </DashboardCard>
+                  <DashboardCard title="Sentiment & fear">
+                    <MarketsSentimentStrip
+                      data={sentiment}
+                      loading={!sentiment && !sentimentError}
+                      error={sentimentError}
+                    />
+                  </DashboardCard>
+                </div>
+                <div className="flex flex-col gap-4 lg:col-span-5">
+                  <DashboardCard title="Breadth & participation">
+                    <MarketInternalsPanel
+                      breadth={mergedBreadth}
+                      breadthLoading={!mergedBreadth && !(internalsError || breadth200Error)}
+                      breadthError={internalsError || breadth200Error}
+                      highs={mergedBreadth?.highsProxy}
+                      lows={mergedBreadth?.lowsProxy}
+                    />
+                  </DashboardCard>
                 </div>
               </div>
-              <div className="flex flex-col gap-4 lg:col-span-5">
-                <DashboardCard title="Breadth & participation">
-                  <MarketInternalsPanel
-                    breadth={mergedBreadth}
-                    breadthLoading={!mergedBreadth && !(internalsError || breadth200Error)}
-                    breadthError={internalsError || breadth200Error}
-                    highs={mergedBreadth?.highsProxy}
-                    lows={mergedBreadth?.lowsProxy}
-                  />
-                </DashboardCard>
-                <DashboardCard title="Sentiment & fear">
-                  <MarketsSentimentStrip
-                    data={sentiment}
-                    loading={!sentiment && !sentimentError}
-                    error={sentimentError}
-                  />
-                </DashboardCard>
-              </div>
+
+              <DashboardCard title="Market heatmap">
+                <MarketHeatmap />
+              </DashboardCard>
             </div>
           )}
 
           {tab === 'scanners' && (
             <div className="space-y-4">
-              <TableShell
-                title="Live scanners"
-                subtitle="Refreshes with movers. Volume rockets uses ≥5× avg volume when available; otherwise shows top ratios."
-              >
+              <TableShell title="Live scanners">
                 <div className="grid grid-cols-1 gap-4 p-5 xl:grid-cols-2">
                   <ScannerTopFiveTable
                     title="Volume rockets"
@@ -418,10 +342,7 @@ export function Markets() {
                 </div>
               </TableShell>
 
-              <TableShell
-                title="Liquidity leaders"
-                subtitle="Highest share volume among scanned movers (not dark-pool prints)"
-              >
+              <TableShell title="Liquidity leaders">
                 <div className="p-5">
                   <ScannerTopFiveTable
                     hideHeader

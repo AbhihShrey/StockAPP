@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef } from 'react'
+import { useTheme } from '../lib/theme'
 import { toTradingViewSymbol } from '../lib/tradingViewSymbol'
 
 const SCRIPT_SRC =
@@ -18,6 +19,9 @@ export function TradingViewSymbolOverviewSimple({
 }) {
   const uid = useId().replace(/:/g, '')
   const containerRef = useRef(null)
+  const theme = useTheme()
+  const isLight = theme === 'light'
+  const bg = isLight ? '#ffffff' : '#131722'
   const full = toTradingViewSymbol(ticker)
   const baseTicker = full.includes(':') ? full.split(':')[1] : String(ticker).toUpperCase()
 
@@ -44,9 +48,9 @@ export function TradingViewSymbolOverviewSimple({
         symbols: [[String(ticker).toUpperCase(), `${baseTicker}|${range}`]],
         chartOnly: true,
         chartType: 'candlesticks',
-        colorTheme: 'dark',
+        colorTheme: isLight ? 'light' : 'dark',
         isTransparent: false,
-        backgroundColor: '#131722',
+        backgroundColor: bg,
         autosize: true,
         width: '100%',
         height,
@@ -84,12 +88,12 @@ export function TradingViewSymbolOverviewSimple({
       window.clearTimeout(t)
       root.replaceChildren()
     }
-  }, [ticker, baseTicker, height, range, uid])
+  }, [ticker, baseTicker, height, range, uid, isLight, bg])
 
   return (
     <div
-      className={`overflow-hidden rounded-lg bg-[#131722] ring-1 ring-white/[0.06] [&_.tradingview-widget-copyright]:hidden ${className}`}
-      style={{ height, minHeight: height }}
+      className={`overflow-hidden rounded-lg ring-1 ring-white/[0.06] [&_.tradingview-widget-copyright]:hidden ${className}`}
+      style={{ height, minHeight: height, backgroundColor: bg }}
     >
       <div
         ref={containerRef}

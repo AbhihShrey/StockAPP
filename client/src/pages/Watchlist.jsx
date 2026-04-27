@@ -1,6 +1,32 @@
 import { ArrowUpRight, BookmarkX, Loader2, Plus, Search, SlidersHorizontal, X } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+
+function usePriceFlash(items) {
+  const prevRef = useRef({})
+  const [flashes, setFlashes] = useState({})
+  useEffect(() => {
+    const next = {}
+    const newFlashes = {}
+    let changed = false
+    for (const item of items) {
+      const prev = prevRef.current[item.symbol]
+      if (prev != null && item.price != null && prev !== item.price) {
+        newFlashes[item.symbol] = item.price > prev ? 'up' : 'down'
+        changed = true
+      }
+      next[item.symbol] = item.price
+    }
+    prevRef.current = next
+    if (changed) {
+      setFlashes(newFlashes)
+      const t = setTimeout(() => setFlashes({}), 1000)
+      return () => clearTimeout(t)
+    }
+  }, [items])
+  return flashes
+}
+import { ConsensusPill } from '../components/AnalystCoveragePanel'
 import { TableShell } from '../components/TableShell'
 import { useAuth } from '../context/AuthContext'
 import { apiUrl, authHeaders } from '../lib/apiBase'
@@ -80,11 +106,14 @@ function WatchlistTab({ token }) {
   const navigate = useNavigate()
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
+  const flashes = usePriceFlash(items)
   const [error, setError] = useState(null)
   const [addInput, setAddInput] = useState('')
   const [addBusy, setAddBusy] = useState(false)
   const [addError, setAddError] = useState(null)
   const [search, setSearch] = useState('')
+  const [ratings, setRatings] = useState({})
+  const [ratingsLoading, setRatingsLoading] = useState(false)
   const inputRef = useRef(null)
 
   const load = useCallback(async (silent = false) => {
@@ -103,6 +132,30 @@ function WatchlistTab({ token }) {
   }, [token])
 
   useEffect(() => { load() }, [load])
+
+  const symbolsKey = items.map((i) => i.symbol).sort().join(',')
+  useEffect(() => {
+    if (!symbolsKey) { setRatings({}); return }
+    let cancelled = false
+    async function loadRatings() {
+      setRatingsLoading(true)
+      try {
+        const res = await fetch(
+          apiUrl(`/api/analyst-ratings?symbols=${encodeURIComponent(symbolsKey)}`),
+          { headers: authHeaders(token) },
+        )
+        const json = await res.json().catch(() => ({}))
+        if (cancelled) return
+        setRatings(res.ok ? (json.ratings ?? {}) : {})
+      } catch {
+        if (!cancelled) setRatings({})
+      } finally {
+        if (!cancelled) setRatingsLoading(false)
+      }
+    }
+    loadRatings()
+    return () => { cancelled = true }
+  }, [symbolsKey, token])
 
   useEffect(() => {
     const id = window.setInterval(() => load(true), 30_000)
@@ -195,7 +248,6 @@ function WatchlistTab({ token }) {
       ) : (
         <TableShell
           title={`Watchlist (${items.length})`}
-          subtitle="Live quotes refresh about every 30 seconds"
           search={search}
           setSearch={setSearch}
         >
@@ -209,14 +261,17 @@ function WatchlistTab({ token }) {
                 <th className="px-4 py-2.5 text-right font-medium">Day High</th>
                 <th className="px-4 py-2.5 text-right font-medium">Day Low</th>
                 <th className="px-4 py-2.5 text-center font-medium">Alerts</th>
+                <th className="px-4 py-2.5 text-center font-medium">Consensus</th>
                 <th className="px-4 py-2.5 text-right font-medium" />
               </tr>
             </thead>
             <tbody className="divide-y divide-border-subtle/70">
-              {filtered.map((row) => (
+              {filtered.map((row) => {
+                const flash = flashes[row.symbol]
+                return (
                 <tr
                   key={row.symbol}
-                  className="group transition-colors hover:bg-white/5"
+                  className={['group transition-colors hover:bg-white/5', flash === 'up' ? 'price-flash-up' : flash === 'down' ? 'price-flash-down' : ''].join(' ')}
                 >
                   <td className="px-4 py-3">
                     <button
@@ -244,6 +299,13 @@ function WatchlistTab({ token }) {
                       <span className="text-zinc-600">—</span>
                     )}
                   </td>
+                  <td className="px-4 py-3 text-center">
+                    {ratingsLoading && !ratings[row.symbol] ? (
+                      <span className="inline-block h-4 w-8 animate-pulse rounded bg-white/5" />
+                    ) : (
+                      <ConsensusPill code={ratings[row.symbol]?.consensus?.code} />
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-right">
                     <button
                       type="button"
@@ -255,10 +317,11 @@ function WatchlistTab({ token }) {
                     </button>
                   </td>
                 </tr>
-              ))}
+                )
+              })}
               {filtered.length === 0 && (
                 <tr>
-                  <td className="px-4 py-10 text-center text-sm text-zinc-500" colSpan={8}>
+                  <td className="px-4 py-10 text-center text-sm text-zinc-500" colSpan={9}>
                     No results match &quot;{search}&quot;.
                   </td>
                 </tr>
@@ -527,16 +590,11 @@ export function Watchlist() {
 
   return (
     <div className="app-page-enter space-y-6">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">
-          Watchlist &amp; Screener
-        </h1>
-        <p className="max-w-2xl text-sm text-zinc-500">
-          Track your stocks with live quotes and build custom filters to find new ideas.
-        </p>
+      <header>
+        <h1 className="text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">Watchlist</h1>
       </header>
 
-      <div className="flex flex-wrap gap-2 rounded-xl border border-white/10 bg-white/[0.02] p-2">
+      <div className="flex flex-wrap gap-2 rounded-xl border border-border-subtle bg-surface-1/40 p-2">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -545,7 +603,7 @@ export function Watchlist() {
             className={[
               'rounded-lg px-4 py-2 text-xs font-medium transition',
               tab === t.id
-                ? 'bg-white/10 text-zinc-100 ring-1 ring-white/15'
+                ? 'bg-accent-muted text-accent shadow-[inset_0_0_0_1px_oklch(0.72_0.17_165/0.25)]'
                 : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300',
             ].join(' ')}
           >

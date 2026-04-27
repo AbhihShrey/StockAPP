@@ -1,5 +1,5 @@
 import { ArrowUpRight, Loader2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { apiUrl, authHeaders } from '../lib/apiBase'
@@ -21,11 +21,40 @@ function PctPill({ value }) {
   )
 }
 
+/** Tracks previous price per symbol and returns a flash class when it changes. */
+function usePriceFlash(items) {
+  const prevRef = useRef({})
+  const [flashes, setFlashes] = useState({})
+
+  useEffect(() => {
+    const next = {}
+    const newFlashes = {}
+    let changed = false
+    for (const item of items) {
+      const prev = prevRef.current[item.symbol]
+      if (prev != null && item.price != null && prev !== item.price) {
+        newFlashes[item.symbol] = item.price > prev ? 'up' : 'down'
+        changed = true
+      }
+      next[item.symbol] = item.price
+    }
+    prevRef.current = next
+    if (changed) {
+      setFlashes(newFlashes)
+      const t = setTimeout(() => setFlashes({}), 1000)
+      return () => clearTimeout(t)
+    }
+  }, [items])
+
+  return flashes
+}
+
 export function WatchlistMiniWidget() {
   const { token } = useAuth()
   const navigate = useNavigate()
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
+  const flashes = usePriceFlash(items)
 
   useEffect(() => {
     if (!token) { setLoading(false); return }
@@ -58,10 +87,7 @@ export function WatchlistMiniWidget() {
       ) : items.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-2 py-8 text-center">
           <p className="text-sm text-zinc-500">Your watchlist is empty.</p>
-          <Link
-            to="/watchlist"
-            className="text-xs font-medium text-accent hover:underline"
-          >
+          <Link to="/watchlist" className="text-xs font-medium text-accent hover:underline">
             Add stocks →
           </Link>
         </div>
@@ -77,42 +103,48 @@ export function WatchlistMiniWidget() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.04]">
-                {preview.map((row) => (
-                  <tr
-                    key={row.symbol}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => navigate(`/analysis/${row.symbol}`)}
-                    onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/analysis/${row.symbol}`) }}
-                    className="group cursor-pointer transition-colors hover:bg-white/5"
-                  >
-                    <td className="px-4 py-2.5">
-                      <span className="inline-flex items-center gap-1.5 font-semibold text-zinc-100">
-                        {row.symbol}
-                        <ArrowUpRight className="size-3 opacity-0 transition group-hover:opacity-50" aria-hidden />
-                      </span>
-                    </td>
-                    <td className="px-4 py-2.5 text-right tabular-nums text-zinc-400">
-                      {row.price != null ? `$${row.price.toFixed(2)}` : '—'}
-                    </td>
-                    <td className="px-4 py-2.5 text-right">
-                      <PctPill value={row.changePercent} />
-                    </td>
-                  </tr>
-                ))}
+                {preview.map((row) => {
+                  const flash = flashes[row.symbol]
+                  return (
+                    <tr
+                      key={row.symbol}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => navigate(`/analysis/${row.symbol}`)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/analysis/${row.symbol}`) }}
+                      className={[
+                        'group cursor-pointer transition-colors hover:bg-white/5',
+                        flash === 'up' ? 'price-flash-up' : flash === 'down' ? 'price-flash-down' : '',
+                      ].join(' ')}
+                    >
+                      <td className="px-4 py-2.5">
+                        <span className="inline-flex items-center gap-1.5 font-semibold text-zinc-100">
+                          {row.symbol}
+                          <ArrowUpRight className="size-3 opacity-0 transition group-hover:opacity-50" aria-hidden />
+                        </span>
+                      </td>
+                      <td className="px-4 py-2.5 text-right tabular-nums text-zinc-400">
+                        {row.price != null ? `$${row.price.toFixed(2)}` : '—'}
+                      </td>
+                      <td className="px-4 py-2.5 text-right">
+                        <PctPill value={row.changePercent} />
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
           {items.length > 8 && (
             <div className="border-t border-white/[0.06] px-4 py-2.5 text-center">
-              <Link to="/watchlist" className="text-xs text-zinc-500 hover:text-zinc-300 transition">
+              <Link to="/watchlist" className="text-xs text-zinc-500 transition hover:text-zinc-300">
                 +{items.length - 8} more · Manage watchlist →
               </Link>
             </div>
           )}
           {items.length <= 8 && (
             <div className="border-t border-white/[0.06] px-4 py-2.5 text-right">
-              <Link to="/watchlist" className="text-xs text-zinc-500 hover:text-zinc-300 transition">
+              <Link to="/watchlist" className="text-xs text-zinc-500 transition hover:text-zinc-300">
                 Manage watchlist →
               </Link>
             </div>

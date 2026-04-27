@@ -21,13 +21,7 @@ export function CommandBar({ items }) {
   useEffect(() => {
     function onKeyDown(e) {
       const key = String(e.key ?? '').toLowerCase()
-      const k = (e.metaKey || e.ctrlKey) && key === 'k'
-      if (k) {
-        e.preventDefault()
-        setOpen(true)
-      } else if (key === 'escape') {
-        setOpen(false)
-      }
+      if (key === 'escape') setOpen(false)
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
@@ -66,14 +60,11 @@ export function CommandBar({ items }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="hidden w-[min(42rem,60vw)] items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-left text-sm text-zinc-400 hover:bg-white/10 lg:flex"
+        className="hidden w-full max-w-[38rem] items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-left text-sm text-zinc-400 hover:bg-white/10 lg:flex"
         aria-label="Open command bar"
       >
         <Search className="size-4 opacity-70" aria-hidden />
-        <span className="flex-1">Search…</span>
-        <span className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] font-medium text-zinc-300">
-          ⌘K
-        </span>
+        <span className="flex-1">Jump to page…</span>
       </button>
     )
   }

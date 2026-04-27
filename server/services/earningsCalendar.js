@@ -87,12 +87,16 @@ function normalizeEarningsRow(row) {
     else result = 'MEET'
   }
 
-  const when = String(row.time ?? row.hour ?? row.session ?? '').toLowerCase()
+  const when = String(
+    row.time ?? row.earningTime ?? row.timing ?? row.when ?? row.hour ?? row.session ?? ''
+  ).toLowerCase().trim()
   let sessionHint = null
-  if (when.includes('amc') || when.includes('after') || when.includes('close')) {
-    sessionHint = 'amc'
-  } else if (when.includes('bmo') || when.includes('before') || when.includes('open')) {
-    sessionHint = 'bmo'
+  if (when && when !== '--' && when !== 'tbd' && when !== 'n/a') {
+    if (when.includes('amc') || when.includes('after') || when.includes('close') || when === 'p') {
+      sessionHint = 'amc'
+    } else if (when.includes('bmo') || when.includes('before') || when.includes('open') || when === 'pre') {
+      sessionHint = 'bmo'
+    }
   }
 
   return {

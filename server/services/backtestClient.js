@@ -1,5 +1,11 @@
 const DEFAULT_URL = 'http://127.0.0.1:8765'
 
+if (process.env.NODE_ENV === 'production' && !process.env.BACKTEST_SERVICE_URL?.trim()) {
+  throw new Error(
+    'BACKTEST_SERVICE_URL must be set in production. Refusing to fall back to localhost.',
+  )
+}
+
 function backtestBaseUrl() {
   const u = process.env.BACKTEST_SERVICE_URL?.trim()
   return u || DEFAULT_URL

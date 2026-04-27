@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="300" height="300">
+  <defs>
+    <linearGradient id="cg" x1="50" y1="10" x2="50" y2="82" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4ade80"/>
+      <stop offset="100%" stop-color="#15803d"/>
+    </linearGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3.5" result="outerBlur" in="SourceGraphic"/>
+      <feGaussianBlur stdDeviation="1.2" result="innerBlur" in="SourceGraphic"/>
+      <feMerge>
+        <feMergeNode in="outerBlur"/>
+        <feMergeNode in="innerBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="rim" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <mask id="cut">
+      <rect width="100" height="100" fill="white"/>
+      <line x1="10" y1="88" x2="76" y2="16" stroke="black" stroke-width="12" stroke-linecap="round"/>
+      <polygon points="82,10 78,25 67,16" fill="black"/>
+    </mask>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100" height="100" rx="22" fill="#0b0f14"/>
+
+  <!-- Ambient depth glow behind candles -->
+  <ellipse cx="34" cy="50" rx="13" ry="26" fill="#22c55e" opacity="0.07"/>
+  <ellipse cx="66" cy="45" rx="13" ry="30" fill="#22c55e" opacity="0.10"/>
+
+  <!-- Candles masked by the arrow cut -->
+  <g mask="url(#cut)">
+    <!-- Soft outer glow layer (blurred duplicate) -->
+    <g filter="url(#glow)" opacity="0.65">
+      <rect x="27" y="28" width="14" height="44" rx="3" fill="#22c55e"/>
+      <rect x="59" y="18" width="14" height="54" rx="3" fill="#22c55e"/>
+    </g>
+
+    <!-- Candle 1 (left, centered at x=34) -->
+    <line x1="34" y1="20" x2="34" y2="28" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round"/>
+    <rect x="27" y="28" width="14" height="44" rx="3" fill="url(#cg)"/>
+    <line x1="34" y1="72" x2="34" y2="82" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round"/>
+
+    <!-- Candle 2 (right, taller, centered at x=66) -->
+    <line x1="66" y1="12" x2="66" y2="18" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round"/>
+    <rect x="59" y="18" width="14" height="54" rx="3" fill="url(#cg)"/>
+    <line x1="66" y1="72" x2="66" y2="80" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- Rim light: bright green edge along the cut -->
+  <line x1="10" y1="88" x2="82" y2="10" stroke="#86efac" stroke-width="0.8" stroke-linecap="round" opacity="0.9" filter="url(#rim)"/>
+</svg>

@@ -96,7 +96,7 @@ function SentimentMeter({ sentiment, sentimentSource, compact }) {
         title={tip}
       >
         <div
-          className="h-full rounded-l-full bg-gradient-to-r from-rose-600 via-amber-500 to-emerald-500"
+          className="h-full rounded-l-full bg-gradient-to-r from-emerald-900 via-emerald-600 to-emerald-400"
           style={{ width: `${pos}%` }}
         />
       </div>

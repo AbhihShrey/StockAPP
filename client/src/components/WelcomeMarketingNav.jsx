@@ -1,6 +1,8 @@
-import { ChevronDown, Globe, Home, LogOut, TrendingUp } from 'lucide-react'
+import { ChevronDown, Home, LogOut } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { getDefaultLanding } from '../lib/prefs'
+import { VertexLogo } from './VertexLogo'
 
 function NavFlowLines() {
   return (
@@ -39,10 +41,7 @@ export function WelcomeMarketingNav({ onSignIn, onGetStarted }) {
             <Home className="size-[17px]" strokeWidth={2} aria-hidden />
           </Link>
           <Link to="/welcome" className="flex min-w-0 items-center gap-2.5">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-accent-muted text-accent">
-              <TrendingUp className="size-[18px]" strokeWidth={2.25} aria-hidden />
-            </span>
-            <span className="truncate text-[15px] font-semibold tracking-tight text-zinc-100">InvestAIV1</span>
+            <VertexLogo size="xs" layout="horizontal" showTagline={false} />
           </Link>
         </div>
 
@@ -53,41 +52,16 @@ export function WelcomeMarketingNav({ onSignIn, onGetStarted }) {
           <Link to="/solutions" className="inline-flex items-center gap-0.5 transition hover:text-zinc-200">
             Solutions <ChevronDown className="size-3.5 opacity-50" aria-hidden />
           </Link>
-          <Link to="/enterprise" className="transition hover:text-zinc-200">
-            Enterprise
-          </Link>
-          <Link to="/pricing" className="transition hover:text-zinc-200">
-            Pricing
-          </Link>
         </nav>
 
         <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
-          <button
-            type="button"
-            className="hidden rounded-lg p-2 text-zinc-500 transition hover:bg-white/5 hover:text-zinc-300 sm:inline-flex"
-            aria-label="Language"
-          >
-            <Globe className="size-5" />
-          </button>
-          <Link
-            to="/contact"
-            className="hidden px-2 py-2 text-[13px] font-medium text-zinc-500 transition hover:text-zinc-200 lg:inline"
-          >
-            Contact sales
-          </Link>
-          <Link
-            to="/app"
-            className="hidden items-center gap-0.5 px-2 py-2 text-[13px] font-medium text-zinc-500 transition hover:text-zinc-200 lg:inline-flex"
-          >
-            Get app <ChevronDown className="size-3.5 opacity-50" aria-hidden />
-          </Link>
           {isAuthenticated ? (
             <>
               <Link
-                to="/dashboard"
+                to={getDefaultLanding()}
                 className="px-2 py-2 text-[13px] font-medium text-zinc-300 transition hover:text-zinc-100 sm:px-3"
               >
-                Continue to dashboard
+                Continue to app
               </Link>
               <button
                 type="button"

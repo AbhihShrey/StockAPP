@@ -8,6 +8,9 @@ const TOKEN_TTL = '7d'
 function jwtSecret() {
   const s = process.env.JWT_SECRET?.trim()
   if (!s) throw new Error('JWT_SECRET env var is not set')
+  if (process.env.NODE_ENV === 'production' && s.length < 32) {
+    throw new Error('JWT_SECRET must be at least 32 characters in production. Generate one with: openssl rand -hex 32')
+  }
   return s
 }
 
@@ -48,10 +51,34 @@ export async function authenticateUser(email, password) {
   return { ok: true, token, user: { id: row.id, email: row.email } }
 }
 
+export async function changePassword(userId, currentPassword, newPassword) {
+  if (!newPassword || newPassword.length < 8) {
+    return { ok: false, error: 'New password must be at least 8 characters.' }
+  }
+  const row = db.prepare('SELECT password_hash FROM users WHERE id = ?').get(userId)
+  if (!row) return { ok: false, error: 'User not found.' }
+  const match = await bcrypt.compare(currentPassword, row.password_hash)
+  if (!match) return { ok: false, error: 'Current password is incorrect.' }
+  const hash = await bcrypt.hash(newPassword, SALT_ROUNDS)
+  db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(hash, userId)
+  return { ok: true }
+}
+
 export function verifyToken(token) {
   try {
     return jwt.verify(token, jwtSecret())
   } catch {
     return null
   }
+}
+
+export async function deleteUserAccount(userId, currentPassword) {
+  const row = db.prepare('SELECT password_hash FROM users WHERE id = ?').get(userId)
+  if (!row) return { ok: false, error: 'User not found.' }
+  const match = await bcrypt.compare(currentPassword || '', row.password_hash)
+  if (!match) return { ok: false, error: 'Incorrect password.' }
+  // FK cascades drop watchlists, alerts, alert_history, screener_filters, and any
+  // future per-user rows declared with ON DELETE CASCADE.
+  db.prepare('DELETE FROM users WHERE id = ?').run(userId)
+  return { ok: true }
 }

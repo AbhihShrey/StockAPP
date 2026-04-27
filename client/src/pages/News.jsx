@@ -1,6 +1,7 @@
 import { Minus, Moon, Sun } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { NewsMasterDetail } from '../components/NewsMasterDetail'
+import { IpoCalendarTab } from '../components/news/IpoCalendarTab'
 import { TableShell } from '../components/TableShell'
 import { apiUrl } from '../lib/apiBase'
 
@@ -29,8 +30,14 @@ function fmtMacro(v) {
 function fmtWhen(raw) {
   if (!raw) return '—'
   const s = String(raw).replace('T', ' ')
-  if (s.length >= 16) return s.slice(0, 16)
-  return s.slice(0, 10)
+  if (s.length < 16) return s.slice(0, 10)
+  const [hhStr, mmStr] = s.slice(11, 16).split(':')
+  const hh = Number(hhStr)
+  const mm = Number(mmStr)
+  if (!Number.isFinite(hh) || !Number.isFinite(mm)) return s.slice(0, 16)
+  const period = hh >= 12 ? 'PM' : 'AM'
+  const h12 = hh % 12 || 12
+  return `${s.slice(0, 10)} ${h12}:${String(mm).padStart(2, '0')} ${period}`
 }
 
 function SessionIcon({ hint }) {
@@ -83,7 +90,7 @@ function ImpactPill({ level }) {
 
 function ImpactLegendBox() {
   return (
-    <div className="ml-auto flex max-w-full flex-wrap items-center gap-2 rounded-lg border border-zinc-600/60 bg-zinc-900/90 px-2.5 py-1.5">
+    <div className="ml-auto flex max-w-full flex-wrap items-center gap-2 rounded-lg border border-border-subtle bg-surface-1/60 px-2.5 py-1.5">
       <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">Impact</span>
       <div className="flex flex-wrap items-center gap-1.5">
         <ImpactPill level="high" />
@@ -96,7 +103,7 @@ function ImpactLegendBox() {
 
 /** Sticky thead: frosted bar + upward strip (same layer as sticky) to mask scroll leak above headers. */
 const STICKY_TABLE_HEAD =
-  'sticky top-0 z-30 border-b border-white/10 bg-black/60 text-[11px] uppercase tracking-wide text-zinc-500 shadow-[0_8px_32px_-12px_rgba(0,0,0,0.65)] backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-black/48 [&_th]:relative [&_th]:z-10 before:pointer-events-none before:absolute before:inset-x-0 before:-top-4 before:z-[1] before:h-4 before:bg-black/65 before:backdrop-blur-xl before:backdrop-saturate-150 before:supports-[backdrop-filter]:bg-black/50'
+  'sticky top-0 z-30 border-b border-white/10 bg-surface-0/85 text-[11px] uppercase tracking-wide text-zinc-500 shadow-[0_8px_32px_-12px_rgba(0,0,0,0.35)] backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-surface-0/75 [&_th]:relative [&_th]:z-10 before:pointer-events-none before:absolute before:inset-x-0 before:-top-4 before:z-[1] before:h-4 before:bg-surface-0/90 before:backdrop-blur-xl before:backdrop-saturate-150 before:supports-[backdrop-filter]:bg-surface-0/80'
 
 function ActualMacroValue({ eventKey, value }) {
   const s = fmtMacro(value)
@@ -205,25 +212,19 @@ export function News() {
   )
 
   return (
-    <div className="space-y-6">
-      <header className="space-y-1">
+    <div className="app-page-enter space-y-6">
+      <header>
         <h1 className="text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">News</h1>
-        <p className="max-w-2xl text-sm text-zinc-500">
-          {mode === 'market'
-            ? 'Market headlines with sentiment, symbol focus, and catalyst history — then calendars below.'
-            : mode === 'earnings'
-              ? 'Earnings — beats, misses, and surprise vs expectations.'
-              : 'Economic calendar — CPI, employment, Fed, and other macro releases with impact and forecasts.'}
-        </p>
       </header>
 
       <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border-subtle bg-surface-1/40 p-2">
         {tabBtn('market', 'Market news')}
         {tabBtn('earnings', 'Earnings')}
-        {tabBtn('economic', 'Economic calendar')}
+        {tabBtn('economic', 'Economic')}
+        {tabBtn('ipo', 'IPO Calendar')}
       </div>
 
-      {mode !== 'market' ? (
+      {mode !== 'market' && mode !== 'ipo' ? (
         <section className="flex flex-wrap items-center gap-3 rounded-2xl border border-border-subtle bg-surface-1/60 p-4 shadow-xl shadow-black/25 backdrop-blur-sm">
           <div className="space-y-1">
             <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
@@ -258,6 +259,8 @@ export function News() {
 
       {mode === 'market' ? (
         <NewsMasterDetail />
+      ) : mode === 'ipo' ? (
+        <IpoCalendarTab />
       ) : calLoading ? (
         <section className="rounded-2xl border border-border-subtle bg-surface-1/60 p-8 text-center text-sm text-zinc-500">
           Loading…

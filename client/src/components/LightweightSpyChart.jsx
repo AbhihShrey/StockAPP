@@ -1,6 +1,8 @@
-import { AreaSeries, createChart, CrosshairMode } from 'lightweight-charts'
+import { AreaSeries, createChart, CrosshairMode, LineSeries } from 'lightweight-charts'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { apiUrl } from '../lib/apiBase'
+import { getChartStyle } from '../lib/prefs'
+import { useTheme } from '../lib/theme'
 
 function isoDate(d) {
   return d.toISOString().slice(0, 10)
@@ -16,13 +18,32 @@ function downsample(points, maxPoints) {
   return out
 }
 
+function chartColors(isLight) {
+  return {
+    textColor: isLight ? 'rgba(63,63,70,0.85)' : 'rgba(228,228,231,0.85)',
+    gridColor: isLight ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.04)',
+  }
+}
+
 export function LightweightSpyChart({ symbol = 'SPY' }) {
   const containerRef = useRef(null)
   const chartRef = useRef(null)
   const seriesRef = useRef(null)
+  const dataRef = useRef([])
   const [raw, setRaw] = useState(null)
   const [err, setErr] = useState(null)
   const [loading, setLoading] = useState(true)
+  const theme = useTheme()
+  const isLight = theme === 'light'
+  const [chartStyle, setChartStyle] = useState(getChartStyle)
+
+  useEffect(() => {
+    function onPref(e) {
+      if (e.detail?.key === 'chartStyle') setChartStyle(e.detail.value)
+    }
+    window.addEventListener('vertex-prefs-changed', onPref)
+    return () => window.removeEventListener('vertex-prefs-changed', onPref)
+  }, [])
 
   const range = useMemo(() => {
     const end = new Date()
@@ -81,45 +102,56 @@ export function LightweightSpyChart({ symbol = 'SPY' }) {
       return
     }
 
-    if (chartRef.current) return
-
+    const { textColor, gridColor } = chartColors(isLight)
     const chart = createChart(el, {
       autoSize: true,
       layout: {
         background: { type: 'solid', color: 'transparent' },
-        textColor: 'rgba(228, 228, 231, 0.85)',
+        textColor,
         fontFamily:
           'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       },
       grid: {
-        vertLines: { color: 'rgba(255,255,255,0.04)' },
-        horzLines: { color: 'rgba(255,255,255,0.04)' },
+        vertLines: { color: gridColor },
+        horzLines: { color: gridColor },
       },
-      rightPriceScale: { borderVisible: false },
-      timeScale: { borderVisible: false },
+      rightPriceScale: {
+        borderVisible: false,
+        scaleMargins: { top: 0.08, bottom: 0.06 },
+      },
+      timeScale: { borderVisible: false, fixLeftEdge: true },
       crosshair: { mode: CrosshairMode.Normal },
+      localization: {
+        priceFormatter: (p) =>
+          new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(p),
+      },
       handleScroll: { mouseWheel: true, pressedMouseMove: true },
       handleScale: { mouseWheel: true, pinch: true },
     })
 
-    const area = chart.addSeries(AreaSeries, {
-      topColor: 'rgba(34,197,94,0.20)',
-      bottomColor: 'rgba(34,197,94,0.02)',
-      lineColor: 'rgba(52,211,153,0.9)',
-      lineWidth: 2,
-    })
+    const seriesOpts = chartStyle === 'line'
+      ? { color: 'rgba(52,211,153,0.95)', lineWidth: 3 }
+      : { topColor: 'rgba(34,197,94,0.32)', bottomColor: 'rgba(34,197,94,0.02)', lineColor: 'rgba(52,211,153,0.9)', lineWidth: 2 }
+    const area = chart.addSeries(chartStyle === 'line' ? LineSeries : AreaSeries, seriesOpts)
 
     chartRef.current = chart
     seriesRef.current = area
+
+    // Repopulate immediately if data was already loaded (e.g. after style change)
+    if (dataRef.current?.length) {
+      area.setData(dataRef.current)
+      chart.timeScale().fitContent()
+    }
 
     return () => {
       chart.remove()
       chartRef.current = null
       seriesRef.current = null
     }
-  }, [err])
+  }, [err, chartStyle])
 
   useEffect(() => {
+    dataRef.current = data
     const series = seriesRef.current
     const chart = chartRef.current
     if (!series || !chart) return
@@ -127,6 +159,19 @@ export function LightweightSpyChart({ symbol = 'SPY' }) {
     series.setData(data)
     chart.timeScale().fitContent()
   }, [data])
+
+  useEffect(() => {
+    const chart = chartRef.current
+    if (!chart) return
+    const { textColor, gridColor } = chartColors(isLight)
+    chart.applyOptions({
+      layout: { textColor },
+      grid: {
+        vertLines: { color: gridColor },
+        horzLines: { color: gridColor },
+      },
+    })
+  }, [isLight])
 
   return (
     <div className="relative h-[26rem] w-full">

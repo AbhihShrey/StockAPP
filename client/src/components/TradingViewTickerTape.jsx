@@ -1,17 +1,15 @@
 import { useEffect, useId, useRef } from 'react'
+import { useTheme } from '../lib/theme'
 
 const SCRIPT_SRC =
   'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js'
 
-const TV_DARK_BG = '#131722'
-
-/**
- * Compact market context strip — indices & liquid names (dark theme).
- * Embed expects `.tradingview-widget-container__widget` before the script tag.
- */
 export function TradingViewTickerTape() {
   const uid = useId().replace(/:/g, '')
   const ref = useRef(null)
+  const theme = useTheme()
+  const isLight = theme === 'light'
+  const bg = isLight ? '#ffffff' : '#131722'
 
   useEffect(() => {
     const root = ref.current
@@ -41,10 +39,10 @@ export function TradingViewTickerTape() {
           { proName: 'NASDAQ:MSFT', title: 'Microsoft' },
           { proName: 'NASDAQ:NVDA', title: 'NVIDIA' },
         ],
-        colorTheme: 'dark',
+        colorTheme: isLight ? 'light' : 'dark',
         displayMode: 'regular',
         isTransparent: false,
-        backgroundColor: TV_DARK_BG,
+        backgroundColor: bg,
         showSymbolLogo: true,
         locale: 'en',
         width: '100%',
@@ -60,12 +58,12 @@ export function TradingViewTickerTape() {
       window.clearTimeout(t)
       root.replaceChildren()
     }
-  }, [uid])
+  }, [uid, isLight, bg])
 
   return (
     <div
       className="overflow-hidden rounded-xl border border-white/[0.06]"
-      style={{ backgroundColor: TV_DARK_BG }}
+      style={{ backgroundColor: bg }}
     >
       <div
         ref={ref}

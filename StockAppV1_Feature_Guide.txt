@@ -1,0 +1,333 @@
+STOCKAPPV1 — COMPLETE FEATURE GUIDE
+v0.1.0-alpha
+============================================================
+
+StockAppV1 is a full-featured financial analysis web application for active traders and investors. It provides real-time market data, technical charting, portfolio simulation, strategy backtesting, options analysis, custom alerts, watchlists, and macro market coverage — all in a dark-themed interface powered by Financial Modeling Prep (FMP).
+
+============================================================
+1. AUTHENTICATION & WELCOME PAGE
+============================================================
+Public landing page with tagline: "A calmer way to read the tape, size risk, and stress-test ideas."
+
+- Sign up with email/password via a modal dialog
+- Sign in to an existing account via a login modal
+- Marketing cards highlighting: backtest engines, S&P breadth, sector rotation, advanced charting
+
+============================================================
+2. DASHBOARD (HOME)
+============================================================
+Main hub after sign-in. Real-time snapshot of market conditions and personal activity.
+
+Market Status Indicator
+- Shows current session: Open, Pre-Market, After-Hours, or Closed
+- Time remaining until next session transition
+
+Ticker Tape
+- Live scrolling strip of major indices and commodities with real-time prices and % changes
+
+Market Pulse Cards
+- Grid of key assets: S&P 500, NASDAQ, Dow Jones, VIX, Gold, Oil
+- Each card: current price and % change, color-coded green (up) / red (down)
+
+My Watchlist Widget
+- Mini preview of user's watchlist: symbol, live price, % change, volume
+
+Most Active Stocks
+- Top 5 stocks by volume with mini sparkline charts, price, and change %
+
+Earnings Calendar
+- Today's earnings: session (BMO/AMC), ticker, company name, EPS estimate
+
+High-Impact Macro Calendar
+- Economic events (CPI, FOMC, NFP) with impact badges (HIGH/MED/LOW), country, forecast vs actual
+
+Quick Navigation Grid
+- 8 cards linking to: Markets, Alerts, Charts, Sectors, Heatmap, Portfolio, News, Strategies
+
+============================================================
+3. MARKETS PAGE
+============================================================
+Macro and breadth-focused view split into two tabs.
+
+TAB 1: OVERVIEW
+- Global Macro: Indices (SPY, QQQ, DJIA, Russell 2000), Yield Curve (2Y–30Y Treasuries), Commodities (crude, gold, natgas, VIX), Currency Pairs (EUR/USD, GBP/USD, etc.) — each with price, change %, intraday graph
+- SPY/QQQ 1-Year Chart: toggle between SPY and QQQ, daily bars
+- Breadth & Participation: advance/decline ratio, % of S&P 500 above 200-day MA (color gauge), new highs vs new lows
+- Sentiment & Fear Strip: visual fear/greed gauge using VIX, put/call ratio, and market breadth
+
+TAB 2: SCANNERS & FLOW
+- Volume Rockets: stocks with unusually high relative volume vs 30-day average, ranked by multiple
+- Gap Up / Gap Down: stocks gapping at the open vs prior close, sorted by magnitude
+- VWAP Stretch: stocks significantly above/below intraday VWAP (5-min bars)
+- Liquidity Leaders: top symbols by average daily volume with price and daily change %
+
+============================================================
+4. TECHNICAL ANALYSIS / CHARTS PAGE
+============================================================
+Professional charting workspace for individual stock analysis.
+
+- Symbol Search: ticker input to load any stock (e.g., AAPL, TSLA, NVDA)
+- TradingView Advanced Chart: timeframes (1m, 5m, 15m, daily, weekly), chart types (candlestick/line/bar), VWAP overlay toggle, technical indicators, extended hours support
+- Chart Grid (no symbol selected): grid of 1-month mini charts from a curated stock universe with technical scores
+- Quick Compare Panel: when a symbol is selected, shows 8 comparison mini charts (Magnificent 7 + others)
+- Refresh Button: manually refreshes the screener universe data
+
+============================================================
+5. SECTORS PAGE
+============================================================
+Multi-view sector rotation and momentum analysis.
+
+Sector Strength Grid
+- 11 clickable sector cards: Technology, Healthcare, Financials, Energy, Consumer Discretionary, Consumer Staples, Industrials, Materials, Real Estate, Utilities, Communication Services
+- Each card: relative strength vs S&P 500, color-coded (green/amber/red)
+
+Performance Comparison Bar Chart
+- Horizontal bars showing sector daily % change, sorted descending, green/red color coded
+
+Weekly & Monthly Mini Bars
+- Compact bar charts showing 1-week and 1-month sector performance
+
+Selected Sector Detail Panel (click a sector card)
+- Sector name and quadrant: Leading / Weakening / Lagging / Improving
+- 1D, 5D, 1M % change cards
+- RSI value (color-coded overbought/oversold)
+- MACD (line, signal, histogram)
+- "Open Chart" button to view the sector ETF's price chart
+
+Top & Bottom Movers (shown when no sector is selected)
+- Top 3 and bottom 3 sectors by performance
+
+Sector Technicals Table
+- Columns: Symbol, Quadrant, Trend (Bullish/Bearish/Neutral), RSI, MACD, Signal, 1D%, 5D%, 1M%, Chart button
+
+Sector Heatmap
+- Treemap visualization: cell size and color (red→green gradient) show 1-day sector % change
+
+Relative Rotation Graph (RRG)
+- Scatter plot: X = RS-Ratio (vs SPY), Y = RS-Momentum
+- 4 quadrants: Leading (green), Weakening (yellow), Lagging (red), Improving (blue)
+- Hover tooltip with sector name and RS values; configurable momentum lag (default 20 days)
+
+============================================================
+6. WATCHLIST PAGE
+============================================================
+Personal stock tracking and screening.
+
+TAB 1: WATCHLIST
+- Add Symbol Form: text input + "Add" button
+- Watchlist Table columns: Symbol (click → chart), Price (live), Change % (color-coded), Volume (K/M), Day High/Low, Alert Count badge, Delete button
+- Price flash animation on updates (green/red)
+- Real-time search filter across symbols
+- Empty state with instructions
+
+TAB 2: SCREENER
+- Filters: Exchange (Any/NASDAQ/NYSE/AMEX), Sector (11 options), Min/Max Price ($), Min Volume, Min/Max Change %
+- "Run Screener", "Save Filters", and "Reset" buttons
+- Results Table columns: Symbol, Name, Price, Change %, Volume, Market Cap, Exchange — click row to open chart
+- Shows total match count
+
+============================================================
+7. NEWS PAGE
+============================================================
+Financial news in three tabs.
+
+TAB 1: MARKET NEWS
+- Master-detail layout: headlines on left, article content/link on right
+- Live feed of market-moving financial news
+
+TAB 2: EARNINGS
+- Date picker to select any date
+- Earnings Calendar Table: Symbol, Company, Session (BMO/AMC), Est. EPS, Actual EPS, Surprise %
+- Beat/Miss bar visualization with animated pulse glow for large surprises
+- Color-coded: green (beat), red (miss), gray (met expectations); max 200 rows
+
+TAB 3: ECONOMIC CALENDAR
+- Date picker to select a week
+- Table: Date/Time, Event, Country, Impact (HIGH/MED/LOW pill), Forecast, Previous, Actual
+- Actual value slides in dynamically when released; sorted by impact level
+
+============================================================
+8. ALERTS PAGE
+============================================================
+Rule-based alert system with real-time WebSocket delivery.
+
+ALERT CREATION FORM (shared by both tabs)
+- Symbol input
+- Condition: Price above/below level, Price above/below VWAP, Opening Range High/Low
+- Price level input (auto-calculated for VWAP alerts)
+- Cooldown: 1m, 5m, 15m, 30m, 1hr, or one-shot
+- Advanced Options (intraday only): Volume filter (1.5x/2x/3x), Time window (first 15m/30m/1hr/2hr after open), Buffer zone (0.1%–1%)
+
+TAB 1: INTRADAY ALERTS
+Active Alerts Table
+- Columns: Symbol, Condition, Cooldown, Status (Active/Triggered/Cooling Down), Created timestamp
+- Per-alert: View VWAP Chart modal, Toggle active/inactive, Delete
+- Inline cooldown editing via dropdown
+- "Reactivate All" button
+
+Alert History Table
+- Last 50 triggered alerts; filter by condition type
+- Columns: Symbol, Condition, Price at Trigger, VWAP at Trigger, Timestamp
+- "Chart" button shows ±30-min context chart around trigger
+
+TAB 2: LONG-TERM ALERTS
+- Same interface as intraday; designed for daily/swing-trade price level monitoring
+
+Notification Settings Card
+- Desktop notification toggle (Enabled/Denied/Requires Permission)
+- Extended hours toggle (pre-market 4am–9:30am ET; after-hours 4pm–8pm ET)
+- Live WebSocket connection status (OPEN/CONNECTING/CLOSED)
+
+============================================================
+9. PORTFOLIO PAGE
+============================================================
+Paper-trading simulator with real-time P&L tracking.
+
+Portfolio Switcher
+- Tabs for multiple portfolios; "New Portfolio" button opens creation dialog (name + starting budget)
+
+Summary Cards (4)
+- Total Portfolio Value (cash + holdings market value)
+- Cash Available ($ and %)
+- Total Return — realized + unrealized P&L in $ and %
+- Starting Budget
+
+Add Position Panel
+- Symbol input with auto live-price lookup
+- Mode: Dollar Amount or Number of Shares
+- Order summary (shares × price = total cost)
+- "Buy" button (disabled if cost exceeds available cash)
+
+Holdings Table
+- Columns: Symbol, Shares, Avg Cost, Current Price, Market Value, P&L ($), Return (%), Day %, Sell button
+- Live updates every 15 seconds; color-coded P&L
+- Sell closes full position at current price
+
+Allocation Pie Chart
+- Donut chart of each position + cash as % of total portfolio; hover tooltip
+
+Today's Moves
+- Cards showing day's biggest winners and losers in the portfolio
+
+Portfolio Actions
+- Reset (clears all positions, returns cash to budget) — confirmation dialog
+- Delete (removes portfolio entirely) — confirmation dialog
+
+============================================================
+10. STRATEGIES / BACKTESTING PAGE
+============================================================
+Built-in strategy backtesting engine against historical market data.
+
+CONFIGURATION FORM
+- Symbol, Strategy (SMA Cross / VWAP Trend / Opening Range High/Low), Start & End dates
+- SMA Cross params: Fast window (2–200), Slow window (3–300)
+- VWAP Trend params: Rolling window (5–252 days), Trend SMA (0–250; 0 = disabled)
+- Opening Range HL params: Range duration (5–180 min), Buffer (0–200 bps), Optimize toggle
+
+RESULTS (shown after backtest completes)
+- Equity Curve: strategy cumulative return vs buy-and-hold benchmark (SPY), color-coded with legend
+- Risk-Adjusted Comparison Table: Total Return %, Sharpe, Sortino, Calmar ratios, Max Drawdown %, Win Rate %, Trade Count — strategy vs benchmark
+- Price vs VWAP Chart: historical price overlaid with VWAP over the backtest window
+- Per-Trade P&L Bar Chart: each trade's profit/loss (green/red bars); hover shows entry/exit dates
+- Trades Table: Trade #, Entry Date, Entry Price, Exit Date, Exit Price, P&L ($), Return (%)
+- Full Strategy Statistics: collapsible section with 50+ computed metrics as key-value pairs
+
+============================================================
+11. OPTIONS & DERIVATIVES PAGE
+============================================================
+Options chain analysis, volatility visualization, and unusual flow detection.
+
+- Symbol Search + "Load Options" button
+- Summary Cards (4): Spot Price, ATM IV (color-coded <20%/>40%), Put/Call Volume Ratio, Put/Call OI Ratio
+- Expiry Selector: buttons for each available expiration date
+
+Options Chain Table
+- Calls (left): IV, Delta, Bid/Ask, Volume, OI
+- Center: Strike (ATM highlighted)
+- Puts (right): same columns
+- 40 strikes centered on ATM; ITM highlighted green (calls) / red (puts)
+
+IV Skew Chart
+- SVG curve: teal = calls IV, red dashed = puts IV; vertical line at spot price; grid and labeled axes
+
+Volatility Surface (Heatmap)
+- Rows: up to 8 expirations; Columns: up to 11 strikes (±22% of spot)
+- Color gradient: green (low IV) → red (high IV); ATM column marked with ◆
+
+Unusual Options Flow Table
+- Top 15 contracts by Volume/OI ratio
+- Columns: Type (Call/Put), Strike, Expiry, Volume, OI, Vol/OI ratio, IV, Last Price
+- Identifies potential institutional or unusual positioning
+
+============================================================
+12. SETTINGS PAGE
+============================================================
+User preferences for account, display, notifications, and data.
+
+Account
+- Email display (read-only); Change password (current/new/confirm fields); 2FA toggle (coming soon); Delete account (coming soon)
+
+Display
+- Default landing page (which page loads after sign-in)
+- Theme: Dark / Light / System
+- Table density: Compact / Default / Comfortable
+- Number formatting, chart style (coming soon)
+
+Notifications
+- Alert sound: On / Muted
+- Push notifications, daily summary email, quiet hours (coming soon)
+
+Data & API
+- Data provider status: Connected to Financial Modeling Prep
+- Quote refresh interval, extended hours, historical range (coming soon)
+
+Strategies & Backtesting
+- Default benchmark, starting capital, commission model (coming soon)
+
+About
+- Version: 0.1.0-alpha; Data provider: Financial Modeling Prep; Release notes & feedback (coming soon)
+
+============================================================
+13. CROSS-CUTTING UI/UX FEATURES
+============================================================
+
+Navigation
+- Persistent sidebar with logo and all page links; active page highlighted
+
+Real-Time Data
+- Live price updates every 15–30 seconds; price flash animations (green/red) on changes; WebSocket for alert delivery
+
+Visual Design
+- Dark theme with teal accent (#00B4D8); green = up/gain, red = down/loss, amber = neutral/warning
+- Hover states: cards lift, buttons brighten, table rows highlight
+
+Responsive Layout
+- Mobile (1 column), tablet (2 columns), desktop (3+ columns)
+
+Loading & Error States
+- Skeleton loading screens, spinners, "Loading..." text; error cards with "Retry" button
+
+Modals & Dialogs
+- Alert forms, new portfolio dialog, chart viewers, confirmation dialogs
+- Close via Escape key or backdrop click
+
+Keyboard Support
+- Enter to submit forms; Escape to close modals
+
+============================================================
+DATA COVERAGE SUMMARY
+============================================================
+
+Equities    : Price, % change, volume, day high/low, market cap, bid/ask
+Technicals  : VWAP, SMAs, RSI, MACD, relative strength, breadth metrics
+Portfolio   : Holdings, cost basis, realized/unrealized P&L, allocation %
+Macro       : Indices, yields, commodities, currencies, economic calendars
+Options     : IV skew, volatility surface, open interest, unusual flow, P/C ratios
+Alerts      : VWAP conditions, price levels, opening range, cooldowns, history
+Earnings    : EPS estimates, actuals, surprise %, session timing (BMO/AMC)
+Sentiment   : VIX, put/call ratio, advance/decline, new highs/lows
+
+============================================================
+END OF DOCUMENT
+StockAppV1 v0.1.0-alpha | Data: Financial Modeling Prep
+============================================================

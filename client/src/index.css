@@ -561,3 +561,230 @@ body {
 .econ-actual-in {
   animation: econ-actual-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
+/* Price flash — green on price up, red on down */
+@keyframes price-flash-up {
+  0%   { background-color: oklch(0.72 0.17 165 / 0.22); }
+  100% { background-color: transparent; }
+}
+@keyframes price-flash-down {
+  0%   { background-color: oklch(0.55 0.2 25 / 0.22); }
+  100% { background-color: transparent; }
+}
+.price-flash-up   { animation: price-flash-up   0.9s ease-out both; }
+.price-flash-down { animation: price-flash-down 0.9s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .price-flash-up, .price-flash-down { animation: none; }
+}
+
+/* Card hover lift — apply to interactive card wrappers */
+.card-hover {
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-hover:hover {
+    transform: none;
+  }
+}
+
+/* Skeleton pulse — consistent across the app */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.skeleton-pulse {
+  animation: skeleton-pulse 1.6s ease-in-out infinite;
+}
+
+/* ── Light theme ──────────────────────────────────────────────────────────── */
+[data-theme="light"] {
+  color-scheme: light;
+  --color-surface-0: oklch(0.985 0 0);
+  --color-surface-1: oklch(0.96 0 0);
+  --color-surface-2: oklch(0.92 0 0);
+  --color-border-subtle: oklch(0.80 0 0 / 0.7);
+}
+
+[data-theme="light"] body {
+  background: oklch(0.965 0 0);
+  background-image:
+    radial-gradient(ellipse 120% 80% at 50% -30%, oklch(0 0 0 / 0.018), transparent),
+    radial-gradient(ellipse 80% 50% at 100% 100%, oklch(0.50 0.08 165 / 0.06), transparent);
+  background-attachment: fixed;
+}
+
+/* ── Text: remap light zinc → dark zinc so it reads on a light background ── */
+[data-theme="light"] .text-zinc-100 { color: oklch(0.18 0.004 286) !important; }
+[data-theme="light"] .text-zinc-200 { color: oklch(0.26 0.005 286) !important; }
+[data-theme="light"] .text-zinc-300 { color: oklch(0.35 0.007 286) !important; }
+[data-theme="light"] .text-zinc-400 { color: oklch(0.44 0.010 286) !important; }
+[data-theme="light"] .text-zinc-500 { color: oklch(0.50 0.012 286) !important; }
+[data-theme="light"] .text-zinc-600 { color: oklch(0.56 0.012 286) !important; }
+
+/* Hover text — same remapping for interactive elements */
+[data-theme="light"] .hover\:text-zinc-100:hover { color: oklch(0.15 0.004 286) !important; }
+[data-theme="light"] .hover\:text-zinc-200:hover { color: oklch(0.22 0.005 286) !important; }
+[data-theme="light"] .hover\:text-zinc-300:hover { color: oklch(0.32 0.007 286) !important; }
+
+/* ── Backgrounds: dark/near-transparent white → light grays ──────────────── */
+[data-theme="light"] .bg-zinc-950   { background-color: oklch(0.99 0 0) !important; }
+[data-theme="light"] .bg-zinc-900\/95 { background-color: oklch(0.97 0 0 / 0.95) !important; }
+[data-theme="light"] .bg-neutral-950\/95 { background-color: oklch(0.985 0 0 / 0.96) !important; }
+
+/* White-alpha surfaces → visible light-gray surfaces */
+[data-theme="light"] .bg-white\/\[0\.02\],
+[data-theme="light"] .bg-white\/\[0\.03\],
+[data-theme="light"] .bg-white\/\[0\.04\] { background-color: oklch(0.95 0 0) !important; }
+[data-theme="light"] .bg-white\/5,
+[data-theme="light"] .bg-white\/\[0\.05\],
+[data-theme="light"] .bg-white\/\[0\.06\],
+[data-theme="light"] .bg-white\/\[0\.07\],
+[data-theme="light"] .bg-white\/\[0\.08\] { background-color: oklch(0.91 0 0) !important; }
+[data-theme="light"] .bg-white\/15,
+[data-theme="light"] .bg-white\/\[0\.15\] { background-color: oklch(0.88 0 0) !important; }
+
+/* Hover bg states */
+[data-theme="light"] .hover\:bg-white\/5:hover,
+[data-theme="light"] .hover\:bg-white\/\[0\.05\]:hover { background-color: oklch(0.91 0 0) !important; }
+[data-theme="light"] .hover\:bg-white\/\[0\.07\]:hover,
+[data-theme="light"] .hover\:bg-white\/\[0\.08\]:hover { background-color: oklch(0.88 0 0) !important; }
+[data-theme="light"] .hover\:bg-white\/10:hover         { background-color: oklch(0.87 0 0) !important; }
+
+/* Focus bg/border states */
+[data-theme="light"] .focus\:bg-white\/\[0\.06\]:focus { background-color: oklch(0.91 0 0) !important; }
+[data-theme="light"] .focus\:border-white\/20:focus    { border-color: oklch(0.70 0 0) !important; }
+[data-theme="light"] .focus\:border-white\/15:focus    { border-color: oklch(0.74 0 0) !important; }
+[data-theme="light"] .focus\:w-36:focus { /* width fine as-is */ }
+
+/* ── Borders ─────────────────────────────────────────────────────────────── */
+[data-theme="light"] .border-white\/\[0\.06\],
+[data-theme="light"] .border-white\/\[0\.07\],
+[data-theme="light"] .border-white\/\[0\.08\],
+[data-theme="light"] .border-white\/10,
+[data-theme="light"] .border-white\/\[0\.10\] { border-color: oklch(0.82 0 0) !important; }
+[data-theme="light"] .border-white\/15       { border-color: oklch(0.78 0 0) !important; }
+[data-theme="light"] .border-white\/20       { border-color: oklch(0.74 0 0) !important; }
+[data-theme="light"] .hover\:border-white\/15:hover { border-color: oklch(0.74 0 0) !important; }
+[data-theme="light"] .hover\:border-white\/20:hover { border-color: oklch(0.70 0 0) !important; }
+
+/* Divide lines between rows/items */
+[data-theme="light"] .divide-white\/\[0\.06\] > * + * { border-color: oklch(0.84 0 0) !important; }
+[data-theme="light"] .divide-border-subtle\/40 > :not([hidden]) ~ :not([hidden]) {
+  border-color: oklch(0.82 0 0 / 0.55) !important;
+}
+[data-theme="light"] .divide-border-subtle\/50 > :not([hidden]) ~ :not([hidden]) {
+  border-color: oklch(0.80 0 0 / 0.65) !important;
+}
+
+/* Ring (Sell button outline, etc.) */
+[data-theme="light"] .ring-white\/10 { --tw-ring-color: oklch(0.78 0 0) !important; }
+
+/* ── VertexLogo brand component ──────────────────────────────────────────── */
+[data-theme="light"] .vertex-logo-tile {
+  background: linear-gradient(135deg, #f2f2f2, #e8e8e8) !important;
+  border-color: #d0d0d0 !important;
+  box-shadow: 0 0 0 1px #00cc6622, 0 2px 8px rgba(0,0,0,0.10) !important;
+}
+[data-theme="light"] .vertex-logo-wordmark {
+  color: #1a1a1a !important;
+}
+
+/* ── Surface backgrounds (explicit overrides in case Tailwind v4 bakes oklch values) */
+[data-theme="light"] .bg-surface-0     { background-color: oklch(0.985 0 0) !important; }
+[data-theme="light"] .bg-surface-0\/35 { background-color: oklch(0.985 0 0 / 0.35) !important; }
+[data-theme="light"] .bg-surface-0\/40 { background-color: oklch(0.985 0 0 / 0.40) !important; }
+[data-theme="light"] .bg-surface-0\/45 { background-color: oklch(0.985 0 0 / 0.45) !important; }
+[data-theme="light"] .bg-surface-0\/50 { background-color: oklch(0.985 0 0 / 0.50) !important; }
+[data-theme="light"] .bg-surface-0\/60 { background-color: oklch(0.985 0 0 / 0.60) !important; }
+[data-theme="light"] .bg-surface-0\/70 { background-color: oklch(0.985 0 0 / 0.70) !important; }
+[data-theme="light"] .bg-surface-0\/75 { background-color: oklch(0.985 0 0 / 0.75) !important; }
+[data-theme="light"] .bg-surface-0\/80 { background-color: oklch(0.985 0 0 / 0.80) !important; }
+[data-theme="light"] .bg-surface-0\/85 { background-color: oklch(0.985 0 0 / 0.85) !important; }
+[data-theme="light"] .bg-surface-0\/90 { background-color: oklch(0.985 0 0 / 0.90) !important; }
+[data-theme="light"] .bg-surface-0\/95 { background-color: oklch(0.985 0 0 / 0.95) !important; }
+
+[data-theme="light"] .bg-surface-1     { background-color: oklch(0.96 0 0) !important; }
+[data-theme="light"] .bg-surface-1\/20 { background-color: oklch(0.96 0 0 / 0.20) !important; }
+[data-theme="light"] .bg-surface-1\/30 { background-color: oklch(0.96 0 0 / 0.30) !important; }
+[data-theme="light"] .bg-surface-1\/40 { background-color: oklch(0.96 0 0 / 0.40) !important; }
+[data-theme="light"] .bg-surface-1\/50 { background-color: oklch(0.96 0 0 / 0.50) !important; }
+[data-theme="light"] .bg-surface-1\/55 { background-color: oklch(0.96 0 0 / 0.55) !important; }
+[data-theme="light"] .bg-surface-1\/60 { background-color: oklch(0.96 0 0 / 0.60) !important; }
+[data-theme="light"] .bg-surface-1\/70 { background-color: oklch(0.96 0 0 / 0.70) !important; }
+[data-theme="light"] .bg-surface-1\/80 { background-color: oklch(0.96 0 0 / 0.80) !important; }
+[data-theme="light"] .bg-surface-1\/85 { background-color: oklch(0.96 0 0 / 0.85) !important; }
+[data-theme="light"] .bg-surface-1\/90 { background-color: oklch(0.96 0 0 / 0.90) !important; }
+
+[data-theme="light"] .bg-surface-2     { background-color: oklch(0.92 0 0) !important; }
+[data-theme="light"] .bg-surface-2\/55 { background-color: oklch(0.92 0 0 / 0.55) !important; }
+
+/* Gradient stops for section cards */
+[data-theme="light"] .from-surface-1\/80 { --tw-gradient-from: oklch(0.96 0 0 / 0.80) var(--tw-gradient-from-position) !important; }
+[data-theme="light"] .to-surface-1\/55   { --tw-gradient-to: oklch(0.96 0 0 / 0.55) var(--tw-gradient-to-position) !important; }
+[data-theme="light"] .from-surface-2\/55 { --tw-gradient-from: oklch(0.92 0 0 / 0.55) var(--tw-gradient-from-position) !important; }
+[data-theme="light"] .to-surface-1\/85   { --tw-gradient-to: oklch(0.96 0 0 / 0.85) var(--tw-gradient-to-position) !important; }
+
+/* ── Neutral / Zinc dark backgrounds → light equivalents ─────────────────── */
+[data-theme="light"] .bg-neutral-900    { background-color: oklch(0.93 0 0) !important; }
+[data-theme="light"] .bg-neutral-900\/40 { background-color: oklch(0.93 0 0 / 0.40) !important; }
+[data-theme="light"] .bg-neutral-900\/50 { background-color: oklch(0.93 0 0 / 0.50) !important; }
+[data-theme="light"] .bg-neutral-900\/80 { background-color: oklch(0.93 0 0 / 0.80) !important; }
+[data-theme="light"] .bg-neutral-900\/90 { background-color: oklch(0.93 0 0 / 0.90) !important; }
+[data-theme="light"] .bg-neutral-950    { background-color: oklch(0.985 0 0) !important; }
+[data-theme="light"] .bg-neutral-950\/90 { background-color: oklch(0.985 0 0 / 0.90) !important; }
+[data-theme="light"] .bg-neutral-950\/95 { background-color: oklch(0.985 0 0 / 0.95) !important; }
+[data-theme="light"] .bg-zinc-900       { background-color: oklch(0.93 0 0) !important; }
+[data-theme="light"] .bg-zinc-900\/95   { background-color: oklch(0.93 0 0 / 0.95) !important; }
+[data-theme="light"] .bg-zinc-950       { background-color: oklch(0.985 0 0) !important; }
+[data-theme="light"] .bg-zinc-950\/50   { background-color: oklch(0.985 0 0 / 0.50) !important; }
+[data-theme="light"] .bg-zinc-950\/80   { background-color: oklch(0.985 0 0 / 0.80) !important; }
+
+/* ── Soften card hover shadow in light mode ──────────────────────────────── */
+[data-theme="light"] .card-hover:hover {
+  box-shadow: 0 6px 20px -6px rgba(0, 0, 0, 0.14);
+}
+
+/* Soften all shadow-black intensity in light mode */
+[data-theme="light"] .shadow-black\/20 { --tw-shadow-color: rgba(0,0,0,0.05) !important; }
+[data-theme="light"] .shadow-black\/25 { --tw-shadow-color: rgba(0,0,0,0.06) !important; }
+[data-theme="light"] .shadow-black\/30 { --tw-shadow-color: rgba(0,0,0,0.07) !important; }
+[data-theme="light"] .shadow-black\/40 { --tw-shadow-color: rgba(0,0,0,0.09) !important; }
+[data-theme="light"] .shadow-black\/50 { --tw-shadow-color: rgba(0,0,0,0.11) !important; }
+[data-theme="light"] .shadow-black\/55 { --tw-shadow-color: rgba(0,0,0,0.11) !important; }
+[data-theme="light"] .shadow-black\/60 { --tw-shadow-color: rgba(0,0,0,0.12) !important; }
+
+/* ── Table density ────────────────────────────────────────────────────────── */
+/* Affects every <table> in the app (Watchlist, Portfolio, Alerts, Sectors,
+   News, Strategies, Scanner panel, Watchlist mini-widget). */
+[data-density="compact"] table tbody td,
+[data-density="compact"] table thead th {
+  padding-top: 0.2rem !important;
+  padding-bottom: 0.2rem !important;
+  line-height: 1.15 !important;
+}
+[data-density="compact"] table tbody td {
+  font-size: 0.78rem !important;
+}
+
+[data-density="default"] table tbody td,
+[data-density="default"] table thead th {
+  padding-top: 0.55rem !important;
+  padding-bottom: 0.55rem !important;
+}
+
+[data-density="comfortable"] table tbody td,
+[data-density="comfortable"] table thead th {
+  padding-top: 1.05rem !important;
+  padding-bottom: 1.05rem !important;
+  line-height: 1.6 !important;
+}
+[data-density="comfortable"] table tbody td {
+  font-size: 0.95rem !important;
+}

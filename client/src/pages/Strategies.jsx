@@ -259,11 +259,11 @@ export function Strategies() {
   const meth = result?.methodology ?? {}
 
   return (
-    <div className="space-y-8">
-      <header className="flex flex-wrap items-center gap-3 space-y-0">
+    <div className="app-page-enter space-y-6">
+      <header className="flex items-center gap-3">
         <h1 className="text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">Strategies</h1>
         <FlaskConical
-          className={['size-7 shrink-0 text-accent/90', loading ? 'backtest-flask-spin' : 'opacity-80'].join(' ')}
+          className={['size-6 shrink-0 text-accent/70', loading ? 'backtest-flask-spin' : ''].join(' ')}
           strokeWidth={2}
           aria-hidden
         />
@@ -358,10 +358,6 @@ export function Strategies() {
                 />
                 Optimize in-window (best total return)
               </label>
-              <p className="text-xs text-zinc-600 sm:col-span-2 lg:col-span-2">
-                Uses FMP <span className="font-mono text-zinc-500">5m</span> intraday bars. Keep the range reasonably
-                short so runs stay fast.
-              </p>
             </>
           ) : null}
           {strategyId === 'vwap_trend' ? (
@@ -440,7 +436,7 @@ export function Strategies() {
       ) : null}
 
       {result ? (
-        <section className="space-y-6">
+        <section className="dash-module-enter space-y-6" style={{ '--dash-stagger': '0ms' }}>
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2 className="text-lg font-semibold text-zinc-100">Results</h2>
             <p className="text-xs text-zinc-500">
@@ -462,10 +458,6 @@ export function Strategies() {
 
           <div className="rounded-2xl border border-border-subtle bg-surface-1/60 p-4 shadow-xl shadow-black/20 backdrop-blur-sm sm:p-5">
             <h3 className="text-sm font-semibold text-zinc-200">Equity: strategy vs buy &amp; hold</h3>
-            <p className="text-xs text-zinc-500">
-              Portfolio value on the same calendar (downsampled). {benchmarkLabel} is long from the first bar with the
-              same initial cash and fee schedule.
-            </p>
             <div className="mt-4 h-72 w-full">
               {compareEquityData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
@@ -521,10 +513,6 @@ export function Strategies() {
 
           <div className="rounded-2xl border border-border-subtle bg-surface-1/60 p-4 shadow-xl shadow-black/20 backdrop-blur-sm sm:p-5">
             <h3 className="text-sm font-semibold text-zinc-200">Risk-adjusted return (vs benchmark)</h3>
-            <p className="mt-0.5 text-xs text-zinc-500">
-              Same window and notional. Sharpe, Sortino, and Calmar use vectorbt stats when present, else equity-based
-              estimates from daily returns.
-            </p>
             <div className="mt-4 overflow-x-auto rounded-xl border border-border-subtle bg-surface-1/40">
               <table className="min-w-full text-left text-sm">
                 <thead className="text-xs uppercase tracking-wide text-zinc-500">
@@ -565,14 +553,6 @@ export function Strategies() {
                 </tbody>
               </table>
             </div>
-            <p className="mt-3 text-[11px] leading-relaxed text-zinc-600">
-              Multi-name QA (no selection bias): run{' '}
-              <code className="rounded bg-white/5 px-1 py-0.5 font-mono text-zinc-500">npm run test:vwap-universe</code>{' '}
-              from the repo root — same start date, end date, and VWAP parameters for every ticker in the MAG7 +
-              mega-cap basket; output is a plain table (add <code className="font-mono">--json</code> for machine
-              readable results). VWAP rules often trail buy &amp; hold on extreme momentum names because the strategy
-              spends time in cash; that is expected, not a bug in the harness.
-            </p>
           </div>
 
           <PriceVwapChart
@@ -586,7 +566,6 @@ export function Strategies() {
 
           <div className="rounded-2xl border border-border-subtle bg-surface-1/60 p-4 shadow-xl shadow-black/20 backdrop-blur-sm sm:p-5">
             <h3 className="text-sm font-semibold text-zinc-200">Per-trade P&amp;L</h3>
-            <p className="text-xs text-zinc-500">Each bar is one completed round trip: green profit, red loss.</p>
             <div className="mt-4 h-72 w-full">
               {tradePnLData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">

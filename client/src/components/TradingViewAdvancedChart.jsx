@@ -1,11 +1,9 @@
 import { useEffect, useId, useRef } from 'react'
+import { useTheme } from '../lib/theme'
 import { toTradingViewSymbol } from '../lib/tradingViewSymbol'
 
 const SCRIPT_SRC =
   'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js'
-
-/** TradingView “dark” canvas background (matches their terminal dark theme). */
-const TV_DARK_BG = '#131722'
 
 /**
  * TradingView Advanced Real-Time Chart (embed).
@@ -17,12 +15,15 @@ export function TradingViewAdvancedChart({
   height = 520,
   className = '',
   autosize = true,
-  /** Adds TradingView’s built-in VWAP study (daily chart). */
+  /** Adds TradingView's built-in VWAP study (daily chart). */
   showVwapStudy = false,
 }) {
   const uid = useId().replace(/:/g, '')
   const containerRef = useRef(null)
   const fullSymbol = toTradingViewSymbol(ticker)
+  const theme = useTheme()
+  const isLight = theme === 'light'
+  const bg = isLight ? '#ffffff' : '#131722'
 
   useEffect(() => {
     const root = containerRef.current
@@ -50,7 +51,7 @@ export function TradingViewAdvancedChart({
         symbol: fullSymbol,
         interval: 'D',
         timezone: 'America/New_York',
-        theme: 'dark',
+        theme: isLight ? 'light' : 'dark',
         style: '1',
         locale: 'en',
         hide_top_toolbar: false,
@@ -66,7 +67,7 @@ export function TradingViewAdvancedChart({
         show_popup_button: true,
         popup_width: '1200',
         popup_height: '700',
-        backgroundColor: TV_DARK_BG,
+        backgroundColor: bg,
       }
       if (showVwapStudy) {
         embedConfig.studies = ['VWAP@tv-basicstudies']
@@ -83,13 +84,13 @@ export function TradingViewAdvancedChart({
       window.clearTimeout(t)
       root.replaceChildren()
     }
-  }, [fullSymbol, height, autosize, uid, showVwapStudy])
+  }, [fullSymbol, height, autosize, uid, showVwapStudy, isLight, bg])
 
   return (
     <div
       className={`h-full min-h-0 overflow-hidden rounded-xl border border-white/[0.06] shadow-inner ${className}`}
       style={{
-        backgroundColor: TV_DARK_BG,
+        backgroundColor: bg,
       }}
     >
       <div
