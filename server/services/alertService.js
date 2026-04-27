@@ -39,7 +39,7 @@ export function conditionLabel(condition, threshold) {
 
 export function getActiveAlerts(alertType = 'intraday') {
   return db.prepare(`
-    SELECT a.*, u.email, u.extended_hours_enabled, u.email_alerts_enabled, u.alert_email
+    SELECT a.*, u.email, u.email_alerts_enabled, u.alert_email
     FROM alerts a
     JOIN users u ON u.id = a.user_id
     WHERE a.is_active = 1
@@ -50,24 +50,19 @@ export function getActiveAlerts(alertType = 'intraday') {
 
 export function getUserSettings(userId) {
   const row = db.prepare(
-    'SELECT extended_hours_enabled, email_alerts_enabled, email_digest_enabled, alert_email FROM users WHERE id = ?',
+    'SELECT email_alerts_enabled, email_digest_enabled, alert_email FROM users WHERE id = ?',
   ).get(userId)
   if (!row) return null
   return {
-    extended_hours_enabled: row.extended_hours_enabled === 1,
     email_alerts_enabled: row.email_alerts_enabled === 1,
     email_digest_enabled: row.email_digest_enabled === 1,
     alert_email: row.alert_email ?? null,
   }
 }
 
-export function updateUserSettings(userId, { extended_hours_enabled, email_alerts_enabled, email_digest_enabled, alert_email }) {
+export function updateUserSettings(userId, { email_alerts_enabled, email_digest_enabled, alert_email }) {
   const updates = []
   const values = []
-  if (extended_hours_enabled !== undefined) {
-    updates.push('extended_hours_enabled = ?')
-    values.push(extended_hours_enabled ? 1 : 0)
-  }
   if (email_alerts_enabled !== undefined) {
     updates.push('email_alerts_enabled = ?')
     values.push(email_alerts_enabled ? 1 : 0)

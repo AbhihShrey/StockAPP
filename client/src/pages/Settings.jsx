@@ -569,89 +569,6 @@ function EmailNotificationSettings({ token, userEmail }) {
   )
 }
 
-// ── Extended hours toggle ─────────────────────────────────────────────────────
-
-function ExtendedHoursToggle({ token }) {
-  const [enabled, setEnabled] = useState(null)
-  const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
-  const [error, setError] = useState(false)
-  const [loadError, setLoadError] = useState(false)
-
-  useEffect(() => {
-    let cancelled = false
-    setLoadError(false)
-    fetch(apiUrl('/api/user/settings'), { headers: authHeaders(token) })
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`)
-        return r.json()
-      })
-      .then((d) => {
-        if (cancelled) return
-        if (d.ok) setEnabled(Boolean(d.settings.extended_hours_enabled))
-        else setLoadError(true)
-      })
-      .catch(() => {
-        if (!cancelled) setLoadError(true)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [token])
-
-  const toggle = async () => {
-    if (enabled === null) return
-    const next = !enabled
-    setSaving(true)
-    setError(false)
-    try {
-      const r = await fetch(apiUrl('/api/user/settings'), {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', ...authHeaders(token) },
-        body: JSON.stringify({ extended_hours_enabled: next }),
-      })
-      const d = await r.json().catch(() => null)
-      if (r.ok && d?.ok) {
-        setEnabled(Boolean(d.settings.extended_hours_enabled))
-        setSaved(true)
-        setTimeout(() => setSaved(false), 1800)
-      } else {
-        setError(true)
-        setTimeout(() => setError(false), 4000)
-      }
-    } catch {
-      setError(true)
-      setTimeout(() => setError(false), 4000)
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  if (loadError) return <ErrorBadge message="Couldn't load" />
-  if (enabled === null) return <div className="h-6 w-11 animate-pulse rounded-full bg-white/[0.04]" />
-
-  return (
-    <div className="flex items-center gap-3">
-      <button
-        type="button"
-        onClick={toggle}
-        disabled={saving}
-        className={[
-          'relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none disabled:opacity-60',
-          enabled ? 'bg-accent' : 'bg-zinc-700',
-        ].join(' ')}
-        role="switch"
-        aria-checked={enabled}
-      >
-        <span className={['inline-block size-4 rounded-full bg-white shadow-sm transition-transform duration-200', enabled ? 'translate-x-5' : 'translate-x-0'].join(' ')} />
-      </button>
-      <span className="text-xs text-zinc-500">{enabled ? 'On' : 'Off'}</span>
-      {saved && <SavedBadge />}
-      {error && <ErrorBadge />}
-    </div>
-  )
-}
-
 // ── Alert sound toggle ────────────────────────────────────────────────────────
 
 const SOUND_KEY = 'stockline_alert_sound'
@@ -1238,9 +1155,6 @@ export function Settings() {
           <span className="rounded-full border border-emerald-500/20 bg-emerald-500/5 px-2.5 py-1 text-[10px] font-medium text-emerald-400">
             Connected
           </span>
-        </Row>
-        <Row label="Extended hours data" hint="Include pre-market and after-hours bars when checking intraday alerts">
-          <ExtendedHoursToggle token={token} />
         </Row>
       </Section>
 

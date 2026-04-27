@@ -538,7 +538,7 @@ function CreateAlertForm({ token, onCreated, lockedType }) {
       {isSwing && (
         <div className="border-b border-amber-500/15 bg-amber-500/5 px-5 py-2.5">
           <p className="text-[11px] text-amber-300/80">
-            Long-term alerts watch for price crossings over days or weeks. Checked every 5 min on weekdays including extended hours. Only price above/below conditions are supported.
+            Long-term alerts watch for price crossings over days or weeks. Checked every 5 min on weekdays during market hours. Only price above/below conditions are supported.
           </p>
         </div>
       )}

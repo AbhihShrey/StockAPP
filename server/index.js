@@ -421,9 +421,8 @@ app.get('/api/user/settings', requireAuth, (req, res) => {
 })
 
 app.patch('/api/user/settings', requireAuth, (req, res) => {
-  const { extended_hours_enabled, email_alerts_enabled, email_digest_enabled, alert_email } = req.body ?? {}
+  const { email_alerts_enabled, email_digest_enabled, alert_email } = req.body ?? {}
   const result = updateUserSettings(req.user.id, {
-    extended_hours_enabled,
     email_alerts_enabled,
     email_digest_enabled,
     alert_email,

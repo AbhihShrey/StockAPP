@@ -152,9 +152,6 @@ if (!existingUserCols.includes('email_alerts_enabled')) {
 if (!existingUserCols.includes('alert_email')) {
   db.exec('ALTER TABLE users ADD COLUMN alert_email TEXT')
 }
-if (!existingUserCols.includes('extended_hours_enabled')) {
-  db.exec('ALTER TABLE users ADD COLUMN extended_hours_enabled INTEGER NOT NULL DEFAULT 0')
-}
 if (!existingUserCols.includes('email_digest_enabled')) {
   db.exec('ALTER TABLE users ADD COLUMN email_digest_enabled INTEGER NOT NULL DEFAULT 0')
 }

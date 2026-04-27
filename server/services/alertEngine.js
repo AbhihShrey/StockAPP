@@ -54,21 +54,6 @@ function isMarketHours() {
   return mins >= 9 * 60 + 30 && mins < 16 * 60
 }
 
-function isExtendedHours() {
-  const fmt = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'America/New_York',
-    hour: '2-digit', minute: '2-digit', weekday: 'short', hour12: false,
-  })
-  const parts = fmt.formatToParts(new Date())
-  const wd = parts.find((p) => p.type === 'weekday')?.value
-  if (wd === 'Sat' || wd === 'Sun') return false
-  const hh = Number(parts.find((p) => p.type === 'hour')?.value ?? 0)
-  const mm = Number(parts.find((p) => p.type === 'minute')?.value ?? 0)
-  const mins = hh * 60 + mm
-  // Pre-market 4:00–9:30, after-hours 16:00–20:00
-  return (mins >= 4 * 60 && mins < 9 * 60 + 30) || (mins >= 16 * 60 && mins < 20 * 60)
-}
-
 /** Returns minutes since midnight in ET — used for the time-window gate. */
 function getEtMinutes() {
   const fmt = new Intl.DateTimeFormat('en-US', {
@@ -82,14 +67,11 @@ function getEtMinutes() {
 }
 
 const IGNORE_RTH = () => String(process.env.ALERTS_IGNORE_MARKET_HOURS ?? '').trim() === '1'
-const GLOBAL_EXTENDED = () => String(process.env.ALERTS_EXTENDED_HOURS ?? '').trim() === '1'
 
 /** Returns true if this specific alert should be evaluated right now. */
-function shouldRunAlert(alert) {
+function shouldRunAlert() {
   if (IGNORE_RTH()) return true
-  if (isMarketHours()) return true
-  if (isExtendedHours() && (GLOBAL_EXTENDED() || alert.extended_hours_enabled === 1)) return true
-  return false
+  return isMarketHours()
 }
 
 /** Swing checks run any weekday — they use daily/aftermarket quotes, not intraday bars. */
@@ -242,16 +224,14 @@ function fireBroadcast(alert, sym, price, vwapAtTrigger) {
   }
 }
 
-// ── Intraday alert check (every 30s during RTH / extended hours) ──────────────
+// ── Intraday alert check (every 30s during RTH) ───────────────────────────────
 
 export async function runAlertCheck() {
-  // Bail early only when we're completely outside all possible windows
-  if (!IGNORE_RTH() && !isMarketHours() && !isExtendedHours()) return
+  if (!IGNORE_RTH() && !isMarketHours()) return
 
   const allAlerts = getActiveAlerts('intraday')
   if (allAlerts.length === 0) return
 
-  // Filter to alerts that should run right now (per-user extended hours setting)
   const alerts = allAlerts.filter(shouldRunAlert)
   if (alerts.length === 0) return
 
@@ -463,10 +443,8 @@ export function startAlertEngine() {
   console.log(`[alerts] Restored ${rows.length} persisted crossing state(s) from DB`)
 
   const ignoreRth = IGNORE_RTH()
-  const globalExtended = GLOBAL_EXTENDED()
 
   if (ignoreRth) console.warn('[alerts] ALERTS_IGNORE_MARKET_HOURS=1 — intraday checks run 24/7 (testing only)')
-  if (globalExtended) console.log('[alerts] ALERTS_EXTENDED_HOURS=1 — extended hours enabled globally')
 
   // Intraday: every 30s on weekdays (gates enforced per-alert inside runAlertCheck)
   const intradayCron = ignoreRth ? '*/30 * * * * *' : '*/30 * * * * 1-5'
@@ -515,6 +493,6 @@ export function startAlertEngine() {
   }, 5_000)
 
   console.log(
-    `[alerts] Engine started — intraday every 30s (${ignoreRth ? 'no RTH gate' : globalExtended ? 'RTH + extended hours (global)' : 'RTH + per-user extended hours'}), swing every 5min (weekdays)`,
+    `[alerts] Engine started — intraday every 30s (${ignoreRth ? 'no RTH gate' : 'RTH only'}), swing every 5min (weekdays)`,
   )
 }
