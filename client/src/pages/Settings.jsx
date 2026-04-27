@@ -656,6 +656,57 @@ function ExtendedHoursToggle({ token }) {
 
 const SOUND_KEY = 'stockline_alert_sound'
 
+function FeedbackActions() {
+  const email = import.meta.env.VITE_FEEDBACK_EMAIL ?? 'stockline000@gmail.com'
+  const subject = 'StockLine feedback'
+  const gmailHref = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=${encodeURIComponent(subject)}`
+  const mailtoHref = `mailto:${email}?subject=${encodeURIComponent(subject)}`
+  const [copied, setCopied] = useState(false)
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(email)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    } catch {
+      // Fallback for browsers without clipboard API
+      const ta = document.createElement('textarea')
+      ta.value = email
+      document.body.appendChild(ta)
+      ta.select()
+      try { document.execCommand('copy'); setCopied(true); setTimeout(() => setCopied(false), 1500) } catch { /* ignore */ }
+      ta.remove()
+    }
+  }
+
+  return (
+    <div className="flex flex-wrap items-center justify-end gap-2">
+      <span className="select-all font-mono text-xs text-zinc-400">{email}</span>
+      <button
+        type="button"
+        onClick={copy}
+        className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-white/15 hover:bg-white/[0.07] hover:text-zinc-100"
+      >
+        {copied ? 'Copied!' : 'Copy'}
+      </button>
+      <a
+        href={gmailHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-white/15 hover:bg-white/[0.07] hover:text-zinc-100"
+      >
+        Gmail
+      </a>
+      <a
+        href={mailtoHref}
+        className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-white/15 hover:bg-white/[0.07] hover:text-zinc-100"
+      >
+        Mail app
+      </a>
+    </div>
+  )
+}
+
 function AlertSoundToggle() {
   const [enabled, setEnabled] = useState(() => localStorage.getItem(SOUND_KEY) !== 'off')
   const [saved, setSaved] = useState(false)
@@ -1210,12 +1261,7 @@ export function Settings() {
           </a>
         </Row>
         <Row label="Send feedback" hint="Report a bug or request a feature">
-          <a
-            href={`mailto:${import.meta.env.VITE_FEEDBACK_EMAIL ?? 'stockline000@gmail.com'}?subject=${encodeURIComponent('StockLine feedback')}`}
-            className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-white/15 hover:bg-white/[0.07] hover:text-zinc-100"
-          >
-            Open email
-          </a>
+          <FeedbackActions />
         </Row>
       </Section>
     </div>
