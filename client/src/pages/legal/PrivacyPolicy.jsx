@@ -77,7 +77,7 @@ export function PrivacyPolicy() {
 
       <h2>10. Contact</h2>
       <p>
-        Questions or requests? Reach us at <a href="mailto:[contact email]">[contact email]</a>.
+        Questions or requests? Reach us at <a href="mailto:stockline000@gmail.com">stockline000@gmail.com</a>.
       </p>
 
       <p className="mt-10 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-xs text-zinc-500">

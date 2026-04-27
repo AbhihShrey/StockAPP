@@ -33,7 +33,7 @@ export function TermsOfService() {
 
       <h2>4. Intellectual property</h2>
       <p>
-        StockLine and its underlying software, design, and content are owned by [Your Name / Company] and
+        StockLine and its underlying software, design, and content are owned by Abhih Kodavanty and
         are protected by intellectual property laws. We grant you a limited, revocable, non-exclusive,
         non-transferable license to access and use the Service for personal, non-commercial use.
       </p>
@@ -90,9 +90,9 @@ export function TermsOfService() {
 
       <h2>11. Governing law</h2>
       <p>
-        These Terms are governed by the laws of [governing-law jurisdiction], without regard to its
-        conflict-of-laws principles. Any dispute will be resolved in the courts located in
-        [jurisdiction], and you consent to personal jurisdiction there.
+        These Terms are governed by the laws of the State of California, without regard to its
+        conflict-of-laws principles. Any dispute will be resolved in the state or federal courts
+        located in Alameda County, California, and you consent to personal jurisdiction there.
       </p>
 
       <h2>12. Changes</h2>
@@ -102,7 +102,7 @@ export function TermsOfService() {
       </p>
 
       <h2>13. Contact</h2>
-      <p>Questions about these Terms? Reach us at <a href="mailto:[contact email]">[contact email]</a>.</p>
+      <p>Questions about these Terms? Reach us at <a href="mailto:stockline000@gmail.com">stockline000@gmail.com</a>.</p>
 
       <p className="mt-10 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-xs text-zinc-500">
         <strong className="text-zinc-300">Template notice.</strong> This document is a starting-point
