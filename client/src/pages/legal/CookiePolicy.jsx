@@ -49,12 +49,6 @@ export function CookiePolicy() {
       <h2>6. Contact</h2>
       <p>Questions? Email <a href="mailto:stockline000@gmail.com">stockline000@gmail.com</a>.</p>
 
-      <p className="mt-10 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-xs text-zinc-500">
-        <strong className="text-zinc-300">Template notice.</strong> This document is a starting-point
-        template and is not legal advice. If you later add analytics or any third-party SDK that sets
-        cookies, update this page and review applicable consent requirements (GDPR, ePrivacy,
-        CCPA/CPRA).
-      </p>
     </LegalShell>
   )
 }

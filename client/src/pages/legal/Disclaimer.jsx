@@ -70,11 +70,6 @@ export function Disclaimer() {
         that all use of the platform is at your own risk and discretion.
       </p>
 
-      <p className="mt-10 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-xs text-zinc-500">
-        <strong className="text-zinc-300">Template notice.</strong> This document is a starting-point
-        template and is not legal advice. If your jurisdiction has specific securities-law disclosure
-        requirements (e.g., SEC, FINRA, FCA), consult a qualified attorney before publication.
-      </p>
     </LegalShell>
   )
 }

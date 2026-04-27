@@ -104,11 +104,6 @@ export function TermsOfService() {
       <h2>13. Contact</h2>
       <p>Questions about these Terms? Reach us at <a href="mailto:stockline000@gmail.com">stockline000@gmail.com</a>.</p>
 
-      <p className="mt-10 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-xs text-zinc-500">
-        <strong className="text-zinc-300">Template notice.</strong> This document is a starting-point
-        template and is not legal advice. Replace the bracketed placeholders and have a qualified
-        attorney review it before publishing.
-      </p>
     </LegalShell>
   )
 }
