@@ -133,8 +133,6 @@ You'll come back here.
 - [ ] `VITE_API_BASE` = the backend URL from B4 (e.g.
       `https://stockline-api.onrender.com`)
 - [ ] `VITE_FEATURE_BACKTEST` = `0`
-- [ ] `VITE_FEEDBACK_EMAIL` = the email address you want feedback to go to
-      (your personal email is fine)
 
 ### C3. Deploy
 - [ ] Click **Create Static Site**. Wait ~2 minutes.
@@ -268,7 +266,6 @@ URL keeps working until you remove it.
 |---|---|
 | `VITE_API_BASE` | `https://stockline-api.onrender.com` |
 | `VITE_FEATURE_BACKTEST` | `0` |
-| `VITE_FEEDBACK_EMAIL` | your email |
 
 ---
 

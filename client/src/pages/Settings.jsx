@@ -657,7 +657,7 @@ function ExtendedHoursToggle({ token }) {
 const SOUND_KEY = 'stockline_alert_sound'
 
 function FeedbackActions() {
-  const email = import.meta.env.VITE_FEEDBACK_EMAIL ?? 'stockline000@gmail.com'
+  const email = 'stockline000@gmail.com'
   const subject = 'StockLine feedback'
   const gmailHref = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=${encodeURIComponent(subject)}`
   const mailtoHref = `mailto:${email}?subject=${encodeURIComponent(subject)}`
@@ -669,7 +669,6 @@ function FeedbackActions() {
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
     } catch {
-      // Fallback for browsers without clipboard API
       const ta = document.createElement('textarea')
       ta.value = email
       document.body.appendChild(ta)
@@ -681,7 +680,7 @@ function FeedbackActions() {
 
   return (
     <div className="flex flex-wrap items-center justify-end gap-2">
-      <span className="select-all font-mono text-xs text-zinc-400">{email}</span>
+      <span className="me-3 select-all font-mono text-xs text-zinc-400">{email}</span>
       <button
         type="button"
         onClick={copy}

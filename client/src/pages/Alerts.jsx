@@ -709,120 +709,6 @@ function CreateAlertForm({ token, onCreated, lockedType }) {
   )
 }
 
-// ── Notification Settings ─────────────────────────────────────────────────────
-
-function NotificationSettings({ token }) {
-  const { notifPermission, requestPermission, wsReadyState } = useAlerts()
-  const [extHours, setExtHours] = useState(false)
-  const [ehLoading, setEhLoading] = useState(true)
-  const [ehSaving, setEhSaving] = useState(false)
-
-  useEffect(() => {
-    fetch(apiUrl('/api/user/settings'), { headers: authHeaders(token) })
-      .then((r) => r.json())
-      .then((json) => { if (json.ok) setExtHours(json.settings.extended_hours_enabled) })
-      .catch(() => {})
-      .finally(() => setEhLoading(false))
-  }, [token])
-
-  const handleToggleExtHours = async () => {
-    const next = !extHours
-    setExtHours(next)
-    setEhSaving(true)
-    try {
-      await fetch(apiUrl('/api/user/settings'), {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', ...authHeaders(token) },
-        body: JSON.stringify({ extended_hours_enabled: next }),
-      })
-    } catch {
-      setExtHours(!next)
-    }
-    setEhSaving(false)
-  }
-
-  const wsStatusLabel =
-    wsReadyState == null
-      ? 'not connected'
-      : wsReadyState === WebSocket.OPEN
-        ? 'connected'
-        : wsReadyState === WebSocket.CONNECTING
-          ? 'connecting…'
-          : 'disconnected (retrying)'
-
-  return (
-    <section className="rounded-2xl border border-border-subtle bg-gradient-to-b from-surface-1/80 to-surface-1/55 shadow-xl shadow-black/20">
-      <div className="flex items-center gap-2 border-b border-border-subtle px-5 py-3.5">
-        <Bell className="size-4 text-zinc-400" />
-        <h2 className="text-sm font-semibold tracking-tight text-zinc-100">Notification settings</h2>
-      </div>
-      <div className="divide-y divide-border-subtle/50 p-5">
-        {/* Desktop notifications */}
-        <div className="flex flex-col gap-2 pb-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-medium text-zinc-200">Desktop notifications</p>
-            <p className="mt-0.5 text-xs text-zinc-500">
-              OS banners even when the tab is in the background. Live connection:{' '}
-              <span className="text-zinc-300">{wsStatusLabel}</span>
-            </p>
-          </div>
-          {notifPermission === 'default' && (
-            <button
-              type="button"
-              onClick={requestPermission}
-              className="shrink-0 rounded-xl border border-accent/30 bg-accent-muted px-4 py-2 text-xs font-semibold text-accent transition hover:brightness-110"
-            >
-              Enable notifications
-            </button>
-          )}
-          {notifPermission === 'denied' && (
-            <span className="shrink-0 rounded-xl border border-rose-500/20 px-3 py-1.5 text-xs text-rose-400">
-              Unblock in browser settings
-            </span>
-          )}
-          {notifPermission === 'granted' && (
-            <span className="shrink-0 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-3 py-1.5 text-xs text-emerald-400">
-              Enabled
-            </span>
-          )}
-        </div>
-
-        {/* Extended hours toggle */}
-        <div className="flex flex-col gap-2 pt-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-medium text-zinc-200">Extended hours alerts</p>
-            <p className="mt-0.5 text-xs text-zinc-500">
-              Fire intraday price alerts during pre-market (4:00–9:30 ET) and after-hours (16:00–20:00 ET). Requires real-time data from your FMP plan.
-            </p>
-          </div>
-          {ehLoading ? (
-            <Loader2 className="size-4 animate-spin text-zinc-500" />
-          ) : (
-            <button
-              type="button"
-              onClick={handleToggleExtHours}
-              disabled={ehSaving}
-              className={[
-                'relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none disabled:opacity-50',
-                extHours ? 'bg-accent' : 'bg-zinc-700',
-              ].join(' ')}
-              role="switch"
-              aria-checked={extHours}
-            >
-              <span
-                className={[
-                  'inline-block size-4 rounded-full bg-white shadow-sm transition-transform duration-200',
-                  extHours ? 'translate-x-5' : 'translate-x-0',
-                ].join(' ')}
-              />
-            </button>
-          )}
-        </div>
-      </div>
-    </section>
-  )
-}
-
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export function Alerts() {
@@ -1268,8 +1154,6 @@ export function Alerts() {
           })()}
         </>
       )}
-
-      <NotificationSettings token={token} />
 
       {chartSymbol && (
         <VwapMiniChart

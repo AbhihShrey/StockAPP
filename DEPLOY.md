@@ -112,7 +112,6 @@ git log -1        # note the commit you're about to deploy
    |---|---|
    | `VITE_API_BASE` | `https://stockline-api.onrender.com` (use your domain after step 5) |
    | `VITE_FEATURE_BACKTEST` | `0` |
-   | `VITE_FEEDBACK_EMAIL` | `feedback@<your-domain>.com` |
 
 4. Click **Create Static Site**. Note the provisional URL (e.g.
    `https://stockline-web.onrender.com`).
