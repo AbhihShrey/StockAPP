@@ -21,15 +21,15 @@ export function isEmailConfigured() {
 }
 
 /**
- * Build the RFC-5322 "From" header. Display name defaults to "Vertex" so the
- * inbox shows "Vertex <…>" instead of the raw Brevo bounce alias.
+ * Build the RFC-5322 "From" header. Display name defaults to "StockLine" so the
+ * inbox shows "StockLine <…>" instead of the raw Brevo bounce alias.
  * Override with SMTP_FROM_NAME and/or SMTP_FROM in server/.env.
  */
 function buildFromHeader() {
   const rawFrom = process.env.SMTP_FROM?.trim()
   const addressOnly = rawFrom || process.env.SMTP_USER?.trim() || ''
   if (rawFrom && /<[^>]+>/.test(rawFrom)) return rawFrom
-  const name = process.env.SMTP_FROM_NAME?.trim() || 'Vertex'
+  const name = process.env.SMTP_FROM_NAME?.trim() || 'StockLine'
   return `"${name.replace(/"/g, '')}" <${addressOnly}>`
 }
 
@@ -91,8 +91,8 @@ function emailShell({ title, subtitle, body, footer }) {
   <div style="background:linear-gradient(135deg,#0f0f0f 0%,#0a120e 100%);border-bottom:1px solid #1c1c1c;padding:22px 26px">
     <table cellpadding="0" cellspacing="0" style="width:100%"><tr>
       <td style="vertical-align:middle">
-        <span style="display:inline-block;vertical-align:middle;width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#34d399,#10b981);text-align:center;line-height:28px;font-weight:800;color:#052e1c;font-size:15px;letter-spacing:-0.5px">V</span>
-        <span style="vertical-align:middle;margin-left:10px;font-size:18px;font-weight:700;color:#e4e4e7;letter-spacing:-0.3px">Vertex</span>
+        <span style="display:inline-block;vertical-align:middle;width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#34d399,#10b981);text-align:center;line-height:28px;font-weight:800;color:#052e1c;font-size:15px;letter-spacing:-0.5px">S</span>
+        <span style="vertical-align:middle;margin-left:10px;font-size:18px;font-weight:700;color:#e4e4e7;letter-spacing:-0.3px">StockLine</span>
       </td>
       <td style="text-align:right;vertical-align:middle;font-size:11px;color:#52525b">${subtitle ?? ''}</td>
     </tr></table>
@@ -159,7 +159,7 @@ export async function sendAlertEmail(toEmail, { symbol, condition, threshold, tr
         title: `Alert fired`,
         subtitle: etTimeLabel(),
         body,
-        footer: `You received this because email alerts are enabled on your Vertex account. Manage alerts in <strong style="color:#71717a">Settings → Notifications</strong>.`,
+        footer: `You received this because email alerts are enabled on your StockLine account. Manage alerts in <strong style="color:#71717a">Settings → Notifications</strong>.`,
       }),
     })
   } catch (err) {
@@ -197,7 +197,7 @@ export async function sendDailyDigestEmail(toEmail, data = {}) {
   } = data
 
   const dateLabel = etDateLabel()
-  const subject = `Vertex Daily Close — ${dateLabel}`
+  const subject = `StockLine Daily Close — ${dateLabel}`
 
   const marketRows = marketSummary.length === 0
     ? `<tr><td colspan="3" style="padding:8px 0;font-size:12px;color:#52525b">Market data unavailable.</td></tr>`
@@ -294,7 +294,7 @@ export async function sendDailyDigestEmail(toEmail, data = {}) {
     title: 'Daily close summary',
     subtitle: dateLabel,
     body,
-    footer: `You received this because daily digest is enabled on your Vertex account. Manage preferences in <strong style="color:#71717a">Settings → Notifications</strong>.`,
+    footer: `You received this because daily digest is enabled on your StockLine account. Manage preferences in <strong style="color:#71717a">Settings → Notifications</strong>.`,
   })
 
   try {
@@ -315,7 +315,7 @@ export async function sendPasswordResetEmail(toEmail, { resetUrl, expiresInMinut
   }
   const body = `
   <div style="padding:26px">
-    <div style="font-size:15px;color:#e4e4e7;line-height:1.55">We received a request to reset the password on your Vertex account.</div>
+    <div style="font-size:15px;color:#e4e4e7;line-height:1.55">We received a request to reset the password on your StockLine account.</div>
     <div style="margin-top:10px;font-size:13px;color:#a1a1aa;line-height:1.6">If this was you, click the button below within ${expiresInMinutes} minutes. If not, you can safely ignore this email — your password stays the same.</div>
     <div style="margin-top:22px">
       <a href="${resetUrl}" style="display:inline-block;padding:12px 22px;border-radius:10px;background:linear-gradient(135deg,#34d399,#10b981);color:#052e1c;font-weight:700;font-size:14px;text-decoration:none">Reset password</a>
@@ -326,7 +326,7 @@ export async function sendPasswordResetEmail(toEmail, { resetUrl, expiresInMinut
     await transporter.sendMail({
       from: buildFromHeader(),
       to: toEmail,
-      subject: 'Reset your Vertex password',
+      subject: 'Reset your StockLine password',
       html: emailShell({
         title: 'Password reset request',
         subtitle: etDateLabel(),
@@ -350,7 +350,7 @@ export async function sendVerifyEmail(toEmail, { verifyUrl, expiresInMinutes = 6
   }
   const body = `
   <div style="padding:26px">
-    <div style="font-size:15px;color:#e4e4e7;line-height:1.55">Welcome to Vertex. Please confirm your email address to keep your account in good standing and unlock email-based alerts.</div>
+    <div style="font-size:15px;color:#e4e4e7;line-height:1.55">Welcome to StockLine. Please confirm your email address to keep your account in good standing and unlock email-based alerts.</div>
     <div style="margin-top:22px">
       <a href="${verifyUrl}" style="display:inline-block;padding:12px 22px;border-radius:10px;background:linear-gradient(135deg,#34d399,#10b981);color:#052e1c;font-weight:700;font-size:14px;text-decoration:none">Verify email</a>
     </div>
@@ -360,12 +360,12 @@ export async function sendVerifyEmail(toEmail, { verifyUrl, expiresInMinutes = 6
     await transporter.sendMail({
       from: buildFromHeader(),
       to: toEmail,
-      subject: 'Verify your Vertex email',
+      subject: 'Verify your StockLine email',
       html: emailShell({
         title: 'Confirm your email',
         subtitle: etDateLabel(),
         body,
-        footer: `If you did not create a Vertex account, you can ignore this message. The link expires in ${Math.round(expiresInMinutes / 60)} hours.`,
+        footer: `If you did not create a StockLine account, you can ignore this message. The link expires in ${Math.round(expiresInMinutes / 60)} hours.`,
       }),
     })
   } catch (err) {
@@ -403,8 +403,8 @@ export async function sendTestEmail(toEmail) {
     const info = await transporter.sendMail({
       from,
       to: toEmail,
-      subject: 'Vertex: test email',
-      text: 'Test email from Vertex — SMTP is working.',
+      subject: 'StockLine: test email',
+      text: 'Test email from StockLine — SMTP is working.',
       html: emailShell({
         title: 'Test email',
         subtitle: etDateLabel(),

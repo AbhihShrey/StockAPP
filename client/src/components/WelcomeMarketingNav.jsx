@@ -2,7 +2,7 @@ import { ChevronDown, Home, LogOut } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getDefaultLanding } from '../lib/prefs'
-import { VertexLogo } from './VertexLogo'
+import { StockLineLogo } from './StockLineLogo'
 
 function NavFlowLines() {
   return (
@@ -41,7 +41,7 @@ export function WelcomeMarketingNav({ onSignIn, onGetStarted }) {
             <Home className="size-[17px]" strokeWidth={2} aria-hidden />
           </Link>
           <Link to="/welcome" className="flex min-w-0 items-center gap-2.5">
-            <VertexLogo size="xs" layout="horizontal" showTagline={false} />
+            <StockLineLogo size="xs" layout="horizontal" showTagline={false} />
           </Link>
         </div>
 

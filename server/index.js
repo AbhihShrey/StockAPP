@@ -380,7 +380,7 @@ app.get('/api/user/export', requireAuth, (req, res) => {
 
     const payload = {
       exported_at: new Date().toISOString(),
-      app: 'Vertex',
+      app: 'StockLine',
       user,
       watchlists,
       alerts,
@@ -389,7 +389,7 @@ app.get('/api/user/export', requireAuth, (req, res) => {
       two_factor: totp ? { enabled: Boolean(totp.enabled), created_at: totp.created_at } : null,
     }
 
-    const filename = `vertex-export-${user.email.replace(/[^a-z0-9]+/gi, '_')}-${Date.now()}.json`
+    const filename = `stockline-export-${user.email.replace(/[^a-z0-9]+/gi, '_')}-${Date.now()}.json`
     res.setHeader('Content-Type', 'application/json')
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
     res.send(JSON.stringify(payload, null, 2))

@@ -20,7 +20,7 @@ import { apiUrl, authHeaders } from '../lib/apiBase'
 
 // ── Storage ───────────────────────────────────────────────────────────────────
 
-const STORE_KEY = 'vertex_portfolios_v3'
+const STORE_KEY = 'stockline_portfolios_v3'
 
 function loadStore() {
   try { return JSON.parse(localStorage.getItem(STORE_KEY) ?? 'null') ?? defaultStore() }

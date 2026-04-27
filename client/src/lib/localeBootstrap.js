@@ -4,7 +4,7 @@
 // without per-file changes. Date/time formatting is left untouched so the
 // "10:30 AM ET" market-session strings stay unchanged.
 
-const LOCALE_KEY = 'vertex_number_locale'
+const LOCALE_KEY = 'stockline_number_locale'
 
 function readLocale() {
   try {
@@ -50,7 +50,7 @@ export function installLocaleShim() {
   installToLocaleStringShim()
   document.documentElement.lang = readLocale()
 
-  window.addEventListener('vertex-prefs-changed', (e) => {
+  window.addEventListener('stockline-prefs-changed', (e) => {
     if (e.detail?.key !== 'locale') return
     document.documentElement.lang = readLocale()
     // Force a full re-render so already-formatted strings update everywhere.

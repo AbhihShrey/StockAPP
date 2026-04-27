@@ -1,4 +1,4 @@
-# Vertex — Launch Checklist (Free `*.onrender.com` path)
+# StockLine — Launch Checklist (Free `*.onrender.com` path)
 
 Everything below is something **you** do — clicking buttons in third-party
 dashboards, generating credentials, copying values into env-var fields. The
@@ -15,11 +15,11 @@ Estimated total time: ~90 minutes. Estimated cost: ~$8/month (Render Starter
 - [ ] Sign up at https://github.com.
 
 ### A2. Push the code to a private GitHub repo
-- [ ] At https://github.com/new, create a **private** repo named `vertex`.
+- [ ] At https://github.com/new, create a **private** repo named `stockline`.
       Leave "Initialize this repository" unchecked.
 - [ ] In your terminal, from `/Users/abhihkodavanty/StockAppV1`:
       ```
-      git remote add origin git@github.com:<your-username>/vertex.git
+      git remote add origin git@github.com:<your-username>/stockline.git
       git branch -M main
       git push -u origin main
       ```
@@ -41,7 +41,7 @@ daily digests. **Pick one:**
 **Option A — Gmail (free, easiest, ~10 emails/min cap)**
 - [ ] Turn on 2FA at https://myaccount.google.com/security.
 - [ ] Generate an App Password at https://myaccount.google.com/apppasswords →
-      "Mail" → "Other" → name it "Vertex".
+      "Mail" → "Other" → name it "StockLine".
 - [ ] Save these values:
       - `SMTP_HOST` = `smtp.gmail.com`
       - `SMTP_PORT` = `587`
@@ -70,9 +70,9 @@ daily digests. **Pick one:**
 
 ### B1. Create the backend Web Service
 - [ ] On Render → **New → Web Service**.
-- [ ] Pick the `vertex` repo.
+- [ ] Pick the `stockline` repo.
 - [ ] Fill in:
-      - **Name:** `vertex-api`
+      - **Name:** `stockline-api`
       - **Region:** pick the one closest to you (Oregon for US West, Virginia for US East)
       - **Branch:** `main`
       - **Root Directory:** `server`
@@ -84,7 +84,7 @@ daily digests. **Pick one:**
 
 ### B2. Add a persistent disk for the database
 - [ ] Scroll down on the same form → **Disks → Add Disk**.
-      - **Name:** `vertex-data`
+      - **Name:** `stockline-data`
       - **Mount Path:** `/var/data`
       - **Size:** 1 GB ($1/mo)
 
@@ -98,7 +98,7 @@ On the same form, scroll to **Environment Variables** and add each of these:
 - [ ] `SMTP_PORT` = `587`
 - [ ] `SMTP_USER` = (from A5)
 - [ ] `SMTP_PASS` = (from A5)
-- [ ] `SMTP_FROM_NAME` = `Vertex`
+- [ ] `SMTP_FROM_NAME` = `StockLine`
 - [ ] `DB_DIR` = `/var/data`
 
 Leave the next two **blank for now** — you'll fill them in B5 once you have
@@ -110,7 +110,7 @@ the static-site URL:
 ### B4. Deploy
 - [ ] Click **Create Web Service**. Wait ~3 minutes for the first build.
 - [ ] When it goes green, copy the URL Render shows you (looks like
-      `https://vertex-api.onrender.com`). Save it.
+      `https://stockline-api.onrender.com`). Save it.
 
 ### B5. Skip until after B7
 You'll come back here.
@@ -121,9 +121,9 @@ You'll come back here.
 
 ### C1. Create the static site
 - [ ] Render → **New → Static Site**.
-- [ ] Same `vertex` repo.
+- [ ] Same `stockline` repo.
 - [ ] Fill in:
-      - **Name:** `vertex-web`
+      - **Name:** `stockline-web`
       - **Branch:** `main`
       - **Root Directory:** `client`
       - **Build Command:** `npm install && npm run build`
@@ -131,23 +131,23 @@ You'll come back here.
 
 ### C2. Add environment variables
 - [ ] `VITE_API_BASE` = the backend URL from B4 (e.g.
-      `https://vertex-api.onrender.com`)
+      `https://stockline-api.onrender.com`)
 - [ ] `VITE_FEATURE_BACKTEST` = `0`
 - [ ] `VITE_FEEDBACK_EMAIL` = the email address you want feedback to go to
       (your personal email is fine)
 
 ### C3. Deploy
 - [ ] Click **Create Static Site**. Wait ~2 minutes.
-- [ ] Copy the URL Render assigns (e.g. `https://vertex-web.onrender.com`).
+- [ ] Copy the URL Render assigns (e.g. `https://stockline-web.onrender.com`).
 
 ---
 
 ## Phase D — Wire the two together (~5 min)
 
 ### D1. Update backend env vars now that you have the static-site URL
-- [ ] Go back to `vertex-api` → **Environment** tab.
+- [ ] Go back to `stockline-api` → **Environment** tab.
 - [ ] Set `PUBLIC_BASE_URL` = the static-site URL from C3 (e.g.
-      `https://vertex-web.onrender.com`).
+      `https://stockline-web.onrender.com`).
 - [ ] Set `CORS_ORIGINS` = the same static-site URL.
 - [ ] Click **Save Changes**. Render auto-redeploys (~2 min).
 
@@ -238,7 +238,7 @@ these before you share the link with anyone:**
       all here.
 
 ### G2. Verify nightly backups (after first night)
-- [ ] On day 2, go to `vertex-api` → Shell tab → run:
+- [ ] On day 2, go to `stockline-api` → Shell tab → run:
       `ls /var/data/backups`
 - [ ] You should see a file named `app-YYYY-MM-DD.db`.
 
@@ -251,22 +251,22 @@ URL keeps working until you remove it.
 
 ## Quick reference — env vars you'll have set
 
-**vertex-api (backend):**
+**stockline-api (backend):**
 | Key | Value |
 |---|---|
 | `NODE_ENV` | `production` |
 | `JWT_SECRET` | 64-char hex from `openssl rand -hex 32` |
 | `FMP_API_KEY` | your FMP key |
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` | from your SMTP provider |
-| `SMTP_FROM_NAME` | `Vertex` |
+| `SMTP_FROM_NAME` | `StockLine` |
 | `DB_DIR` | `/var/data` |
-| `PUBLIC_BASE_URL` | `https://vertex-web.onrender.com` |
-| `CORS_ORIGINS` | `https://vertex-web.onrender.com` |
+| `PUBLIC_BASE_URL` | `https://stockline-web.onrender.com` |
+| `CORS_ORIGINS` | `https://stockline-web.onrender.com` |
 
-**vertex-web (frontend):**
+**stockline-web (frontend):**
 | Key | Value |
 |---|---|
-| `VITE_API_BASE` | `https://vertex-api.onrender.com` |
+| `VITE_API_BASE` | `https://stockline-api.onrender.com` |
 | `VITE_FEATURE_BACKTEST` | `0` |
 | `VITE_FEEDBACK_EMAIL` | your email |
 

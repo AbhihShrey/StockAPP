@@ -654,7 +654,7 @@ function ExtendedHoursToggle({ token }) {
 
 // ── Alert sound toggle ────────────────────────────────────────────────────────
 
-const SOUND_KEY = 'vertex_alert_sound'
+const SOUND_KEY = 'stockline_alert_sound'
 
 function AlertSoundToggle() {
   const [enabled, setEnabled] = useState(() => localStorage.getItem(SOUND_KEY) !== 'off')
@@ -1080,7 +1080,7 @@ function DownloadDataButton({ token }) {
       a.href = url
       const dispo = res.headers.get('Content-Disposition') || ''
       const match = /filename="([^"]+)"/.exec(dispo)
-      a.download = match?.[1] ?? `vertex-export-${Date.now()}.json`
+      a.download = match?.[1] ?? `stockline-export-${Date.now()}.json`
       document.body.appendChild(a)
       a.click()
       a.remove()
@@ -1211,7 +1211,7 @@ export function Settings() {
         </Row>
         <Row label="Send feedback" hint="Report a bug or request a feature">
           <a
-            href={`mailto:${import.meta.env.VITE_FEEDBACK_EMAIL ?? 'feedback@vertex.local'}?subject=${encodeURIComponent('Vertex feedback')}`}
+            href={`mailto:${import.meta.env.VITE_FEEDBACK_EMAIL ?? 'feedback@stockline.local'}?subject=${encodeURIComponent('StockLine feedback')}`}
             className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-white/15 hover:bg-white/[0.07] hover:text-zinc-100"
           >
             Open email

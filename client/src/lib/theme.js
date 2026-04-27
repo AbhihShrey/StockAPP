@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
-const THEME_KEY = 'vertex_theme'
-const DENSITY_KEY = 'vertex_table_density'
+const THEME_KEY = 'stockline_theme'
+const DENSITY_KEY = 'stockline_table_density'
 
 export function getTheme() {
   return localStorage.getItem(THEME_KEY) ?? 'dark'

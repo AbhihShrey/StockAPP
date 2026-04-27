@@ -41,8 +41,8 @@ export function LightweightSpyChart({ symbol = 'SPY' }) {
     function onPref(e) {
       if (e.detail?.key === 'chartStyle') setChartStyle(e.detail.value)
     }
-    window.addEventListener('vertex-prefs-changed', onPref)
-    return () => window.removeEventListener('vertex-prefs-changed', onPref)
+    window.addEventListener('stockline-prefs-changed', onPref)
+    return () => window.removeEventListener('stockline-prefs-changed', onPref)
   }, [])
 
   const range = useMemo(() => {

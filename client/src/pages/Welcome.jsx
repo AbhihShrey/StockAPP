@@ -216,7 +216,7 @@ export function Welcome({ redirectIfAuthenticated = true }) {
       <footer className="border-t border-white/[0.06] py-10">
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 px-4 text-center sm:flex-row sm:justify-between sm:px-6">
           <p className="text-xs text-zinc-600">
-            © {new Date().getFullYear()} Vertex · For informational purposes only.
+            © {new Date().getFullYear()} StockLine · For informational purposes only.
           </p>
           <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-zinc-500">
             <Link to="/privacy" className="transition hover:text-zinc-300">Privacy</Link>

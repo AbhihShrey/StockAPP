@@ -1,7 +1,7 @@
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { VertexLogo } from '../components/VertexLogo'
+import { StockLineLogo } from '../components/StockLineLogo'
 import { apiUrl } from '../lib/apiBase'
 
 export function VerifyEmail() {
@@ -43,7 +43,7 @@ export function VerifyEmail() {
       <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-surface-0/90 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4 sm:px-6">
           <Link to="/welcome">
-            <VertexLogo size="xs" layout="horizontal" showTagline={false} />
+            <StockLineLogo size="xs" layout="horizontal" showTagline={false} />
           </Link>
           <Link to="/welcome" className="text-sm font-medium text-zinc-500 underline-offset-4 transition hover:text-zinc-200 hover:underline">
             ← Back
@@ -67,7 +67,7 @@ export function VerifyEmail() {
                 to="/dashboard"
                 className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-accent py-2.5 text-sm font-semibold text-zinc-950 transition hover:brightness-110"
               >
-                Continue to Vertex
+                Continue to StockLine
               </Link>
             </>
           ) : (

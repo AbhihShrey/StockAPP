@@ -686,13 +686,13 @@ body {
 /* Ring (Sell button outline, etc.) */
 [data-theme="light"] .ring-white\/10 { --tw-ring-color: oklch(0.78 0 0) !important; }
 
-/* ── VertexLogo brand component ──────────────────────────────────────────── */
-[data-theme="light"] .vertex-logo-tile {
+/* ── StockLineLogo brand component ──────────────────────────────────────────── */
+[data-theme="light"] .stockline-logo-tile {
   background: linear-gradient(135deg, #f2f2f2, #e8e8e8) !important;
   border-color: #d0d0d0 !important;
   box-shadow: 0 0 0 1px #00cc6622, 0 2px 8px rgba(0,0,0,0.10) !important;
 }
-[data-theme="light"] .vertex-logo-wordmark {
+[data-theme="light"] .stockline-logo-wordmark {
   color: #1a1a1a !important;
 }
 

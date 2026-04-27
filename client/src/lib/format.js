@@ -1,4 +1,4 @@
-// Centralized display formatters for the Vertex UI.
+// Centralized display formatters for the StockLine UI.
 import { getLocale } from './prefs'
 
 export function fmtPrice(n) {

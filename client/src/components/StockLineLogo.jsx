@@ -1,10 +1,10 @@
 import { useState } from 'react'
 
 const SIZES = {
-  xs: { box: 36, svg: 17, name: 12, spacing: 3, lineW: 24 },
-  sm: { box: 48, svg: 22, name: 15, spacing: 4, lineW: 32 },
-  md: { box: 72, svg: 34, name: 22, spacing: 6, lineW: 40 },
-  lg: { box: 96, svg: 46, name: 30, spacing: 8, lineW: 54 },
+  xs: { box: 36, svg: 17, name: 11, spacing: 2, lineW: 24 },
+  sm: { box: 48, svg: 22, name: 14, spacing: 2.5, lineW: 32 },
+  md: { box: 72, svg: 34, name: 20, spacing: 4, lineW: 40 },
+  lg: { box: 96, svg: 46, name: 28, spacing: 5, lineW: 54 },
 }
 
 function IconTile({ s, hovered, onEnter, onLeave }) {
@@ -15,7 +15,7 @@ function IconTile({ s, hovered, onEnter, onLeave }) {
     <div
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
-      className="vertex-logo-tile"
+      className="stockline-logo-tile"
       style={{
         width: s.box,
         height: s.box,
@@ -59,7 +59,7 @@ function IconTile({ s, hovered, onEnter, onLeave }) {
 function Wordmark({ s }) {
   return (
     <div
-      className="vertex-logo-wordmark"
+      className="stockline-logo-wordmark"
       style={{
         fontFamily: "'Orbitron', monospace",
         fontSize: s.name,
@@ -70,15 +70,15 @@ function Wordmark({ s }) {
         lineHeight: 1,
       }}
     >
-      VER
-      <span style={{ color: '#00ff88', textShadow: '0 0 12px #00ff88cc' }}>T</span>
-      EX
+      STOCK
+      <span style={{ color: '#00ff88', textShadow: '0 0 12px #00ff88cc' }}>L</span>
+      INE
     </div>
   )
 }
 
 /**
- * VertexLogo — reusable brand component.
+ * StockLineLogo — reusable brand component.
  *
  * Props:
  *   size        'xs' | 'sm' | 'md' | 'lg'   — scales everything proportionally
@@ -87,7 +87,7 @@ function Wordmark({ s }) {
  *   showTagline boolean                       — show "Stock Analytics" (vertical only)
  *   className   string
  */
-export function VertexLogo({
+export function StockLineLogo({
   size = 'md',
   layout = 'vertical',
   iconOnly = false,

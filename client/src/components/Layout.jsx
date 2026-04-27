@@ -32,7 +32,7 @@ import { useAuth } from '../context/AuthContext'
 import { useAlerts } from '../context/AlertContext'
 import { apiUrl, authHeaders } from '../lib/apiBase'
 import { getDefaultLanding } from '../lib/prefs'
-import { VertexLogo } from './VertexLogo'
+import { StockLineLogo } from './StockLineLogo'
 
 const MAIN_MAX_W = 'max-w-[88rem]'
 
@@ -139,8 +139,8 @@ function SidebarBody({ collapsed, onNavigate, onToggleCollapse, location, user, 
             title="Home"
           >
             {collapsed
-              ? <VertexLogo size="xs" iconOnly />
-              : <VertexLogo size="xs" layout="horizontal" showTagline={false} />
+              ? <StockLineLogo size="xs" iconOnly />
+              : <StockLineLogo size="xs" layout="horizontal" showTagline={false} />
             }
           </Link>
           {onToggleCollapse ? (
@@ -586,7 +586,7 @@ export function Layout() {
                 <Menu className="size-5" />
               </button>
               <Link to={getDefaultLanding()} className="flex min-w-0 items-center lg:hidden">
-                <VertexLogo size="xs" layout="horizontal" showTagline={false} />
+                <StockLineLogo size="xs" layout="horizontal" showTagline={false} />
               </Link>
               <div className="flex-1 lg:hidden" />
               <div className="flex items-center gap-1 lg:hidden">

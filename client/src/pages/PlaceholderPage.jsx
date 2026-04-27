@@ -22,7 +22,7 @@ import {
   Zap,
 } from 'lucide-react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
-import { VertexLogo } from '../components/VertexLogo'
+import { StockLineLogo } from '../components/StockLineLogo'
 
 function PageShell({ children }) {
   return (
@@ -30,7 +30,7 @@ function PageShell({ children }) {
       <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-surface-0/90 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
           <Link to="/welcome">
-            <VertexLogo size="xs" layout="horizontal" showTagline={false} />
+            <StockLineLogo size="xs" layout="horizontal" showTagline={false} />
           </Link>
           <Link
             to="/welcome"
@@ -42,7 +42,7 @@ function PageShell({ children }) {
       </header>
       {children}
       <footer className="border-t border-white/[0.06] py-8 text-center">
-        <p className="text-xs text-zinc-600">© {new Date().getFullYear()} Vertex · For informational purposes only.</p>
+        <p className="text-xs text-zinc-600">© {new Date().getFullYear()} StockLine · For informational purposes only.</p>
       </footer>
     </div>
   )
@@ -124,7 +124,7 @@ function ProductsPage() {
           </p>
           <h1 className="text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">Everything in one workspace</h1>
           <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-zinc-500 sm:text-base">
-            Vertex gives you the tools to read the market, track positions, and stress-test ideas — without switching between a dozen tabs.
+            StockLine gives you the tools to read the market, track positions, and stress-test ideas — without switching between a dozen tabs.
           </p>
         </div>
 
@@ -219,7 +219,7 @@ function SolutionsPage() {
           </p>
           <h1 className="text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">One platform, every trader</h1>
           <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-zinc-500 sm:text-base">
-            Whether you trade intraday or hold for years, Vertex surfaces the signals you care about and hides the noise you don't.
+            Whether you trade intraday or hold for years, StockLine surfaces the signals you care about and hides the noise you don't.
           </p>
         </div>
 
@@ -255,7 +255,7 @@ function SolutionsPage() {
           {[
             { icon: Clock, label: 'No learning curve', desc: 'The command bar (⌘K) navigates the full app by keyboard. Everything is where you expect it.' },
             { icon: Globe, label: 'Market hours aware', desc: 'Session labels, extended hours alert support, and market-open status shown in real time.' },
-            { icon: Briefcase, label: 'No brokerage required', desc: 'Vertex is a research and planning tool. There is nothing to link — sign up and start immediately.' },
+            { icon: Briefcase, label: 'No brokerage required', desc: 'StockLine is a research and planning tool. There is nothing to link — sign up and start immediately.' },
           ].map((c) => {
             const Icon = c.icon
             return (

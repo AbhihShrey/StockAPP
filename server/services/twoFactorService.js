@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken'
 import * as OTPAuth from 'otpauth'
 import db from '../db.js'
 
-const ISSUER = 'Vertex'
+const ISSUER = 'StockLine'
 const BACKUP_CODE_COUNT = 8
 const BACKUP_CODE_LENGTH = 10 // hex chars
 const SALT_ROUNDS = 10

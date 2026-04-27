@@ -4,15 +4,15 @@ export function TermsOfService() {
   return (
     <LegalShell title="Terms of Service" lastUpdated="April 26, 2026">
       <p>
-        These Terms of Service (&ldquo;Terms&rdquo;) govern your access to and use of Vertex
-        (&ldquo;Vertex&rdquo;, the &ldquo;Service&rdquo;). By creating an account or using the Service,
+        These Terms of Service (&ldquo;Terms&rdquo;) govern your access to and use of StockLine
+        (&ldquo;StockLine&rdquo;, the &ldquo;Service&rdquo;). By creating an account or using the Service,
         you agree to these Terms. If you do not agree, do not use the Service.
       </p>
 
       <h2>1. Eligibility</h2>
       <p>
         You must be at least 13 years old (16 in the EEA) and able to form a binding contract under
-        applicable law. You may not use Vertex if you are barred from doing so under any applicable law.
+        applicable law. You may not use StockLine if you are barred from doing so under any applicable law.
       </p>
 
       <h2>2. Your account</h2>
@@ -33,7 +33,7 @@ export function TermsOfService() {
 
       <h2>4. Intellectual property</h2>
       <p>
-        Vertex and its underlying software, design, and content are owned by [Your Name / Company] and
+        StockLine and its underlying software, design, and content are owned by [Your Name / Company] and
         are protected by intellectual property laws. We grant you a limited, revocable, non-exclusive,
         non-transferable license to access and use the Service for personal, non-commercial use.
       </p>
@@ -44,14 +44,14 @@ export function TermsOfService() {
 
       <h2>5. No investment advice</h2>
       <p>
-        Vertex is provided strictly for informational and educational purposes. <strong>Nothing on the
+        StockLine is provided strictly for informational and educational purposes. <strong>Nothing on the
         Service constitutes investment, financial, tax, or legal advice.</strong> See our
         {' '}<a href="/disclaimer">Disclaimer</a> for the full scope of this provision.
       </p>
 
       <h2>6. Service availability and changes</h2>
       <p>
-        We strive to keep Vertex available, but we may modify, suspend, or discontinue any feature at
+        We strive to keep StockLine available, but we may modify, suspend, or discontinue any feature at
         any time without notice. We are not liable for any unavailability, delay in data, or loss
         resulting from such changes.
       </p>
@@ -74,7 +74,7 @@ export function TermsOfService() {
 
       <h2>9. Limitation of liability</h2>
       <p>
-        TO THE MAXIMUM EXTENT PERMITTED BY LAW, VERTEX AND ITS OPERATORS SHALL NOT BE LIABLE FOR ANY
+        TO THE MAXIMUM EXTENT PERMITTED BY LAW, STOCKLINE AND ITS OPERATORS SHALL NOT BE LIABLE FOR ANY
         INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR FOR ANY LOSS OF PROFITS,
         REVENUE, DATA, OR INVESTMENT VALUE, ARISING OUT OF YOUR USE OF THE SERVICE — EVEN IF WE HAVE
         BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. OUR TOTAL LIABILITY FOR ANY CLAIM RELATED TO
@@ -84,7 +84,7 @@ export function TermsOfService() {
 
       <h2>10. Indemnification</h2>
       <p>
-        You agree to indemnify and hold harmless Vertex and its operators from any claims, damages, or
+        You agree to indemnify and hold harmless StockLine and its operators from any claims, damages, or
         expenses arising from your violation of these Terms or your misuse of the Service.
       </p>
 
