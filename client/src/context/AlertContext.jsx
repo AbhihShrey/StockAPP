@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { getAlertWebSocketUrl } from '../lib/apiBase'
 import { isQuietHours } from '../lib/prefs'
+import { playFireCrackle } from '../lib/sounds'
 
 function conditionLabel(condition, threshold) {
   const orhlM =
@@ -113,6 +114,7 @@ export function AlertProvider({ token, children }) {
         setUnreadCount((c) => c + 1)
         if (!quiet) {
           playAlertChime()
+          playFireCrackle()
           triggerOsNotification(msg)
         }
       } catch {}

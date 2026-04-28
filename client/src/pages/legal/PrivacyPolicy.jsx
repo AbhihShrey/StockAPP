@@ -4,8 +4,8 @@ export function PrivacyPolicy() {
   return (
     <LegalShell title="Privacy Policy" lastUpdated="April 26, 2026">
       <p>
-        This Privacy Policy explains what information StockLine (&ldquo;we&rdquo;, &ldquo;us&rdquo;) collects,
-        how we use it, and the choices you have. By creating an account or using StockLine you agree to the
+        This Privacy Policy explains what information Ember Finances (&ldquo;we&rdquo;, &ldquo;us&rdquo;) collects,
+        how we use it, and the choices you have. By creating an account or using Ember Finances you agree to the
         practices described below.
       </p>
 
@@ -28,14 +28,14 @@ export function PrivacyPolicy() {
 
       <h2>3. Third parties we rely on</h2>
       <ul>
-        <li><strong>Financial Modeling Prep (FMP)</strong> — provides the market data shown on StockLine. Symbols you look up may appear in their request logs. See <a href="https://financialmodelingprep.com" target="_blank" rel="noopener noreferrer">financialmodelingprep.com</a>.</li>
+        <li><strong>Financial Modeling Prep (FMP)</strong> — provides the market data shown on Ember Finances. Symbols you look up may appear in their request logs. See <a href="https://financialmodelingprep.com" target="_blank" rel="noopener noreferrer">financialmodelingprep.com</a>.</li>
         <li><strong>Email provider (SMTP)</strong> — used to deliver verification, password-reset, and alert emails. They process your email address solely to deliver mail.</li>
-        <li><strong>Hosting provider</strong> — runs the StockLine application servers and stores the database.</li>
+        <li><strong>Hosting provider</strong> — runs the Ember Finances application servers and stores the database.</li>
       </ul>
 
       <h2>4. Cookies and local storage</h2>
       <p>
-        StockLine does not use third-party advertising or analytics cookies. We use your browser&rsquo;s
+        Ember Finances does not use third-party advertising or analytics cookies. We use your browser&rsquo;s
         <code> localStorage</code> only to remember your authentication token and your UI preferences.
         See our <a href="/cookies">Cookie Policy</a> for details.
       </p>
@@ -65,7 +65,7 @@ export function PrivacyPolicy() {
 
       <h2>8. Children</h2>
       <p>
-        StockLine is not directed at children under 13 (or under 16 in the EEA). We do not knowingly collect
+        Ember Finances is not directed at children under 13 (or under 16 in the EEA). We do not knowingly collect
         personal information from children.
       </p>
 

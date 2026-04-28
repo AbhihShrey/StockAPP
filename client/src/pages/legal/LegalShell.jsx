@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { StockLineLogo } from '../../components/StockLineLogo'
+import { EmberLogo } from '../../components/EmberLogo'
 
 const FOOTER_LINKS = [
   { to: '/privacy', label: 'Privacy' },
@@ -14,7 +14,7 @@ export function LegalShell({ title, lastUpdated, children }) {
       <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-surface-0/90 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4 sm:px-6">
           <Link to="/welcome">
-            <StockLineLogo size="xs" layout="horizontal" showTagline={false} />
+            <EmberLogo size="xs" layout="horizontal" showTagline={false} />
           </Link>
           <Link
             to="/welcome"
@@ -37,7 +37,7 @@ export function LegalShell({ title, lastUpdated, children }) {
 
       <footer className="border-t border-white/[0.06] py-8">
         <div className="mx-auto flex max-w-3xl flex-col items-center gap-3 px-4 text-center sm:flex-row sm:justify-between">
-          <p className="text-xs text-zinc-600">© {new Date().getFullYear()} StockLine · For informational purposes only.</p>
+          <p className="text-xs text-zinc-600">© {new Date().getFullYear()} Ember Finances · For informational purposes only.</p>
           <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-zinc-500">
             {FOOTER_LINKS.map((l) => (
               <Link key={l.to} to={l.to} className="transition hover:text-zinc-300">{l.label}</Link>

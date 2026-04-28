@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   AlertTriangle, ArrowRight, BarChart3, Bell,
-  BookOpen, CalendarDays, Grid3x3, Layers,
+  BookOpen, CalendarDays, Flame, Grid3x3, Layers,
   Minus, Moon, PieChart, Sun, TrendingUp,
 } from 'lucide-react'
 import { WatchlistMiniWidget } from '../components/WatchlistMiniWidget'
@@ -218,7 +218,12 @@ export function Dashboard() {
     <div className="app-page-enter space-y-6">
       {/* Header */}
       <header className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">Dashboard</h1>
+        <h1 className="flex items-center gap-2.5 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">
+          <span className="dashboard-flame" aria-hidden>
+            <Flame className="size-6 sm:size-7" strokeWidth={2} />
+          </span>
+          <span>Dashboard</span>
+        </h1>
         <div className="flex items-center gap-2">
           <span className={['size-2 shrink-0 rounded-full', dotColor].join(' ')} />
           <span className="text-sm text-zinc-400">{session.label}</span>

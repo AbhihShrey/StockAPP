@@ -2,7 +2,7 @@ import { AreaSeries, createChart, CrosshairMode, LineSeries } from 'lightweight-
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { apiUrl } from '../lib/apiBase'
 import { getChartStyle } from '../lib/prefs'
-import { useTheme } from '../lib/theme'
+import { useChartTheme } from '../lib/theme'
 
 function isoDate(d) {
   return d.toISOString().slice(0, 10)
@@ -33,7 +33,7 @@ export function LightweightSpyChart({ symbol = 'SPY' }) {
   const [raw, setRaw] = useState(null)
   const [err, setErr] = useState(null)
   const [loading, setLoading] = useState(true)
-  const theme = useTheme()
+  const theme = useChartTheme()
   const isLight = theme === 'light'
   const [chartStyle, setChartStyle] = useState(getChartStyle)
 
@@ -41,8 +41,8 @@ export function LightweightSpyChart({ symbol = 'SPY' }) {
     function onPref(e) {
       if (e.detail?.key === 'chartStyle') setChartStyle(e.detail.value)
     }
-    window.addEventListener('stockline-prefs-changed', onPref)
-    return () => window.removeEventListener('stockline-prefs-changed', onPref)
+    window.addEventListener('ember-prefs-changed', onPref)
+    return () => window.removeEventListener('ember-prefs-changed', onPref)
   }, [])
 
   const range = useMemo(() => {

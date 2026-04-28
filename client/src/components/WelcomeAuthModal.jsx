@@ -171,7 +171,7 @@ export function WelcomeAuthModal({ open, mode, onClose, onSwitchMode }) {
             <button
               type="submit"
               disabled={busy}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3 text-sm font-semibold text-zinc-950 transition hover:brightness-110 disabled:opacity-60"
+              className="ember-cta flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3 text-sm font-semibold text-zinc-950 transition hover:brightness-110 disabled:opacity-60"
             >
               {busy ? 'Verifying…' : 'Verify and sign in'}
             </button>
@@ -226,7 +226,7 @@ export function WelcomeAuthModal({ open, mode, onClose, onSwitchMode }) {
                 <button
                   type="submit"
                   disabled={forgotBusy}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3 text-sm font-semibold text-zinc-950 transition hover:brightness-110 disabled:opacity-60"
+                  className="ember-cta flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3 text-sm font-semibold text-zinc-950 transition hover:brightness-110 disabled:opacity-60"
                 >
                   {forgotBusy ? 'Sending…' : 'Send reset link'}
                 </button>
@@ -298,7 +298,7 @@ export function WelcomeAuthModal({ open, mode, onClose, onSwitchMode }) {
           <button
             type="submit"
             disabled={busy}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3 text-sm font-semibold text-zinc-950 transition hover:brightness-110 disabled:opacity-60"
+            className="ember-cta flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3 text-sm font-semibold text-zinc-950 transition hover:brightness-110 disabled:opacity-60"
           >
             {busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Create account'}
           </button>

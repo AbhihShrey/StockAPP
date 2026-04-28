@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef } from 'react'
-import { useTheme } from '../lib/theme'
+import { useChartTheme } from '../lib/theme'
 import { toTradingViewSymbol } from '../lib/tradingViewSymbol'
 
 const SCRIPT_SRC =
@@ -21,7 +21,7 @@ export function TradingViewAdvancedChart({
   const uid = useId().replace(/:/g, '')
   const containerRef = useRef(null)
   const fullSymbol = toTradingViewSymbol(ticker)
-  const theme = useTheme()
+  const theme = useChartTheme()
   const isLight = theme === 'light'
   const bg = isLight ? '#ffffff' : '#131722'
 

@@ -20,7 +20,7 @@ import { apiUrl, authHeaders } from '../lib/apiBase'
 
 // ── Storage ───────────────────────────────────────────────────────────────────
 
-const STORE_KEY = 'stockline_portfolios_v3'
+const STORE_KEY = 'ember_portfolios_v3'
 
 function loadStore() {
   try { return JSON.parse(localStorage.getItem(STORE_KEY) ?? 'null') ?? defaultStore() }
@@ -451,7 +451,11 @@ export function Portfolio() {
           },
           { label: 'Starting budget', value: fmtCash(active?.budget), sub: 'Virtual capital' },
         ].map((c) => (
-          <div key={c.label} className="card-hover rounded-xl border border-white/[0.07] bg-white/[0.03] p-4">
+          <div
+            key={c.label}
+            data-positive={c.colored && c.num != null && c.num > 0 ? '1' : undefined}
+            className={`portfolio-summary card-hover rounded-xl border border-white/[0.07] bg-white/[0.03] p-4`}
+          >
             <p className="text-[11px] text-zinc-500">{c.label}</p>
             <p className={`mt-1 text-lg font-semibold tabular-nums ${
               c.colored

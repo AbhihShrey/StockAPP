@@ -1,4 +1,4 @@
-// Centralized display formatters for the StockLine UI.
+// Centralized display formatters for the Ember Finances UI.
 import { getLocale } from './prefs'
 
 export function fmtPrice(n) {

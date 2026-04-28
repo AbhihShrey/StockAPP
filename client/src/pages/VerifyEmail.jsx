@@ -1,7 +1,8 @@
-import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
+import { CheckCircle2, XCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { StockLineLogo } from '../components/StockLineLogo'
+import { EmberLogo } from '../components/EmberLogo'
+import { FlameSpinner } from '../components/FlameSpinner'
 import { apiUrl } from '../lib/apiBase'
 
 export function VerifyEmail() {
@@ -43,7 +44,7 @@ export function VerifyEmail() {
       <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-surface-0/90 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4 sm:px-6">
           <Link to="/welcome">
-            <StockLineLogo size="xs" layout="horizontal" showTagline={false} />
+            <EmberLogo size="xs" layout="horizontal" showTagline={false} />
           </Link>
           <Link to="/welcome" className="text-sm font-medium text-zinc-500 underline-offset-4 transition hover:text-zinc-200 hover:underline">
             ← Back
@@ -55,7 +56,7 @@ export function VerifyEmail() {
         <div className="rounded-2xl border border-white/10 bg-neutral-950/80 p-6 text-center shadow-2xl shadow-black/40">
           {status === 'loading' ? (
             <>
-              <Loader2 className="mx-auto size-10 animate-spin text-accent" />
+              <FlameSpinner size={40} className="mx-auto" />
               <h1 className="mt-4 text-xl font-semibold tracking-tight text-zinc-50">Verifying email…</h1>
             </>
           ) : status === 'ok' ? (
@@ -67,7 +68,7 @@ export function VerifyEmail() {
                 to="/dashboard"
                 className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-accent py-2.5 text-sm font-semibold text-zinc-950 transition hover:brightness-110"
               >
-                Continue to StockLine
+                Continue to Ember Finances
               </Link>
             </>
           ) : (

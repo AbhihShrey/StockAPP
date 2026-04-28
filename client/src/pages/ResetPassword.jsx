@@ -1,7 +1,8 @@
-import { Eye, EyeOff, KeyRound, Loader2 } from 'lucide-react'
+import { Eye, EyeOff, KeyRound } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { StockLineLogo } from '../components/StockLineLogo'
+import { EmberLogo } from '../components/EmberLogo'
+import { FlameSpinner } from '../components/FlameSpinner'
 import { apiUrl } from '../lib/apiBase'
 
 export function ResetPassword() {
@@ -46,7 +47,7 @@ export function ResetPassword() {
       <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-surface-0/90 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4 sm:px-6">
           <Link to="/welcome">
-            <StockLineLogo size="xs" layout="horizontal" showTagline={false} />
+            <EmberLogo size="xs" layout="horizontal" showTagline={false} />
           </Link>
           <Link to="/welcome" className="text-sm font-medium text-zinc-500 underline-offset-4 transition hover:text-zinc-200 hover:underline">
             ← Back
@@ -108,7 +109,7 @@ export function ResetPassword() {
                 disabled={busy}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-2.5 text-sm font-semibold text-zinc-950 transition hover:brightness-110 disabled:opacity-60"
               >
-                {busy ? <Loader2 className="size-4 animate-spin" /> : <KeyRound className="size-4" />}
+                {busy ? <FlameSpinner size={16} /> : <KeyRound className="size-4" />}
                 {busy ? 'Updating…' : 'Update password'}
               </button>
             </form>

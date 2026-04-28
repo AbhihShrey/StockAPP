@@ -892,8 +892,13 @@ export function Alerts() {
                   const cooling = isCooling(alert, nowSec)
                   const remaining = cooling ? formatCooldownRemaining(alert, nowSec) : null
                   const isEarnings = alert.alert_type === 'earnings' || alert.condition === 'earnings_report'
+                  const liveFuse = activeTab === 'intraday' && alert.is_active === 1 && !cooling
                   return (
-                    <tr key={alert.id} className="hover:bg-white/5">
+                    <tr
+                      key={alert.id}
+                      data-alert-state={liveFuse ? 'active' : undefined}
+                      className="alert-row hover:bg-white/5"
+                    >
                       <td className="px-4 py-3">
                         <div className="font-semibold text-zinc-100">{alert.symbol}</div>
                         {alert.alert_type === 'swing' && (

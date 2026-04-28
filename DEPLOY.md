@@ -1,6 +1,6 @@
-# StockLine — Deploy Runbook
+# Ember Finances — Deploy Runbook
 
-End-to-end instructions for taking StockLine from your laptop to a public URL. Total
+End-to-end instructions for taking Ember Finances from your laptop to a public URL. Total
 cost: ~$10/year (domain) + ~$8/month (Render Starter + 1 GB disk).
 Time: ~2 hours of clicking through provider dashboards.
 
@@ -12,7 +12,7 @@ Time: ~2 hours of clicking through provider dashboards.
 - A credit/debit card for Cloudflare and Render.
 - An SMTP provider account (Gmail with an App Password works for low volume;
   SendGrid / Mailgun / Postmark for production).
-- The StockLine source code on your laptop, with all current changes committed.
+- The Ember Finances source code on your laptop, with all current changes committed.
 
 Confirm the working tree is clean before you start:
 
@@ -42,12 +42,12 @@ git log -1        # note the commit you're about to deploy
 
 1. Confirm the repo `.gitignore` already excludes `.env`, `server/data/`, and
    `node_modules/` — it does.
-2. At https://github.com/new create a **private** repo named e.g. `stockline`.
+2. At https://github.com/new create a **private** repo named e.g. `ember-finances`.
    Do NOT initialize it with a README.
 3. Wire and push:
 
    ```bash
-   git remote add origin git@github.com:<you>/stockline.git
+   git remote add origin git@github.com:<you>/ember-finances.git
    git branch -M main
    git push -u origin main
    ```
@@ -57,9 +57,9 @@ git log -1        # note the commit you're about to deploy
 ## 3. Deploy the backend on Render (~20 min, ~$8/mo)
 
 1. Sign up at https://render.com and connect your GitHub account.
-2. **New → Web Service →** select the `stockline` repo.
+2. **New → Web Service →** select the `ember-finances` repo.
 3. Settings:
-   - **Name:** `stockline-api`
+   - **Name:** `ember-finances-api`
    - **Root Directory:** `server`
    - **Runtime:** Node 22 (or "Auto")
    - **Build Command:** `npm install`
@@ -67,7 +67,7 @@ git log -1        # note the commit you're about to deploy
    - **Plan:** Starter — $7/mo. Do **not** pick Free; the free tier sleeps
      after 15 min idle and will break the alert-engine cron.
 4. **Disks → Add Disk** (right side panel before creating the service):
-   - **Name:** `stockline-data`
+   - **Name:** `ember-finances-data`
    - **Mount Path:** `/var/data`
    - **Size:** 1 GB (~$1/mo)
    - This is where SQLite + nightly backups live across deploys.
@@ -83,7 +83,7 @@ git log -1        # note the commit you're about to deploy
    | `SMTP_PORT` | `587` |
    | `SMTP_USER` | your SMTP username |
    | `SMTP_PASS` | your SMTP password / app password |
-   | `SMTP_FROM_NAME` | `StockLine` |
+   | `SMTP_FROM_NAME` | `Ember Finances` |
    | `DB_DIR` | `/var/data` |
    | `PUBLIC_BASE_URL` | `https://<your-domain>.com` (set after step 5) |
    | `CORS_ORIGINS` | `https://<your-domain>.com` (set after step 5) |
@@ -93,16 +93,16 @@ git log -1        # note the commit you're about to deploy
    feature-flagged off — see step 6).
 
 6. Click **Create Web Service**. Wait ~3 min for the first build. Note the
-   provisional URL (e.g. `https://stockline-api.onrender.com`) — you'll need it
+   provisional URL (e.g. `https://ember-finances-api.onrender.com`) — you'll need it
    in step 4.
 
 ---
 
 ## 4. Deploy the frontend on Render (~15 min, free)
 
-1. Render dashboard → **New → Static Site →** same `stockline` repo.
+1. Render dashboard → **New → Static Site →** same `ember-finances` repo.
 2. Settings:
-   - **Name:** `stockline-web`
+   - **Name:** `ember-finances-web`
    - **Root Directory:** `client`
    - **Build Command:** `npm install && npm run build`
    - **Publish Directory:** `dist`
@@ -110,13 +110,13 @@ git log -1        # note the commit you're about to deploy
 
    | Key | Value |
    |---|---|
-   | `VITE_API_BASE` | `https://stockline-api.onrender.com` (use your domain after step 5) |
+   | `VITE_API_BASE` | `https://ember-finances-api.onrender.com` (use your domain after step 5) |
    | `VITE_FEATURE_BACKTEST` | `0` |
 
 4. Click **Create Static Site**. Note the provisional URL (e.g.
-   `https://stockline-web.onrender.com`).
-5. Back in `stockline-api` → Environment, set
-   `CORS_ORIGINS=https://stockline-web.onrender.com` and click **Save** so the
+   `https://ember-finances-web.onrender.com`).
+5. Back in `ember-finances-api` → Environment, set
+   `CORS_ORIGINS=https://ember-finances-web.onrender.com` and click **Save** so the
    backend allows the static site origin while you test.
 
 Open the static-site URL in your browser. Sign up, get the verification email,
@@ -127,7 +127,7 @@ custom-domain wiring.
 
 ## 5. Wire your domain (~30 min, including DNS propagation)
 
-Plan: `stockline.com` serves the frontend, `api.stockline.com` serves the backend.
+Plan: `emberfinances.com` serves the frontend, `api.emberfinances.com` serves the backend.
 
 ### 5a. Add DNS records in Cloudflare
 
@@ -136,9 +136,9 @@ Plan: `stockline.com` serves the frontend, `api.stockline.com` serves the backen
 
    | Type | Name | Target | Proxy |
    |---|---|---|---|
-   | `CNAME` | `@` | `stockline-web.onrender.com` | DNS only (grey cloud) |
-   | `CNAME` | `www` | `stockline-web.onrender.com` | DNS only |
-   | `CNAME` | `api` | `stockline-api.onrender.com` | DNS only |
+   | `CNAME` | `@` | `ember-finances-web.onrender.com` | DNS only (grey cloud) |
+   | `CNAME` | `www` | `ember-finances-web.onrender.com` | DNS only |
+   | `CNAME` | `api` | `ember-finances-api.onrender.com` | DNS only |
 
    Cloudflare flattens `CNAME @` automatically. **Set proxy to "DNS only"
    (grey cloud)** — Render handles its own TLS, and orange-cloud proxying
@@ -149,21 +149,21 @@ Plan: `stockline.com` serves the frontend, `api.stockline.com` serves the backen
 
 ### 5b. Tell Render about the custom domains
 
-1. `stockline-web` → **Custom Domains → Add** `stockline.com` (and `www.stockline.com`).
-2. `stockline-api` → **Custom Domains → Add** `api.stockline.com`.
+1. `ember-finances-web` → **Custom Domains → Add** `emberfinances.com` (and `www.emberfinances.com`).
+2. `ember-finances-api` → **Custom Domains → Add** `api.emberfinances.com`.
 3. Render will show TLS provisioning. Wait until it goes green for all three
    (5–60 min).
 
 ### 5c. Point the apps at the real domain
 
-In `stockline-api` → Environment:
+In `ember-finances-api` → Environment:
 
-- `CORS_ORIGINS` → `https://stockline.com,https://www.stockline.com`
-- `PUBLIC_BASE_URL` → `https://stockline.com`
+- `CORS_ORIGINS` → `https://emberfinances.com,https://www.emberfinances.com`
+- `PUBLIC_BASE_URL` → `https://emberfinances.com`
 
-In `stockline-web` → Environment:
+In `ember-finances-web` → Environment:
 
-- `VITE_API_BASE` → `https://api.stockline.com`
+- `VITE_API_BASE` → `https://api.emberfinances.com`
 
 Trigger a redeploy on each. Wait for both green checkmarks.
 
@@ -174,10 +174,10 @@ Trigger a redeploy on each. Wait for both green checkmarks.
 Strategies is hidden behind `VITE_FEATURE_BACKTEST=0`. To enable later:
 
 1. Render → **New → Background Worker** (or Web Service if you want HTTP).
-2. Repo: `stockline`, root directory: `backtest-service`, runtime: Python 3.11.
+2. Repo: `ember-finances`, root directory: `backtest-service`, runtime: Python 3.11.
 3. Add `BACKTEST_SERVICE_URL=https://<that-service>.onrender.com` to
-   `stockline-api`.
-4. Add `VITE_FEATURE_BACKTEST=1` to `stockline-web` and redeploy.
+   `ember-finances-api`.
+4. Add `VITE_FEATURE_BACKTEST=1` to `ember-finances-web` and redeploy.
 
 The page, sidebar entry, dashboard tile, and Settings landing-page option all
 re-appear automatically.
@@ -186,7 +186,7 @@ re-appear automatically.
 
 ## 7. Smoke test (do this before announcing)
 
-1. **Signup → verify email:** create a new account on `stockline.com`. The
+1. **Signup → verify email:** create a new account on `emberfinances.com`. The
    verification email should arrive within ~30 s. Click the link → land on
    `/verify-email` with a green success state. The amber "Verify your email"
    banner in the layout should disappear after refresh.
@@ -205,7 +205,7 @@ re-appear automatically.
 6. **CORS:** from the terminal,
 
    ```bash
-   curl -i -H "Origin: https://evil.example" https://api.stockline.com/api/auth/me
+   curl -i -H "Origin: https://evil.example" https://api.emberfinances.com/api/auth/me
    ```
 
    should NOT include `Access-Control-Allow-Origin: *`. From your real
@@ -213,18 +213,18 @@ re-appear automatically.
 7. **Rate limit:** hammer the public endpoint —
 
    ```bash
-   for i in {1..70}; do curl -s -o /dev/null -w "%{http_code}\n" https://api.stockline.com/api/market-summary; done
+   for i in {1..70}; do curl -s -o /dev/null -w "%{http_code}\n" https://api.emberfinances.com/api/market-summary; done
    ```
 
    should turn into `429`s after 60 requests.
-8. **Backups:** wait until 03:00 ET, then on Render → `stockline-api` → Shell:
+8. **Backups:** wait until 03:00 ET, then on Render → `ember-finances-api` → Shell:
 
    ```bash
    ls /var/data/backups
    ```
 
    should list `app-YYYY-MM-DD.db`.
-9. **Hidden Strategies:** visit `https://stockline.com/strategies` — you should
+9. **Hidden Strategies:** visit `https://emberfinances.com/strategies` — you should
    redirect to `/dashboard`.
 
 When all 9 pass, you can share the link.
@@ -235,12 +235,12 @@ When all 9 pass, you can share the link.
 
 - **Logs:** Render dashboard → service → Logs (tail) or Events.
 - **Restart:** Render dashboard → service → Manual Deploy → "Deploy latest commit".
-- **Database backup download:** Render dashboard → `stockline-api` → Shell tab,
+- **Database backup download:** Render dashboard → `ember-finances-api` → Shell tab,
   then `cat /var/data/backups/app-YYYY-MM-DD.db | base64` and pipe into a
   local file (or use Render's SSH-based file download for the disk).
 - **Rotate JWT_SECRET:** changing it logs everyone out (existing tokens fail
   signature). Do it from Render → Environment, redeploy.
-- **Add an admin / inspect data:** `stockline-api` Shell, then
+- **Add an admin / inspect data:** `ember-finances-api` Shell, then
   `sqlite3 /var/data/investai.db` for a REPL.
 
 ---

@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef } from 'react'
-import { useTheme } from '../lib/theme'
+import { useChartTheme } from '../lib/theme'
 
 const SCRIPT_SRC =
   'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js'
@@ -7,7 +7,7 @@ const SCRIPT_SRC =
 export function TradingViewTickerTape() {
   const uid = useId().replace(/:/g, '')
   const ref = useRef(null)
-  const theme = useTheme()
+  const theme = useChartTheme()
   const isLight = theme === 'light'
   const bg = isLight ? '#ffffff' : '#131722'
 

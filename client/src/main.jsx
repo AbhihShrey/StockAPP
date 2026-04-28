@@ -1,3 +1,4 @@
+import './lib/legacyMigration.js'   // MUST stay first — migrates stockline_* → ember_*
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { installLocaleShim } from './lib/localeBootstrap.js'

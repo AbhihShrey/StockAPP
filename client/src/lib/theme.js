@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 
-const THEME_KEY = 'stockline_theme'
-const DENSITY_KEY = 'stockline_table_density'
+const THEME_KEY = 'ember_theme'
+const DENSITY_KEY = 'ember_table_density'
 
 export function getTheme() {
-  return localStorage.getItem(THEME_KEY) ?? 'dark'
+  return localStorage.getItem(THEME_KEY) ?? 'ember'
 }
 
 export function getDensity() {
@@ -24,8 +24,12 @@ export function applyDensity(density) {
 }
 
 export function saveTheme(theme) {
+  const previous = localStorage.getItem(THEME_KEY)
   localStorage.setItem(THEME_KEY, theme)
   applyTheme(theme)
+  if (theme === 'ember' && previous !== 'ember' && typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('ember-theme-ignition'))
+  }
 }
 
 export function saveDensity(density) {
@@ -33,19 +37,26 @@ export function saveDensity(density) {
   applyDensity(density)
 }
 
-/** React hook — returns 'light' | 'dark', updates when theme changes */
+/** React hook — returns the active theme value, updates when theme changes */
 export function useTheme() {
   const [theme, setTheme] = useState(
-    () => document.documentElement.getAttribute('data-theme') ?? 'dark',
+    () => document.documentElement.getAttribute('data-theme') ?? 'ember',
   )
   useEffect(() => {
     const obs = new MutationObserver(() => {
-      setTheme(document.documentElement.getAttribute('data-theme') ?? 'dark')
+      setTheme(document.documentElement.getAttribute('data-theme') ?? 'ember')
     })
     obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
     return () => obs.disconnect()
   }, [])
   return theme
+}
+
+/** TradingView and Lightweight-charts only accept 'light' | 'dark'.
+ *  Ember collapses to 'dark' so chart libs render correctly on the new theme. */
+export function useChartTheme() {
+  const theme = useTheme()
+  return theme === 'light' ? 'light' : 'dark'
 }
 
 // Run at module load time so there's no flash of wrong theme

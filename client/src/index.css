@@ -686,13 +686,13 @@ body {
 /* Ring (Sell button outline, etc.) */
 [data-theme="light"] .ring-white\/10 { --tw-ring-color: oklch(0.78 0 0) !important; }
 
-/* ── StockLineLogo brand component ──────────────────────────────────────────── */
-[data-theme="light"] .stockline-logo-tile {
+/* ── EmberLogo brand component ──────────────────────────────────────────── */
+[data-theme="light"] .ember-logo-tile {
   background: linear-gradient(135deg, #f2f2f2, #e8e8e8) !important;
   border-color: #d0d0d0 !important;
   box-shadow: 0 0 0 1px #00cc6622, 0 2px 8px rgba(0,0,0,0.10) !important;
 }
-[data-theme="light"] .stockline-logo-wordmark {
+[data-theme="light"] .ember-logo-wordmark {
   color: #1a1a1a !important;
 }
 
@@ -787,4 +787,817 @@ body {
 }
 [data-density="comfortable"] table tbody td {
   font-size: 0.95rem !important;
+}
+
+/* ── Ember theme ──────────────────────────────────────────────────────────────
+   Pure-black surfaces with calm red-orange accent. The accent token alone
+   carries the ember identity through every component that uses bg-accent /
+   text-accent / border-accent. P/L greens (success) and reds (danger) are
+   harmonized but kept semantically distinct. */
+[data-theme="ember"] {
+  color-scheme: dark;
+  --color-surface-0: oklch(0.06 0 0);
+  --color-surface-1: oklch(0.10 0.005 40);
+  --color-surface-2: oklch(0.14 0.008 40);
+  --color-border-subtle: oklch(0.30 0.04 40 / 0.55);
+  --color-accent: oklch(0.65 0.16 40);
+  --color-accent-muted: oklch(0.65 0.16 40 / 0.15);
+  --color-success: oklch(0.72 0.15 145);
+  --color-danger:  oklch(0.62 0.20 28);
+  --color-warning: oklch(0.78 0.16 70);
+  --color-ember-glow: oklch(0.55 0.20 35);
+  --color-ember-core: oklch(0.45 0.18 30);
+  --color-ember-spark: oklch(0.85 0.18 60);
+  --color-ember-outer: oklch(0.55 0.18 28);
+  --color-ember-mid:   oklch(0.72 0.19 45);
+  --color-ember-hot:   oklch(0.92 0.10 78);
+}
+
+[data-theme="ember"] body {
+  background: var(--color-surface-0);
+  background-image:
+    radial-gradient(ellipse 120% 80% at 50% -30%, oklch(0.55 0.20 35 / 0.06), transparent),
+    radial-gradient(ellipse 80% 50% at 100% 100%, oklch(0.45 0.18 30 / 0.07), transparent);
+  background-attachment: fixed;
+}
+
+/* ── Fire Spirit mascot ───────────────────────────────────────────────────── */
+.ember-spirit {
+  position: fixed;
+  right: 20px;
+  bottom: 24px;
+  width: 48px;
+  height: 48px;
+  z-index: 50;
+  pointer-events: auto;
+  filter: drop-shadow(0 0 10px var(--color-ember-glow, oklch(0.55 0.20 35 / 0.5)));
+  transition: filter 0.3s ease, transform 0.3s ease;
+  cursor: pointer;
+}
+.ember-spirit::after {
+  content: '';
+  position: absolute;
+  left: -10px;
+  right: -10px;
+  bottom: -8px;
+  height: 16px;
+  background: radial-gradient(ellipse at center, var(--color-accent, #ff6a2c) 0%, transparent 70%);
+  opacity: 0.6;
+  filter: blur(7px);
+  animation: ember-spirit-glow 2.6s ease-in-out infinite;
+  z-index: -1;
+  pointer-events: none;
+}
+@keyframes ember-spirit-glow {
+  0%, 100% { opacity: 0.5; transform: scaleX(0.92); }
+  50%      { opacity: 0.95; transform: scaleX(1.12); }
+}
+@media (max-width: 640px) {
+  .ember-spirit { right: 12px; bottom: max(80px, env(safe-area-inset-bottom, 0) + 80px); }
+}
+
+.ember-spirit-svg {
+  display: block;
+  overflow: visible;
+}
+
+@keyframes ember-spirit-idle {
+  0%, 100% { transform: scaleY(0.96) translateX(-1.5px); }
+  50%      { transform: scaleY(1.04) translateX(1.5px); }
+}
+@keyframes ember-spirit-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95%           { transform: scaleY(0.1); }
+}
+@keyframes ember-spirit-alert {
+  0%   { transform: scale(1); filter: brightness(1); }
+  35%  { transform: scale(1.4); filter: brightness(1.6); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+@keyframes ember-spirit-pagechange {
+  0%   { transform: translateX(0) rotate(0deg); }
+  40%  { transform: translateX(-8px) rotate(-6deg); }
+  100% { transform: translateX(0) rotate(0deg); }
+}
+@keyframes ember-spirit-bored {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes ember-spirit-puff {
+  0%   { transform: translate(0, 0) scale(0.6); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translate(var(--puff-x, 0px), var(--puff-y, -50px)) scale(1.2); opacity: 0; }
+}
+@keyframes ember-spirit-happy {
+  0%   { transform: scale(1) rotate(0deg); }
+  25%  { transform: scale(1.35) rotate(-12deg); }
+  55%  { transform: scale(0.9) rotate(12deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+@keyframes ember-spirit-greet {
+  0%   { transform: rotate(0deg); }
+  20%  { transform: rotate(-15deg); }
+  50%  { transform: rotate(15deg); }
+  75%  { transform: rotate(-8deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.ember-spirit-idle .ember-spirit-body {
+  transform-origin: 50% 70%;
+  animation: ember-spirit-idle 1.4s ease-in-out infinite;
+}
+.ember-spirit-idle .ember-spirit-eye {
+  transform-origin: center;
+  animation: ember-spirit-blink 5s ease-in-out infinite;
+}
+.ember-spirit-idle .ember-spirit-eye-r {
+  animation-delay: 0.06s;
+}
+
+.ember-spirit-alert .ember-spirit-svg {
+  animation: ember-spirit-alert 850ms ease-out;
+}
+.ember-spirit-alert .ember-spirit-body {
+  fill: var(--color-ember-spark, oklch(0.85 0.18 60));
+}
+
+.ember-spirit-pageChange .ember-spirit-svg {
+  animation: ember-spirit-pagechange 350ms ease-out;
+}
+
+.ember-spirit-bored .ember-spirit-svg {
+  animation: ember-spirit-bored 800ms ease-in-out;
+}
+
+.ember-spirit-happy .ember-spirit-svg {
+  animation: ember-spirit-happy 700ms ease-out;
+}
+
+.ember-spirit-greet .ember-spirit-svg {
+  animation: ember-spirit-greet 800ms ease-in-out;
+}
+
+.ember-spirit-hovered {
+  transform: scale(1.15);
+}
+.ember-spirit-hovered .ember-spirit-eye-l {
+  transform: scaleY(0.1);
+  transform-origin: center;
+  animation: none;
+}
+
+.ember-spirit-asleep .ember-spirit-svg {
+  opacity: 0.5;
+  animation: none !important;
+}
+.ember-spirit-asleep .ember-spirit-eye {
+  transform: scaleY(0.15);
+  transform-origin: center;
+  animation: none;
+}
+
+.ember-spirit-static .ember-spirit-svg,
+.ember-spirit-static .ember-spirit-body,
+.ember-spirit-static .ember-spirit-eye {
+  animation: none !important;
+}
+
+.ember-spirit-reduced .ember-spirit-body,
+.ember-spirit-reduced .ember-spirit-eye {
+  animation: none !important;
+}
+
+.ember-spirit-puff {
+  position: absolute;
+  left: 22px;
+  bottom: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-ember-hot, #ffe0a8) 0%, var(--color-accent, #ff6a2c) 60%, transparent 100%);
+  box-shadow: 0 0 6px var(--color-accent, #ff6a2c);
+  pointer-events: none;
+  animation: ember-spirit-puff 1.2s ease-out forwards;
+  mix-blend-mode: screen;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ember-spirit-svg,
+  .ember-spirit-body,
+  .ember-spirit-eye,
+  .ember-spirit-puff {
+    animation: none !important;
+  }
+}
+
+/* ── Welcome Q&A panel (anchored above the Fire Spirit) ───────────────────── */
+.ember-qa-panel {
+  position: fixed;
+  right: 20px;
+  bottom: 84px;
+  z-index: 55;
+  width: min(340px, calc(100vw - 32px));
+  max-height: min(60vh, 520px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  border: 1px solid oklch(1 0 0 / 0.10);
+  background: linear-gradient(180deg, oklch(0.18 0.02 30 / 0.96), oklch(0.12 0.02 30 / 0.96));
+  box-shadow:
+    0 18px 40px -18px rgba(0, 0, 0, 0.85),
+    0 0 0 1px oklch(0.55 0.20 35 / 0.08),
+    0 0 30px -8px oklch(0.55 0.20 35 / 0.35);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  overflow: hidden;
+  transform-origin: bottom right;
+  animation: ember-qa-pop 220ms cubic-bezier(0.2, 0.8, 0.2, 1.05) both;
+}
+@keyframes ember-qa-pop {
+  0%   { opacity: 0; transform: translateY(6px) scale(0.96); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (max-width: 640px) {
+  .ember-qa-panel {
+    right: 12px;
+    bottom: max(140px, env(safe-area-inset-bottom, 0) + 140px);
+    width: calc(100vw - 24px);
+  }
+}
+
+.ember-qa-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 14px;
+  border-bottom: 1px solid oklch(1 0 0 / 0.06);
+  background: linear-gradient(180deg, oklch(0.55 0.20 35 / 0.08), transparent);
+}
+
+.ember-qa-pip {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-ember-hot, #ffe0a8) 0%, var(--color-accent, #ff6a2c) 60%, transparent 100%);
+  box-shadow: 0 0 8px var(--color-accent, #ff6a2c);
+  animation: ember-qa-pip-pulse 1.6s ease-in-out infinite;
+}
+@keyframes ember-qa-pip-pulse {
+  0%, 100% { transform: scale(1);   opacity: 0.85; }
+  50%      { transform: scale(1.25); opacity: 1; }
+}
+
+.ember-qa-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  overflow-y: auto;
+  flex: 1;
+}
+.ember-qa-list::-webkit-scrollbar { width: 6px; }
+.ember-qa-list::-webkit-scrollbar-thumb {
+  background: oklch(1 0 0 / 0.08);
+  border-radius: 3px;
+}
+
+.ember-qa-item {
+  position: relative;
+  border-top: 1px solid oklch(1 0 0 / 0.04);
+}
+.ember-qa-item:first-child { border-top: 0; }
+.ember-qa-item.is-open {
+  background: oklch(0.55 0.20 35 / 0.06);
+}
+
+.ember-qa-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: 0;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 500;
+  color: oklch(0.92 0.01 60);
+  cursor: pointer;
+  transition: color 0.18s ease, background 0.18s ease;
+}
+.ember-qa-q:hover {
+  background: oklch(1 0 0 / 0.03);
+  color: oklch(0.98 0.01 60);
+}
+
+.ember-qa-a {
+  margin: 0;
+  padding: 0 14px 12px 14px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: oklch(0.72 0.01 60);
+}
+
+.ember-qa-footer {
+  padding: 8px 14px;
+  border-top: 1px solid oklch(1 0 0 / 0.06);
+  background: linear-gradient(0deg, oklch(0.55 0.20 35 / 0.06), transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ember-qa-panel { animation: none; }
+  .ember-qa-pip   { animation: none; }
+}
+
+/* ── Ember particles (Welcome hero) ───────────────────────────────────────── */
+.ember-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ember-particle {
+  position: absolute;
+  bottom: -10px;
+  left: var(--p-x);
+  width: var(--p-size);
+  height: var(--p-size);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    var(--color-ember-hot, #ffe0a8) 0%,
+    var(--color-accent, #ff6a2c) 55%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 8px var(--color-accent, #ff6a2c),
+    0 0 14px var(--color-ember-spark, oklch(0.85 0.18 60));
+  opacity: 0;
+  animation: ember-rise var(--p-duration) ease-out var(--p-delay) infinite;
+  mix-blend-mode: screen;
+}
+
+@keyframes ember-rise {
+  0% { transform: translate(0, 0) scale(0.6); opacity: 0; }
+  10% { opacity: var(--p-opacity, 0.85); }
+  70% { opacity: calc(var(--p-opacity, 0.85) * 0.85); }
+  100% { transform: translate(var(--p-drift), -110vh) scale(0.4); opacity: 0; }
+}
+
+/* ── Ember bed (glowing coals at hero bottom) ─────────────────────────────── */
+.welcome-ember-bed {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -20px;
+  height: 220px;
+  background:
+    radial-gradient(ellipse 80% 100% at 30% 100%, oklch(0.55 0.20 35 / 0.55), transparent 65%),
+    radial-gradient(ellipse 70% 100% at 70% 100%, oklch(0.65 0.18 40 / 0.45), transparent 70%),
+    radial-gradient(ellipse 100% 100% at 50% 100%, oklch(0.45 0.18 30 / 0.32), transparent 80%);
+  filter: blur(8px);
+  animation: ember-bed-breath 4.5s ease-in-out infinite;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+@keyframes ember-bed-breath {
+  0%, 100% { opacity: 0.7; transform: scaleY(1); }
+  50%      { opacity: 1.0; transform: scaleY(1.06); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .welcome-ember-bed { animation: none; opacity: 0.7; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ember-particle { animation: none; opacity: 0; }
+}
+
+/* ── Ember hero glow (replaces the old flowing-lines welcome glow) ────────── */
+.welcome-hero-glow--ember {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 45% at 50% 35%, oklch(0.55 0.20 35 / 0.18), transparent 70%),
+    radial-gradient(ellipse 90% 60% at 50% 95%, oklch(0.45 0.18 30 / 0.10), transparent 70%);
+  pointer-events: none;
+}
+
+/* ── Ember-burst button portal ────────────────────────────────────────────── */
+.ember-burst-portal {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.ember-burst {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.ember-burst-spark {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  margin-top: -4.5px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    var(--color-ember-hot, #ffe0a8) 0%,
+    var(--color-accent, #ff6a2c) 60%,
+    transparent 100%
+  );
+  box-shadow: 0 0 8px var(--color-accent, #ff6a2c);
+  opacity: 0;
+  animation: ember-burst 800ms ease-out var(--delay, 0ms) forwards;
+  mix-blend-mode: screen;
+}
+
+@keyframes ember-burst {
+  0% { transform: translate(0, 0) scale(0.4); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ember-burst-spark { animation: none; opacity: 0; }
+}
+
+/* ── Toast ignition (catch-fire embers along top edge) ────────────────────── */
+.ember-toast-ignition {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -2px;
+  height: 8px;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.ember-toast-spark {
+  position: absolute;
+  bottom: 0;
+  left: var(--spark-x);
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-ember-hot, #ffe0a8) 0%, var(--color-accent, #ff6a2c) 60%, transparent 100%);
+  box-shadow: 0 0 6px var(--color-accent, #ff6a2c);
+  opacity: 0;
+  animation: toast-ember-spawn 900ms ease-out var(--spark-delay, 0ms) forwards;
+  mix-blend-mode: screen;
+}
+
+@keyframes toast-ember-spawn {
+  0% { transform: translateY(0) scale(0.6); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(-32px) scale(0.3); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ember-toast-spark { animation: none; opacity: 0; }
+}
+
+/* ── Flame spinner ────────────────────────────────────────────────────────── */
+.flame-spinner {
+  color: var(--color-accent, #ff6a2c);
+  animation: flame-flicker 1.1s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+@keyframes flame-flicker {
+  0%, 100% { transform: scaleY(1) translateY(0); opacity: 0.95; }
+  25%      { transform: scaleY(1.08) translateY(-1px); opacity: 1; }
+  50%      { transform: scaleY(0.94) translateY(0.5px); opacity: 0.9; }
+  75%      { transform: scaleY(1.05) translateY(-0.5px); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flame-spinner { animation: none; }
+}
+
+/* ── Click sparks (universal) ─────────────────────────────────────────────── */
+.ember-click-portal {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+}
+
+.ember-click-burst {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.ember-click-spark {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  margin-top: -2.5px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-ember-hot, #ffe0a8) 0%, var(--color-accent, #ff6a2c) 70%, transparent 100%);
+  box-shadow: 0 0 5px var(--color-accent, #ff6a2c);
+  animation: ember-click-sparkle 500ms ease-out forwards;
+  mix-blend-mode: screen;
+}
+
+@keyframes ember-click-sparkle {
+  0%   { transform: translate(0, 0) scale(0.4); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translate(var(--cx), var(--cy)) scale(0.2); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ember-click-spark { animation: none; opacity: 0; }
+}
+
+/* ── Theme-switch ignition (full-viewport ember bloom) ────────────────────── */
+.ember-ignition {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: radial-gradient(
+    circle at 50% 50%,
+    oklch(0.85 0.18 60 / 0.45) 0%,
+    oklch(0.65 0.20 35 / 0.35) 30%,
+    oklch(0.45 0.18 30 / 0.18) 55%,
+    transparent 75%
+  );
+  animation: ember-ignition-bloom 900ms ease-out forwards;
+  mix-blend-mode: screen;
+}
+
+@keyframes ember-ignition-bloom {
+  0%   { transform: scale(0.05); opacity: 0; }
+  35%  { opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ember-ignition { animation: none; opacity: 0; }
+}
+
+/* ── Primary-CTA hover halo ───────────────────────────────────────────────── */
+.ember-cta {
+  position: relative;
+  isolation: isolate;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+.ember-cta:hover {
+  box-shadow:
+    0 0 0 1px var(--color-accent, #ff6a2c),
+    0 0 16px var(--color-accent, #ff6a2c),
+    0 0 32px oklch(0.55 0.20 35 / 0.45);
+  transform: translateY(-1px);
+}
+.ember-cta::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, transparent 30%, var(--color-accent, #ff6a2c) 50%, transparent 70%);
+  background-size: 200% 200%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+  pointer-events: none;
+  filter: blur(6px);
+}
+.ember-cta:hover::before {
+  opacity: 0.55;
+  animation: ember-cta-shimmer 1.6s linear infinite;
+}
+@keyframes ember-cta-shimmer {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: 200% 200%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ember-cta:hover::before { animation: none; }
+  .ember-cta:hover { transform: none; }
+}
+
+/* ── Sidebar nav active heat-underline ────────────────────────────────────── */
+.nav-active::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 4px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-accent, #ff6a2c), transparent);
+  background-size: 200% 100%;
+  animation: ember-nav-trail 2.4s linear infinite;
+  pointer-events: none;
+}
+@keyframes ember-nav-trail {
+  0%   { background-position: -100% 0%; }
+  100% { background-position: 100% 0%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-active::after { animation: none; opacity: 0.7; }
+}
+
+/* ── Bell flame on new alert ──────────────────────────────────────────────── */
+[data-bell-state="firing"] {
+  filter: drop-shadow(0 0 6px var(--color-accent, #ff6a2c)) drop-shadow(0 0 12px var(--color-ember-glow, #cc3a1a));
+  animation: bell-flame 1.2s ease-out;
+  transform-origin: 50% 30%;
+}
+@keyframes bell-flame {
+  0%   { transform: scale(1) rotate(0deg); }
+  20%  { transform: scale(1.25) rotate(-8deg); }
+  40%  { transform: scale(1.15) rotate(8deg); }
+  60%  { transform: scale(1.1)  rotate(-5deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-bell-state="firing"] { animation: none; }
+}
+
+/* ── Heat-card cursor-tracked shimmer (Welcome offerings) ─────────────────── */
+.heat-card { position: relative; }
+.heat-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    180px circle at var(--cursor-x, 50%) var(--cursor-y, 50%),
+    oklch(0.65 0.18 40 / 0.22),
+    transparent 60%
+  );
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.heat-card:hover::before { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .heat-card:hover::before { transition: none; opacity: 0.5; }
+}
+
+/* ── Per-page unique animations (R.8) ─────────────────────────────────────── */
+
+/* Dashboard: live flickering flame next to the page heading. */
+.dashboard-flame {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent, #ff6a2c);
+  filter: drop-shadow(0 0 6px var(--color-accent, #ff6a2c));
+  animation: dashboard-flame-flicker 1.6s ease-in-out infinite;
+  transform-origin: 50% 80%;
+}
+@keyframes dashboard-flame-flicker {
+  0%, 100% { opacity: 1;    transform: scale(1)    translateY(0); filter: drop-shadow(0 0 6px var(--color-accent, #ff6a2c)); }
+  18%      { opacity: 0.85; transform: scale(0.95) translateY(0.5px); filter: drop-shadow(0 0 4px var(--color-accent, #ff6a2c)); }
+  34%      { opacity: 1;    transform: scale(1.06) translateY(-1px);  filter: drop-shadow(0 0 9px var(--color-accent, #ff6a2c)); }
+  52%      { opacity: 0.92; transform: scale(0.98) translateY(0.3px); filter: drop-shadow(0 0 5px var(--color-accent, #ff6a2c)); }
+  72%      { opacity: 1;    transform: scale(1.04) translateY(-0.5px);filter: drop-shadow(0 0 8px var(--color-accent, #ff6a2c)); }
+}
+
+/* Watchlist: a freshly added row glows with a left→right ember sweep. */
+.watchlist-row { position: relative; }
+.watchlist-row[data-just-added="1"]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(0.55 0.20 35 / 0.30) 35%,
+    oklch(0.72 0.19 45 / 0.45) 50%,
+    oklch(0.55 0.20 35 / 0.30) 65%,
+    transparent 100%
+  );
+  background-size: 220% 100%;
+  background-position: -110% 0;
+  animation: watchlist-row-ignite 1.8s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+  mix-blend-mode: screen;
+}
+.watchlist-row[data-just-added="1"]::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-accent, #ff6a2c), transparent);
+  background-size: 200% 100%;
+  background-position: -100% 0;
+  animation: watchlist-row-trail 1.8s ease-out forwards;
+  pointer-events: none;
+  box-shadow: 0 0 8px var(--color-accent, #ff6a2c);
+}
+@keyframes watchlist-row-ignite {
+  0%   { background-position: -110% 0; opacity: 0; }
+  20%  { opacity: 1; }
+  100% { background-position: 110% 0;  opacity: 0; }
+}
+@keyframes watchlist-row-trail {
+  0%   { background-position: -100% 0; opacity: 0; }
+  15%  { opacity: 1; }
+  100% { background-position: 100% 0;  opacity: 0; }
+}
+
+/* Alerts: an active intraday row gets a slow ember "fuse" along its top edge. */
+.alert-row { position: relative; isolation: isolate; }
+.alert-row[data-alert-state="active"]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 14px;
+  height: 2px;
+  border-radius: 2px;
+  background: radial-gradient(circle, var(--color-ember-hot, #ffe0a8) 0%, var(--color-accent, #ff6a2c) 60%, transparent 100%);
+  box-shadow: 0 0 8px var(--color-accent, #ff6a2c), 0 0 14px oklch(0.55 0.20 35 / 0.6);
+  animation: alert-fuse-row 3.4s linear infinite;
+  pointer-events: none;
+}
+@keyframes alert-fuse-row {
+  0%   { left: -14px;            opacity: 0; }
+  10%  { opacity: 1; }
+  92%  { opacity: 1; }
+  100% { left: calc(100% + 4px); opacity: 0; }
+}
+
+/* Portfolio: positive total-return summary card breathes a warm ember halo. */
+.portfolio-summary[data-positive="1"] {
+  position: relative;
+  border-color: oklch(0.55 0.20 35 / 0.22) !important;
+  box-shadow: 0 0 0 1px oklch(0.55 0.20 35 / 0.10), 0 0 18px -4px oklch(0.55 0.20 35 / 0.45);
+  animation: portfolio-positive-breath 3.2s ease-in-out infinite;
+}
+@keyframes portfolio-positive-breath {
+  0%, 100% { box-shadow: 0 0 0 1px oklch(0.55 0.20 35 / 0.10), 0 0 14px -4px oklch(0.55 0.20 35 / 0.35); }
+  50%      { box-shadow: 0 0 0 1px oklch(0.55 0.20 35 / 0.16), 0 0 26px -2px oklch(0.55 0.20 35 / 0.60); }
+}
+.portfolio-summary[data-positive="1"]::after {
+  content: '';
+  position: absolute;
+  left: 8px; right: 8px; bottom: 6px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-accent, #ff6a2c), transparent);
+  background-size: 200% 100%;
+  animation: portfolio-positive-trail 3.2s linear infinite;
+  pointer-events: none;
+  opacity: 0.6;
+}
+@keyframes portfolio-positive-trail {
+  0%   { background-position: -100% 0; }
+  100% { background-position: 100% 0;  }
+}
+
+/* Settings: SavedBadge fires a one-shot ember sweep behind itself. */
+.ember-saved-badge {
+  position: relative;
+  isolation: isolate;
+  padding: 2px 6px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.ember-saved-badge::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(0.55 0.20 35 / 0.35) 45%,
+    oklch(0.92 0.10 78 / 0.55) 55%,
+    transparent 100%
+  );
+  background-size: 220% 100%;
+  background-position: -110% 0;
+  animation: settings-saved-sweep 700ms ease-out forwards;
+  z-index: -1;
+  mix-blend-mode: screen;
+}
+@keyframes settings-saved-sweep {
+  0%   { background-position: -110% 0; opacity: 0; }
+  20%  { opacity: 1; }
+  100% { background-position: 110% 0;  opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-flame                                { animation: none; }
+  .watchlist-row[data-just-added="1"]::before,
+  .watchlist-row[data-just-added="1"]::after      { animation: none; opacity: 0.4; }
+  .alert-row[data-alert-state="active"]::before   { animation: none; left: 4px; opacity: 0.7; }
+  .portfolio-summary[data-positive="1"]           { animation: none; }
+  .portfolio-summary[data-positive="1"]::after    { animation: none; }
+  .ember-saved-badge::before                      { animation: none; }
 }

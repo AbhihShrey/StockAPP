@@ -1,16 +1,16 @@
 // User display preferences stored in localStorage.
 
-const LOCALE_KEY = 'stockline_number_locale'
-const CHART_STYLE_KEY = 'stockline_chart_style'
-const QUIET_HOURS_KEY = 'stockline_quiet_hours'
-const LANDING_KEY = 'stockline_default_landing'
+const LOCALE_KEY = 'ember_number_locale'
+const CHART_STYLE_KEY = 'ember_chart_style'
+const QUIET_HOURS_KEY = 'ember_quiet_hours'
+const LANDING_KEY = 'ember_default_landing'
 
 export function getDefaultLanding() {
   return localStorage.getItem(LANDING_KEY) ?? '/dashboard'
 }
 export function saveDefaultLanding(path) {
   localStorage.setItem(LANDING_KEY, path)
-  window.dispatchEvent(new CustomEvent('stockline-prefs-changed', { detail: { key: 'landing', value: path } }))
+  window.dispatchEvent(new CustomEvent('ember-prefs-changed', { detail: { key: 'landing', value: path } }))
 }
 
 export function getLocale() {
@@ -18,7 +18,7 @@ export function getLocale() {
 }
 export function saveLocale(l) {
   localStorage.setItem(LOCALE_KEY, l)
-  window.dispatchEvent(new CustomEvent('stockline-prefs-changed', { detail: { key: 'locale', value: l } }))
+  window.dispatchEvent(new CustomEvent('ember-prefs-changed', { detail: { key: 'locale', value: l } }))
 }
 
 export function getChartStyle() {
@@ -26,7 +26,7 @@ export function getChartStyle() {
 }
 export function saveChartStyle(s) {
   localStorage.setItem(CHART_STYLE_KEY, s)
-  window.dispatchEvent(new CustomEvent('stockline-prefs-changed', { detail: { key: 'chartStyle', value: s } }))
+  window.dispatchEvent(new CustomEvent('ember-prefs-changed', { detail: { key: 'chartStyle', value: s } }))
 }
 
 const QUIET_DEFAULTS = { enabled: false, start: '22:00', end: '07:00' }

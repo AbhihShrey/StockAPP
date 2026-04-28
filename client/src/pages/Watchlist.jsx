@@ -106,6 +106,7 @@ function WatchlistTab({ token }) {
   const navigate = useNavigate()
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
+  const [recentlyAdded, setRecentlyAdded] = useState(() => new Set())
   const flashes = usePriceFlash(items)
   const [error, setError] = useState(null)
   const [addInput, setAddInput] = useState('')
@@ -177,6 +178,19 @@ function WatchlistTab({ token }) {
       const json = await res.json()
       if (!res.ok) { setAddError(json.message ?? 'Failed to add symbol'); return }
       setAddInput('')
+      setRecentlyAdded((prev) => {
+        const next = new Set(prev)
+        next.add(sym)
+        return next
+      })
+      window.setTimeout(() => {
+        setRecentlyAdded((prev) => {
+          if (!prev.has(sym)) return prev
+          const next = new Set(prev)
+          next.delete(sym)
+          return next
+        })
+      }, 1900)
       await load(true)
     } catch {
       setAddError('Network error.')
@@ -271,7 +285,8 @@ function WatchlistTab({ token }) {
                 return (
                 <tr
                   key={row.symbol}
-                  className={['group transition-colors hover:bg-white/5', flash === 'up' ? 'price-flash-up' : flash === 'down' ? 'price-flash-down' : ''].join(' ')}
+                  data-just-added={recentlyAdded.has(row.symbol) ? '1' : undefined}
+                  className={['watchlist-row group transition-colors hover:bg-white/5', flash === 'up' ? 'price-flash-up' : flash === 'down' ? 'price-flash-down' : ''].join(' ')}
                 >
                   <td className="px-4 py-3">
                     <button

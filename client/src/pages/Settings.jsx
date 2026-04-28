@@ -5,6 +5,7 @@ import {
   Database,
   Eye,
   EyeOff,
+  Flame,
   KeyRound,
   LayoutDashboard,
   Loader2,
@@ -68,7 +69,7 @@ function Row({ label, hint, children }) {
 
 function SavedBadge() {
   return (
-    <span className="flex items-center gap-1 text-xs text-emerald-400">
+    <span className="ember-saved-badge flex items-center gap-1 text-xs text-emerald-400">
       <Check className="size-3.5" /> Saved
     </span>
   )
@@ -222,6 +223,7 @@ function LandingPagePicker() {
 const THEMES = [
   { value: 'dark', label: 'Dark', icon: Moon },
   { value: 'light', label: 'Light', icon: Sun },
+  { value: 'ember', label: 'Ember', icon: Flame },
   { value: 'system', label: 'System', icon: null },
 ]
 
@@ -571,11 +573,11 @@ function EmailNotificationSettings({ token, userEmail }) {
 
 // ── Alert sound toggle ────────────────────────────────────────────────────────
 
-const SOUND_KEY = 'stockline_alert_sound'
+const SOUND_KEY = 'ember_alert_sound'
 
 function FeedbackActions() {
   const email = 'stockline000@gmail.com'
-  const subject = 'StockLine feedback'
+  const subject = 'Ember Finances feedback'
   const gmailHref = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=${encodeURIComponent(subject)}`
   const mailtoHref = `mailto:${email}?subject=${encodeURIComponent(subject)}`
   const [copied, setCopied] = useState(false)
@@ -650,6 +652,116 @@ function AlertSoundToggle() {
         <span className={['inline-block size-4 rounded-full bg-white shadow-sm transition-transform duration-200', enabled ? 'translate-x-5' : 'translate-x-0'].join(' ')} />
       </button>
       <span className="text-xs text-zinc-500">{enabled ? 'On' : 'Muted'}</span>
+      {saved && <SavedBadge />}
+    </div>
+  )
+}
+
+// ── Fire crackle audio toggle ─────────────────────────────────────────────────
+
+const FIRE_CRACKLE_KEY = 'ember_fire_crackle'
+
+function FireCrackleToggle() {
+  const [enabled, setEnabled] = useState(() => localStorage.getItem(FIRE_CRACKLE_KEY) === 'true')
+  const [saved, setSaved] = useState(false)
+
+  const toggle = () => {
+    const next = !enabled
+    setEnabled(next)
+    localStorage.setItem(FIRE_CRACKLE_KEY, next ? 'true' : 'false')
+    setSaved(true)
+    setTimeout(() => setSaved(false), 1500)
+  }
+
+  return (
+    <div className="flex items-center gap-3">
+      <button
+        type="button"
+        onClick={toggle}
+        className={[
+          'relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none',
+          enabled ? 'bg-accent' : 'bg-zinc-700',
+        ].join(' ')}
+        role="switch"
+        aria-checked={enabled}
+      >
+        <span className={['inline-block size-4 rounded-full bg-white shadow-sm transition-transform duration-200', enabled ? 'translate-x-5' : 'translate-x-0'].join(' ')} />
+      </button>
+      <span className="text-xs text-zinc-500">{enabled ? 'On' : 'Off'}</span>
+      {saved && <SavedBadge />}
+    </div>
+  )
+}
+
+// ── Ember mascot toggle ───────────────────────────────────────────────────────
+
+const MASCOT_KEY = 'ember_mascot_enabled'
+
+function MascotToggle() {
+  const [enabled, setEnabled] = useState(() => localStorage.getItem(MASCOT_KEY) !== 'false')
+  const [saved, setSaved] = useState(false)
+
+  const toggle = () => {
+    const next = !enabled
+    setEnabled(next)
+    localStorage.setItem(MASCOT_KEY, next ? 'true' : 'false')
+    setSaved(true)
+    setTimeout(() => setSaved(false), 1500)
+    window.dispatchEvent(new Event('ember-prefs-changed'))
+  }
+
+  return (
+    <div className="flex items-center gap-3">
+      <button
+        type="button"
+        onClick={toggle}
+        className={[
+          'relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none',
+          enabled ? 'bg-accent' : 'bg-zinc-700',
+        ].join(' ')}
+        role="switch"
+        aria-checked={enabled}
+      >
+        <span className={['inline-block size-4 rounded-full bg-white shadow-sm transition-transform duration-200', enabled ? 'translate-x-5' : 'translate-x-0'].join(' ')} />
+      </button>
+      <span className="text-xs text-zinc-500">{enabled ? 'Visible' : 'Hidden'}</span>
+      {saved && <SavedBadge />}
+    </div>
+  )
+}
+
+// ── Click sparks toggle ───────────────────────────────────────────────────────
+
+const CLICK_SPARK_KEY = 'ember_click_sparks'
+
+function ClickSparksToggle() {
+  const [enabled, setEnabled] = useState(() => localStorage.getItem(CLICK_SPARK_KEY) !== 'false')
+  const [saved, setSaved] = useState(false)
+
+  const toggle = () => {
+    const next = !enabled
+    setEnabled(next)
+    localStorage.setItem(CLICK_SPARK_KEY, next ? 'true' : 'false')
+    setSaved(true)
+    setTimeout(() => setSaved(false), 1500)
+    window.dispatchEvent(new Event('ember-prefs-changed'))
+  }
+
+  return (
+    <div className="flex items-center gap-3">
+      <button
+        type="button"
+        onClick={toggle}
+        className={[
+          'relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none',
+          enabled ? 'bg-accent' : 'bg-zinc-700',
+        ].join(' ')}
+        role="switch"
+        aria-checked={enabled}
+      >
+        <span className={['inline-block size-4 rounded-full bg-white shadow-sm transition-transform duration-200', enabled ? 'translate-x-5' : 'translate-x-0'].join(' ')} />
+      </button>
+      <span className="text-xs text-zinc-500">{enabled ? 'On' : 'Off'}</span>
       {saved && <SavedBadge />}
     </div>
   )
@@ -1047,7 +1159,7 @@ function DownloadDataButton({ token }) {
       a.href = url
       const dispo = res.headers.get('Content-Disposition') || ''
       const match = /filename="([^"]+)"/.exec(dispo)
-      a.download = match?.[1] ?? `stockline-export-${Date.now()}.json`
+      a.download = match?.[1] ?? `ember-finances-export-${Date.now()}.json`
       document.body.appendChild(a)
       a.click()
       a.remove()
@@ -1136,6 +1248,15 @@ export function Settings() {
       <Section icon={Bell} title="Notifications" description="How and when you're notified">
         <Row label="Alert sound" hint="Play a chime when a WebSocket alert fires in the browser tab">
           <AlertSoundToggle />
+        </Row>
+        <Row label="Fire crackle" hint="Add a brief crackling-fire sound after the chime when alerts fire">
+          <FireCrackleToggle />
+        </Row>
+        <Row label="Ember mascot" hint="Show the little fire spirit in the bottom-right corner">
+          <MascotToggle />
+        </Row>
+        <Row label="Click sparks" hint="Tiny ember puff at every click">
+          <ClickSparksToggle />
         </Row>
         <div className="py-3.5">
           <EmailNotificationSettings token={token} userEmail={user?.email} />

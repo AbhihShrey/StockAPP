@@ -4,7 +4,10 @@ import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react
 import { RevealOnScroll } from '../components/RevealOnScroll'
 import { WelcomeAuthModal } from '../components/WelcomeAuthModal'
 import { WelcomeMarketingNav } from '../components/WelcomeMarketingNav'
+import { EmberParticles } from '../components/EmberParticles'
+import { WelcomeFireSpiritQA } from '../components/WelcomeFireSpiritQA'
 import { useAuth } from '../context/AuthContext'
+import { useEmberBurst } from '../lib/useEmberBurst'
 import { getDefaultLanding } from '../lib/prefs'
 
 const OFFERINGS = [
@@ -34,15 +37,13 @@ const OFFERINGS = [
   },
 ]
 
-function FlowingLinesBackdrop() {
+function EmberHeroBackdrop() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-      <div className="welcome-hero-glow" />
-      <div className="welcome-sheen-layer" />
-      <div className="welcome-line-layer" />
-      <div className="welcome-line-layer welcome-line-layer--slow" />
-      <div className="welcome-line-layer welcome-line-layer--reverse" />
-      <div className="absolute inset-0 bg-gradient-to-b from-surface-0/30 via-surface-0/88 to-surface-0" />
+      <div className="welcome-hero-glow welcome-hero-glow--ember" />
+      <div className="welcome-ember-bed" />
+      <EmberParticles density={70} />
+      <div className="absolute inset-0 bg-gradient-to-b from-surface-0/10 via-surface-0/55 to-surface-0" />
     </div>
   )
 }
@@ -59,16 +60,19 @@ export function Welcome({ redirectIfAuthenticated = true }) {
   const [searchParams, setSearchParams] = useSearchParams()
   const [authOpen, setAuthOpen] = useState(false)
   const [authMode, setAuthMode] = useState('signup')
+  const triggerBurst = useEmberBurst()
 
-  const openSignup = useCallback(() => {
+  const openSignup = useCallback((event) => {
+    if (event) triggerBurst(event)
     setAuthMode('signup')
     setAuthOpen(true)
-  }, [])
+  }, [triggerBurst])
 
-  const openSignin = useCallback(() => {
+  const openSignin = useCallback((event) => {
+    if (event) triggerBurst(event)
     setAuthMode('signin')
     setAuthOpen(true)
-  }, [])
+  }, [triggerBurst])
 
   useEffect(() => {
     if (searchParams.get('signin') === '1') {
@@ -106,7 +110,7 @@ export function Welcome({ redirectIfAuthenticated = true }) {
 
       {/* Hero — centered (dark band below Dropbox-style chrome) */}
       <section className="relative flex min-h-[calc(100dvh-7.5rem)] flex-col border-b border-white/[0.06]">
-        <FlowingLinesBackdrop />
+        <EmberHeroBackdrop />
         <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 pb-16 pt-10 sm:px-6 sm:pb-20 sm:pt-14">
           <div className="welcome-hero-fade flex max-w-lg flex-col items-center text-center">
             <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-zinc-500">
@@ -122,7 +126,7 @@ export function Welcome({ redirectIfAuthenticated = true }) {
             <button
               type="button"
               onClick={openSignup}
-              className="mt-10 inline-flex items-center justify-center gap-2 rounded-full border border-border-subtle bg-surface-1/70 px-8 py-3 text-sm font-semibold text-zinc-100 shadow-lg shadow-black/30 transition hover:border-white/15 hover:bg-surface-1/90"
+              className="ember-cta mt-10 inline-flex items-center justify-center gap-2 rounded-full border border-border-subtle bg-surface-1/70 px-8 py-3 text-sm font-semibold text-zinc-100 shadow-lg shadow-black/30 transition hover:border-white/15 hover:bg-surface-1/90"
             >
               Create account
               <ArrowRight className="size-4 opacity-80" aria-hidden />
@@ -158,7 +162,14 @@ export function Welcome({ redirectIfAuthenticated = true }) {
               const Icon = item.icon
               return (
                 <RevealOnScroll key={item.label} delayMs={i * 90} repeat>
-                  <article className="group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-neutral-950/50 p-5 shadow-[0_4px_28px_-10px_rgba(0,0,0,0.6)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_12px_40px_-16px_rgba(0,0,0,0.65)]">
+                  <article
+                    className="heat-card group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-neutral-950/50 p-5 shadow-[0_4px_28px_-10px_rgba(0,0,0,0.6)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_12px_40px_-16px_rgba(0,0,0,0.65)]"
+                    onMouseMove={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect()
+                      e.currentTarget.style.setProperty('--cursor-x', `${e.clientX - rect.left}px`)
+                      e.currentTarget.style.setProperty('--cursor-y', `${e.clientY - rect.top}px`)
+                    }}
+                  >
                     <div className="pointer-events-none absolute -right-10 -top-10 size-36 rounded-full bg-accent/10 blur-2xl transition duration-500 group-hover:bg-accent/18" />
                     <div className="flex items-center justify-between gap-3">
                       <span className="flex size-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-accent">
@@ -186,14 +197,14 @@ export function Welcome({ redirectIfAuthenticated = true }) {
                 <button
                   type="button"
                   onClick={openSignin}
-                  className="inline-flex flex-1 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] px-5 py-2.5 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.08] sm:flex-initial"
+                  className="ember-cta inline-flex flex-1 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] px-5 py-2.5 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.08] sm:flex-initial"
                 >
                   Sign in
                 </button>
                 <button
                   type="button"
                   onClick={openSignup}
-                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-accent/30 bg-accent-muted px-5 py-2.5 text-sm font-semibold text-accent shadow-[inset_0_0_0_1px_oklch(0.72_0.17_165/0.25)] transition hover:brightness-110 sm:flex-initial"
+                  className="ember-cta inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-accent/30 bg-accent-muted px-5 py-2.5 text-sm font-semibold text-accent shadow-[inset_0_0_0_1px_oklch(0.72_0.17_165/0.25)] transition hover:brightness-110 sm:flex-initial"
                 >
                   Get started
                   <ArrowRight className="size-4" aria-hidden />
@@ -213,10 +224,12 @@ export function Welcome({ redirectIfAuthenticated = true }) {
         </div>
       </section>
 
+      <WelcomeFireSpiritQA />
+
       <footer className="border-t border-white/[0.06] py-10">
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 px-4 text-center sm:flex-row sm:justify-between sm:px-6">
           <p className="text-xs text-zinc-600">
-            © {new Date().getFullYear()} StockLine · For informational purposes only.
+            © {new Date().getFullYear()} Ember Finances · For informational purposes only.
           </p>
           <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-zinc-500">
             <Link to="/privacy" className="transition hover:text-zinc-300">Privacy</Link>

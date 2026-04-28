@@ -1,4 +1,4 @@
-# StockLine — Launch Checklist (Custom domain via Cloudflare + Render)
+# Ember Finances — Launch Checklist (Custom domain via Cloudflare + Render)
 
 Everything below is something **you** do — clicking buttons in third-party
 dashboards, generating credentials, copying values into form fields. The
@@ -33,11 +33,11 @@ waits, which are background time you can spend doing other things).
 - [ ] Sign up at https://github.com.
 
 ### A2. Push the code to a private GitHub repo
-- [ ] At https://github.com/new, create a **private** repo named `stockline`.
+- [ ] At https://github.com/new, create a **private** repo named `ember-finances`.
       Leave "Initialize this repository" unchecked.
 - [ ] In your terminal, from `/Users/abhihkodavanty/StockAppV1`:
       ```
-      git remote add origin git@github.com:<your-username>/stockline.git
+      git remote add origin git@github.com:<your-username>/ember-finances.git
       git branch -M main
       git push -u origin main
       ```
@@ -65,7 +65,7 @@ daily digests. **Pick one:**
 **Option A — Gmail (free, easiest, ~10 emails/min cap)**
 - [ ] Turn on 2FA at https://myaccount.google.com/security.
 - [ ] Generate an App Password at https://myaccount.google.com/apppasswords →
-      "Mail" → "Other" → name it "StockLine".
+      "Mail" → "Other" → name it "Ember Finances".
 - [ ] Save these values:
       - `SMTP_HOST` = `smtp.gmail.com`
       - `SMTP_PORT` = `587`
@@ -93,7 +93,7 @@ daily digests. **Pick one:**
 ### B1. Pick a name
 - [ ] Brainstorm 5–10 candidate names. Stick to `.com`, `.io`, or `.app`.
       Avoid hyphens and numbers.
-- [ ] Examples: `stockline.com`, `stockline.app`, `getstockline.com`.
+- [ ] Examples: `emberfinances.com`, `emberfinances.app`, `getemberfinances.com`.
 
 ### B2. Search availability and buy
 - [ ] In the Cloudflare dashboard, click **Domain Registration → Register
@@ -115,9 +115,9 @@ daily digests. **Pick one:**
 
 ### C1. Create the backend Web Service
 - [ ] Render dashboard → **New → Web Service**.
-- [ ] Pick the `stockline` repo.
+- [ ] Pick the `ember-finances` repo.
 - [ ] Fill in:
-      - **Name:** `stockline-api`
+      - **Name:** `ember-finances-api`
       - **Region:** Oregon (US West) or Virginia (US East), whichever is
         closer to your home. Pick once — you can't change it later.
       - **Branch:** `main`
@@ -131,7 +131,7 @@ daily digests. **Pick one:**
 
 ### C2. Add a persistent disk for the database
 - [ ] On the same form, scroll to **Disks → Add Disk**.
-      - **Name:** `stockline-data`
+      - **Name:** `ember-finances-data`
       - **Mount Path:** `/var/data`
       - **Size:** 1 GB ($1/mo)
 - [ ] This is critical. Without the disk, accounts vanish on every redeploy.
@@ -150,7 +150,7 @@ the exact key names below — case matters.**
 - [ ] `SMTP_PORT` = `587`
 - [ ] `SMTP_USER` = (from A6)
 - [ ] `SMTP_PASS` = (from A6)
-- [ ] `SMTP_FROM_NAME` = `StockLine`
+- [ ] `SMTP_FROM_NAME` = `Ember Finances`
 - [ ] `DB_DIR` = `/var/data`
 
 Leave these **blank for now** — you'll fill them in Phase F:
@@ -161,9 +161,9 @@ Leave these **blank for now** — you'll fill them in Phase F:
 ### C4. Deploy
 - [ ] Click **Create Web Service**. Wait ~3 minutes for the first build.
 - [ ] When it goes green, copy the URL Render shows you (looks like
-      `https://stockline-api.onrender.com`). Save it temporarily — you'll
+      `https://ember-finances-api.onrender.com`). Save it temporarily — you'll
       use it in C5 and replace it with `api.<your-domain>` in Phase F.
-- [ ] **Smoke test:** `curl https://stockline-api.onrender.com/api/health`
+- [ ] **Smoke test:** `curl https://ember-finances-api.onrender.com/api/health`
       should return `{"ok":true,"service":"investaiv1-api"}`.
 
 ### C5. Don't proceed until C4 returns green and the smoke test passes.
@@ -174,9 +174,9 @@ Leave these **blank for now** — you'll fill them in Phase F:
 
 ### D1. Create the static site
 - [ ] Render → **New → Static Site**.
-- [ ] Same `stockline` repo.
+- [ ] Same `ember-finances` repo.
 - [ ] Fill in:
-      - **Name:** `stockline-web`
+      - **Name:** `ember-finances-web`
       - **Branch:** `main`
       - **Root Directory:** `client`
       - **Build Command:** `npm install && npm run build`
@@ -197,13 +197,13 @@ Render dashboard as a belt-and-suspenders safeguard:
 
 ### D3. Add environment variables (initial)
 - [ ] `VITE_API_BASE` = the backend Render URL from C4 (e.g.
-      `https://stockline-api.onrender.com`). You'll change it to
+      `https://ember-finances-api.onrender.com`). You'll change it to
       `https://api.<your-domain>` in Phase F.
 - [ ] `VITE_FEATURE_BACKTEST` = `0`
 
 ### D4. Deploy
 - [ ] Click **Create Static Site**. Wait ~2 minutes.
-- [ ] Copy the URL Render assigns (e.g. `https://stockline-web.onrender.com`).
+- [ ] Copy the URL Render assigns (e.g. `https://ember-finances-web.onrender.com`).
       Save it.
 
 ### D5. Quick test before adding the custom domain
@@ -216,23 +216,23 @@ Render dashboard as a belt-and-suspenders safeguard:
 
 ## Phase E — Wire your Cloudflare domain to Render (~30 min + propagation)
 
-This is the part that makes `stockline.com` actually load your site.
-**Plan:** the apex (`stockline.com` and `www.stockline.com`) serves the
-frontend; `api.stockline.com` serves the backend.
+This is the part that makes `emberfinances.com` actually load your site.
+**Plan:** the apex (`emberfinances.com` and `www.emberfinances.com`) serves the
+frontend; `api.emberfinances.com` serves the backend.
 
 ### E1. Add the custom domain to Render — frontend
-- [ ] Render → `stockline-web` → **Settings → Custom Domains** → click
+- [ ] Render → `ember-finances-web` → **Settings → Custom Domains** → click
       **Add Custom Domain**.
-- [ ] Enter your apex domain: `stockline.com` (use your real one).
-- [ ] Render shows a target like `stockline-web.onrender.com`. Copy it.
+- [ ] Enter your apex domain: `emberfinances.com` (use your real one).
+- [ ] Render shows a target like `ember-finances-web.onrender.com`. Copy it.
 - [ ] Click **Add Custom Domain** again, this time enter
-      `www.stockline.com`. Render gives you the same target.
+      `www.emberfinances.com`. Render gives you the same target.
 
 ### E2. Add the custom domain to Render — backend
-- [ ] Render → `stockline-api` → **Settings → Custom Domains** → **Add
+- [ ] Render → `ember-finances-api` → **Settings → Custom Domains** → **Add
       Custom Domain**.
-- [ ] Enter `api.stockline.com` (use your real domain).
-- [ ] Render shows a target like `stockline-api.onrender.com`. Copy it.
+- [ ] Enter `api.emberfinances.com` (use your real domain).
+- [ ] Render shows a target like `ember-finances-api.onrender.com`. Copy it.
 
 ### E3. Add DNS records on Cloudflare
 - [ ] Cloudflare dashboard → **Websites** → click your domain.
@@ -241,7 +241,7 @@ frontend; `api.stockline.com` serves the backend.
       Record 1 (apex):
       - **Type:** `CNAME`
       - **Name:** `@` (Cloudflare flattens this automatically)
-      - **Target:** `stockline-web.onrender.com` (use the real Render
+      - **Target:** `ember-finances-web.onrender.com` (use the real Render
         target from E1)
       - **Proxy status:** **DNS only (grey cloud)** — click the orange
         cloud to turn it grey
@@ -250,14 +250,14 @@ frontend; `api.stockline.com` serves the backend.
       Record 2 (www):
       - **Type:** `CNAME`
       - **Name:** `www`
-      - **Target:** `stockline-web.onrender.com`
+      - **Target:** `ember-finances-web.onrender.com`
       - **Proxy status:** **DNS only (grey cloud)**
       - **TTL:** Auto
 
       Record 3 (api):
       - **Type:** `CNAME`
       - **Name:** `api`
-      - **Target:** `stockline-api.onrender.com`
+      - **Target:** `ember-finances-api.onrender.com`
       - **Proxy status:** **DNS only (grey cloud)**
       - **TTL:** Auto
 
@@ -275,10 +275,10 @@ frontend; `api.stockline.com` serves the backend.
       orange.
 
 ### E5. Wait for TLS to provision on Render
-- [ ] Go back to Render → `stockline-web` → Custom Domains. Each domain
+- [ ] Go back to Render → `ember-finances-web` → Custom Domains. Each domain
       shows a "TLS Certificate" status.
-- [ ] Wait until all three (`stockline.com`, `www.stockline.com`,
-      `api.stockline.com`) show a green checkmark and "Verified."
+- [ ] Wait until all three (`emberfinances.com`, `www.emberfinances.com`,
+      `api.emberfinances.com`) show a green checkmark and "Verified."
 - [ ] This takes 5–60 minutes. DNS has to propagate first, then Render
       auto-provisions a Let's Encrypt cert.
 - [ ] If after 1 hour any of them is stuck, double-check the CNAME target
@@ -292,16 +292,16 @@ frontend; `api.stockline.com` serves the backend.
 You can only do this after Phase E shows all three domains green.
 
 ### F1. Update backend env vars
-- [ ] Render → `stockline-api` → **Environment** tab.
-- [ ] Edit `PUBLIC_BASE_URL` → `https://stockline.com` (your apex domain,
+- [ ] Render → `ember-finances-api` → **Environment** tab.
+- [ ] Edit `PUBLIC_BASE_URL` → `https://emberfinances.com` (your apex domain,
       with `https://`).
-- [ ] Edit `CORS_ORIGINS` → `https://stockline.com,https://www.stockline.com`
+- [ ] Edit `CORS_ORIGINS` → `https://emberfinances.com,https://www.emberfinances.com`
       (comma-separated, no spaces, no trailing slash).
 - [ ] Click **Save Changes**. Render auto-redeploys (~2 min).
 
 ### F2. Update frontend env vars
-- [ ] Render → `stockline-web` → **Environment** tab.
-- [ ] Edit `VITE_API_BASE` → `https://api.stockline.com`.
+- [ ] Render → `ember-finances-web` → **Environment** tab.
+- [ ] Edit `VITE_API_BASE` → `https://api.emberfinances.com`.
 - [ ] Click **Save Changes**. Render auto-rebuilds (~2 min).
 
 ### F3. Wait for both redeploys to finish.
@@ -311,7 +311,7 @@ You can only do this after Phase E shows all three domains green.
 
 ## Phase G — Smoke test (~20 min)
 
-Open `https://stockline.com` in an incognito window and walk through every
+Open `https://emberfinances.com` in an incognito window and walk through every
 flow. **Check off each only after it passes:**
 
 ### G1. Signup + email verification
@@ -347,7 +347,7 @@ flow. **Check off each only after it passes:**
 ### G5. Watchlist persistence (proves the disk works)
 - [ ] Watchlist → add SPY, QQQ, AAPL.
 - [ ] Refresh → they're still there.
-- [ ] Render → `stockline-api` → **Manual Deploy → Deploy latest commit**.
+- [ ] Render → `ember-finances-api` → **Manual Deploy → Deploy latest commit**.
       Wait for green.
 - [ ] Refresh again → watchlist is **still there**. This is the test that
       proves your persistent disk is working. If the watchlist is gone,
@@ -367,19 +367,19 @@ flow. **Check off each only after it passes:**
       Cookies. All four should render.
 
 ### G9. Hidden Strategies
-- [ ] Visit `https://stockline.com/strategies` directly in the URL bar →
+- [ ] Visit `https://emberfinances.com/strategies` directly in the URL bar →
       you should be redirected to `/dashboard` (this confirms the feature
       flag is working — backtest service is intentionally not deployed).
 
 ### G10. Refresh-on-deep-link
-- [ ] Navigate to `https://stockline.com/watchlist` → hit Cmd-R / F5 to
+- [ ] Navigate to `https://emberfinances.com/watchlist` → hit Cmd-R / F5 to
       refresh. Should reload the watchlist page, NOT 404. If it 404s,
       Phase D2 wasn't done correctly.
 
 ### G11. CORS lockdown
 - [ ] In a terminal:
       ```
-      curl -i -H "Origin: https://evil.example" https://api.stockline.com/api/auth/me
+      curl -i -H "Origin: https://evil.example" https://api.emberfinances.com/api/auth/me
       ```
 - [ ] Response should NOT include `Access-Control-Allow-Origin: *` or your
       origin. From your real domain it succeeds.
@@ -394,7 +394,7 @@ flow. **Check off each only after it passes:**
 - [ ] These are the only two places you'll ever click for normal ops.
 
 ### H2. Verify nightly backups (after first night)
-- [ ] On day 2 of being live, go to `stockline-api` → **Shell** tab → run:
+- [ ] On day 2 of being live, go to `ember-finances-api` → **Shell** tab → run:
       ```
       ls /var/data/backups
       ```
@@ -405,7 +405,7 @@ flow. **Check off each only after it passes:**
 
 ### H3. Set up uptime monitoring (optional, free)
 - [ ] Sign up at https://uptimerobot.com (free for 50 monitors, 5-min checks).
-- [ ] Add a monitor: HTTP(s), URL `https://api.stockline.com/api/health`,
+- [ ] Add a monitor: HTTP(s), URL `https://api.emberfinances.com/api/health`,
       interval 5 min, alert email.
 - [ ] You'll get an email if the API ever goes down.
 
@@ -432,22 +432,22 @@ If you change anything, commit and push — Render auto-redeploys.
 
 ## Quick reference — env vars you'll have set
 
-**stockline-api (backend):**
+**ember-finances-api (backend):**
 | Key | Value |
 |---|---|
 | `NODE_ENV` | `production` |
 | `JWT_SECRET` | 64-char hex from `openssl rand -hex 32` |
 | `FMP_API_KEY` | your FMP key |
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` | from your SMTP provider |
-| `SMTP_FROM_NAME` | `StockLine` |
+| `SMTP_FROM_NAME` | `Ember Finances` |
 | `DB_DIR` | `/var/data` |
-| `PUBLIC_BASE_URL` | `https://stockline.com` |
-| `CORS_ORIGINS` | `https://stockline.com,https://www.stockline.com` |
+| `PUBLIC_BASE_URL` | `https://emberfinances.com` |
+| `CORS_ORIGINS` | `https://emberfinances.com,https://www.emberfinances.com` |
 
-**stockline-web (frontend):**
+**ember-finances-web (frontend):**
 | Key | Value |
 |---|---|
-| `VITE_API_BASE` | `https://api.stockline.com` |
+| `VITE_API_BASE` | `https://api.emberfinances.com` |
 | `VITE_FEATURE_BACKTEST` | `0` |
 
 ---
@@ -457,8 +457,8 @@ If you change anything, commit and push — Render auto-redeploys.
 | Symptom | Likely cause | Fix |
 |---|---|---|
 | Site loads at `*.onrender.com` but custom domain shows TLS error | DNS not yet propagated, or CNAME target typo'd | Wait 30 min; if still broken, check CNAME target matches Render exactly |
-| Refresh on `/dashboard` returns 404 | Phase D2 Rewrite rule missing | Add `/* → /index.html (Rewrite)` in Render → stockline-web → Redirects/Rewrites |
-| Login works but every API call fails with CORS error | `CORS_ORIGINS` doesn't match the URL the browser is on | Make sure it's exactly `https://stockline.com,https://www.stockline.com` — no spaces, no trailing slash |
+| Refresh on `/dashboard` returns 404 | Phase D2 Rewrite rule missing | Add `/* → /index.html (Rewrite)` in Render → ember-finances-web → Redirects/Rewrites |
+| Login works but every API call fails with CORS error | `CORS_ORIGINS` doesn't match the URL the browser is on | Make sure it's exactly `https://emberfinances.com,https://www.emberfinances.com` — no spaces, no trailing slash |
 | Account vanishes after a deploy | Disk not mounted at `/var/data`, or `DB_DIR` not set | Phase C2 + C3. Service won't even boot now without `DB_DIR` set in production. |
-| Verification email never arrives | SMTP creds wrong or Gmail blocked the App Password | `stockline-api` → Logs → search for `[email]` errors. Re-generate the App Password if needed. |
-| `api.stockline.com` returns Render's "Not Found" page | Custom Domain not added, or DNS pointed at the wrong service | Phase E2 + verify DNS record 3 |
+| Verification email never arrives | SMTP creds wrong or Gmail blocked the App Password | `ember-finances-api` → Logs → search for `[email]` errors. Re-generate the App Password if needed. |
+| `api.emberfinances.com` returns Render's "Not Found" page | Custom Domain not added, or DNS pointed at the wrong service | Phase E2 + verify DNS record 3 |

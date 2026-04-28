@@ -21,15 +21,15 @@ export function isEmailConfigured() {
 }
 
 /**
- * Build the RFC-5322 "From" header. Display name defaults to "StockLine" so the
- * inbox shows "StockLine <…>" instead of the raw Brevo bounce alias.
+ * Build the RFC-5322 "From" header. Display name defaults to "Ember Finances" so the
+ * inbox shows "Ember Finances <…>" instead of the raw Brevo bounce alias.
  * Override with SMTP_FROM_NAME and/or SMTP_FROM in server/.env.
  */
 function buildFromHeader() {
   const rawFrom = process.env.SMTP_FROM?.trim()
   const addressOnly = rawFrom || process.env.SMTP_USER?.trim() || ''
   if (rawFrom && /<[^>]+>/.test(rawFrom)) return rawFrom
-  const name = process.env.SMTP_FROM_NAME?.trim() || 'StockLine'
+  const name = process.env.SMTP_FROM_NAME?.trim() || 'Ember Finances'
   return `"${name.replace(/"/g, '')}" <${addressOnly}>`
 }
 
@@ -91,8 +91,14 @@ function emailShell({ title, subtitle, body, footer }) {
   <div style="background:linear-gradient(135deg,#0f0f0f 0%,#0a120e 100%);border-bottom:1px solid #1c1c1c;padding:22px 26px">
     <table cellpadding="0" cellspacing="0" style="width:100%"><tr>
       <td style="vertical-align:middle">
-        <span style="display:inline-block;vertical-align:middle;width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#34d399,#10b981);text-align:center;line-height:28px;font-weight:800;color:#052e1c;font-size:15px;letter-spacing:-0.5px">S</span>
-        <span style="vertical-align:middle;margin-left:10px;font-size:18px;font-weight:700;color:#e4e4e7;letter-spacing:-0.3px">StockLine</span>
+        <span style="display:inline-block;vertical-align:middle;width:28px;height:28px;border-radius:7px;background:#0a0a0a;text-align:center;line-height:0">
+          <svg width="20" height="20" viewBox="0 0 30 30" style="vertical-align:middle;margin-top:4px">
+            <path d="M 15 4 C 18 9, 22 13, 22 18 C 22 23, 18 26, 15 26 C 12 26, 8 23, 8 18 C 8 14, 12 11, 14 7 Z" fill="#c2421e"/>
+            <path d="M 15 9 C 18 13, 20 16, 20 20 C 20 24, 17 25, 15 25 C 13 25, 10 24, 10 20 C 10 16, 12 13, 14 10 Z" fill="#ff8a3d"/>
+            <path d="M 15 14 C 17 16, 18 19, 17 22 C 16 24, 14 24, 13 22 C 12 19, 13 17, 15 14 Z" fill="#ffe0a8"/>
+          </svg>
+        </span>
+        <span style="vertical-align:middle;margin-left:10px;font-size:18px;font-weight:700;color:#e4e4e7;letter-spacing:-0.3px">Ember Finances</span>
       </td>
       <td style="text-align:right;vertical-align:middle;font-size:11px;color:#52525b">${subtitle ?? ''}</td>
     </tr></table>
@@ -159,7 +165,7 @@ export async function sendAlertEmail(toEmail, { symbol, condition, threshold, tr
         title: `Alert fired`,
         subtitle: etTimeLabel(),
         body,
-        footer: `You received this because email alerts are enabled on your StockLine account. Manage alerts in <strong style="color:#71717a">Settings → Notifications</strong>.`,
+        footer: `You received this because email alerts are enabled on your Ember Finances account. Manage alerts in <strong style="color:#71717a">Settings → Notifications</strong>.`,
       }),
     })
   } catch (err) {
@@ -197,7 +203,7 @@ export async function sendDailyDigestEmail(toEmail, data = {}) {
   } = data
 
   const dateLabel = etDateLabel()
-  const subject = `StockLine Daily Close — ${dateLabel}`
+  const subject = `Ember Finances Daily Close — ${dateLabel}`
 
   const marketRows = marketSummary.length === 0
     ? `<tr><td colspan="3" style="padding:8px 0;font-size:12px;color:#52525b">Market data unavailable.</td></tr>`
@@ -294,7 +300,7 @@ export async function sendDailyDigestEmail(toEmail, data = {}) {
     title: 'Daily close summary',
     subtitle: dateLabel,
     body,
-    footer: `You received this because daily digest is enabled on your StockLine account. Manage preferences in <strong style="color:#71717a">Settings → Notifications</strong>.`,
+    footer: `You received this because daily digest is enabled on your Ember Finances account. Manage preferences in <strong style="color:#71717a">Settings → Notifications</strong>.`,
   })
 
   try {
@@ -315,7 +321,7 @@ export async function sendPasswordResetEmail(toEmail, { resetUrl, expiresInMinut
   }
   const body = `
   <div style="padding:26px">
-    <div style="font-size:15px;color:#e4e4e7;line-height:1.55">We received a request to reset the password on your StockLine account.</div>
+    <div style="font-size:15px;color:#e4e4e7;line-height:1.55">We received a request to reset the password on your Ember Finances account.</div>
     <div style="margin-top:10px;font-size:13px;color:#a1a1aa;line-height:1.6">If this was you, click the button below within ${expiresInMinutes} minutes. If not, you can safely ignore this email — your password stays the same.</div>
     <div style="margin-top:22px">
       <a href="${resetUrl}" style="display:inline-block;padding:12px 22px;border-radius:10px;background:linear-gradient(135deg,#34d399,#10b981);color:#052e1c;font-weight:700;font-size:14px;text-decoration:none">Reset password</a>
@@ -326,7 +332,7 @@ export async function sendPasswordResetEmail(toEmail, { resetUrl, expiresInMinut
     await transporter.sendMail({
       from: buildFromHeader(),
       to: toEmail,
-      subject: 'Reset your StockLine password',
+      subject: 'Reset your Ember Finances password',
       html: emailShell({
         title: 'Password reset request',
         subtitle: etDateLabel(),
@@ -350,7 +356,7 @@ export async function sendVerifyEmail(toEmail, { verifyUrl, expiresInMinutes = 6
   }
   const body = `
   <div style="padding:26px">
-    <div style="font-size:15px;color:#e4e4e7;line-height:1.55">Welcome to StockLine. Please confirm your email address to keep your account in good standing and unlock email-based alerts.</div>
+    <div style="font-size:15px;color:#e4e4e7;line-height:1.55">Welcome to Ember Finances. Please confirm your email address to keep your account in good standing and unlock email-based alerts.</div>
     <div style="margin-top:22px">
       <a href="${verifyUrl}" style="display:inline-block;padding:12px 22px;border-radius:10px;background:linear-gradient(135deg,#34d399,#10b981);color:#052e1c;font-weight:700;font-size:14px;text-decoration:none">Verify email</a>
     </div>
@@ -360,12 +366,12 @@ export async function sendVerifyEmail(toEmail, { verifyUrl, expiresInMinutes = 6
     await transporter.sendMail({
       from: buildFromHeader(),
       to: toEmail,
-      subject: 'Verify your StockLine email',
+      subject: 'Verify your Ember Finances email',
       html: emailShell({
         title: 'Confirm your email',
         subtitle: etDateLabel(),
         body,
-        footer: `If you did not create a StockLine account, you can ignore this message. The link expires in ${Math.round(expiresInMinutes / 60)} hours.`,
+        footer: `If you did not create a Ember Finances account, you can ignore this message. The link expires in ${Math.round(expiresInMinutes / 60)} hours.`,
       }),
     })
   } catch (err) {
@@ -403,8 +409,8 @@ export async function sendTestEmail(toEmail) {
     const info = await transporter.sendMail({
       from,
       to: toEmail,
-      subject: 'StockLine: test email',
-      text: 'Test email from StockLine — SMTP is working.',
+      subject: 'Ember Finances: test email',
+      text: 'Test email from Ember Finances — SMTP is working.',
       html: emailShell({
         title: 'Test email',
         subtitle: etDateLabel(),

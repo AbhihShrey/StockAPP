@@ -32,7 +32,9 @@ import { useAuth } from '../context/AuthContext'
 import { useAlerts } from '../context/AlertContext'
 import { apiUrl, authHeaders } from '../lib/apiBase'
 import { getDefaultLanding } from '../lib/prefs'
-import { StockLineLogo } from './StockLineLogo'
+import { EmberLogo } from './EmberLogo'
+import { ClickSparkProvider } from './ClickSparkProvider'
+import { EmberIgnition } from './EmberIgnition'
 
 const MAIN_MAX_W = 'max-w-[88rem]'
 
@@ -54,9 +56,9 @@ const nav = [
 
 const linkClass = ({ isActive }) =>
   [
-    'group/nav flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200',
+    'group/nav relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200',
     isActive
-      ? 'bg-accent-muted text-accent shadow-[inset_0_0_0_1px_oklch(0.72_0.17_165/0.25)]'
+      ? 'nav-active bg-accent-muted text-accent shadow-[inset_0_0_0_1px_oklch(0.72_0.17_165/0.25)]'
       : 'text-zinc-400 hover:bg-white/5 hover:text-zinc-100',
   ].join(' ')
 
@@ -139,8 +141,8 @@ function SidebarBody({ collapsed, onNavigate, onToggleCollapse, location, user, 
             title="Home"
           >
             {collapsed
-              ? <StockLineLogo size="xs" iconOnly />
-              : <StockLineLogo size="xs" layout="horizontal" showTagline={false} />
+              ? <EmberLogo size="xs" iconOnly />
+              : <EmberLogo size="xs" layout="horizontal" showTagline={false} />
             }
           </Link>
           {onToggleCollapse ? (
@@ -248,7 +250,9 @@ function conditionLabel(condition, threshold) {
 function NotificationBell() {
   const { notifications, unreadCount, markAllRead, clearAll } = useAlerts()
   const [open, setOpen] = useState(false)
+  const [firing, setFiring] = useState(false)
   const ref = useRef(null)
+  const lastLenRef = useRef(notifications.length)
 
   useEffect(() => {
     function onClickOutside(e) {
@@ -257,6 +261,16 @@ function NotificationBell() {
     document.addEventListener('mousedown', onClickOutside)
     return () => document.removeEventListener('mousedown', onClickOutside)
   }, [])
+
+  useEffect(() => {
+    if (notifications.length > lastLenRef.current) {
+      setFiring(true)
+      const t = setTimeout(() => setFiring(false), 1200)
+      lastLenRef.current = notifications.length
+      return () => clearTimeout(t)
+    }
+    lastLenRef.current = notifications.length
+  }, [notifications.length])
 
   const toggle = () => {
     setOpen((v) => !v)
@@ -271,7 +285,9 @@ function NotificationBell() {
         className="relative inline-flex items-center justify-center rounded-lg p-2 text-zinc-400 transition hover:bg-white/5 hover:text-zinc-200"
         aria-label="Notifications"
       >
-        {unreadCount > 0 ? <BellRing className="size-5 text-accent" /> : <Bell className="size-5" />}
+        {unreadCount > 0
+          ? <BellRing className="size-5 text-accent" data-bell-state={firing ? 'firing' : ''} />
+          : <Bell className="size-5" data-bell-state={firing ? 'firing' : ''} />}
         {unreadCount > 0 && (
           <span className="absolute right-1 top-1 flex size-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-zinc-950">
             {unreadCount > 9 ? '9+' : unreadCount}
@@ -441,8 +457,13 @@ function AlertToasts() {
         return (
         <div
           key={n.id}
-          className="pointer-events-auto flex items-start gap-3 rounded-2xl border border-accent/20 bg-neutral-950/95 px-4 py-3 shadow-2xl shadow-black/50 backdrop-blur-xl"
+          className="ember-toast pointer-events-auto relative flex items-start gap-3 rounded-2xl border border-accent/20 bg-neutral-950/95 px-4 py-3 shadow-2xl shadow-black/50 backdrop-blur-xl"
         >
+          <span className="ember-toast-ignition" aria-hidden="true">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <span key={i} className="ember-toast-spark" style={{ '--spark-x': `${(i + 1) * 9}%`, '--spark-delay': `${i * 30}ms` }} />
+            ))}
+          </span>
           <BellRing className="mt-0.5 size-4 shrink-0 text-accent" />
           <div>
             <p className="text-sm font-semibold text-zinc-100">
@@ -586,7 +607,7 @@ export function Layout() {
                 <Menu className="size-5" />
               </button>
               <Link to={getDefaultLanding()} className="flex min-w-0 items-center lg:hidden">
-                <StockLineLogo size="xs" layout="horizontal" showTagline={false} />
+                <EmberLogo size="xs" layout="horizontal" showTagline={false} />
               </Link>
               <div className="flex-1 lg:hidden" />
               <div className="flex items-center gap-1 lg:hidden">
@@ -633,6 +654,8 @@ export function Layout() {
       </div>
 
       <MarketingHomeFab />
+      <ClickSparkProvider />
+      <EmberIgnition />
       <AlertToasts />
     </div>
     </CommandPaletteProvider>
