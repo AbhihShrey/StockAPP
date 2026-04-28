@@ -175,7 +175,7 @@ function SymbolFilter({ value, onChange }) {
         onChange={(e) => handle(e.target.value)}
         placeholder="Filter by symbol (e.g. AAPL)"
         maxLength={12}
-        className="w-full rounded-xl border border-white/10 bg-white/[0.03] py-2 pl-9 pr-3 font-mono text-sm uppercase tracking-wide text-zinc-100 outline-none placeholder:text-zinc-600 transition focus:border-white/15 focus:bg-white/[0.05] sm:w-72"
+        className="glass-input w-full rounded-xl py-2 pl-9 pr-3 font-mono text-sm uppercase tracking-wide text-zinc-100 placeholder:text-zinc-600 sm:w-72"
       />
     </div>
   )
@@ -558,7 +558,7 @@ function Pagination({ page, pageCount, onChange, total }) {
           type="button"
           onClick={() => onChange(Math.max(0, page - 1))}
           disabled={page === 0}
-          className="inline-flex items-center gap-1 rounded-lg border border-white/[0.07] bg-white/[0.02] px-2.5 py-1.5 text-zinc-300 transition hover:bg-white/[0.05] disabled:cursor-not-allowed disabled:opacity-40"
+          className="glass-btn inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 disabled:cursor-not-allowed disabled:opacity-40"
         >
           <ChevronLeft className="size-3.5" /> Prev
         </button>
@@ -567,7 +567,7 @@ function Pagination({ page, pageCount, onChange, total }) {
           type="button"
           onClick={() => onChange(Math.min(pageCount - 1, page + 1))}
           disabled={page >= pageCount - 1}
-          className="inline-flex items-center gap-1 rounded-lg border border-white/[0.07] bg-white/[0.02] px-2.5 py-1.5 text-zinc-300 transition hover:bg-white/[0.05] disabled:cursor-not-allowed disabled:opacity-40"
+          className="glass-btn inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 disabled:cursor-not-allowed disabled:opacity-40"
         >
           Next <ChevronRight className="size-3.5" />
         </button>

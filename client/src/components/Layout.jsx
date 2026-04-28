@@ -34,7 +34,6 @@ import { apiUrl, authHeaders } from '../lib/apiBase'
 import { getDefaultLanding } from '../lib/prefs'
 import { EmberLogo } from './EmberLogo'
 import { ClickSparkProvider } from './ClickSparkProvider'
-import { EmberIgnition } from './EmberIgnition'
 
 const MAIN_MAX_W = 'max-w-[88rem]'
 
@@ -58,7 +57,7 @@ const linkClass = ({ isActive }) =>
   [
     'group/nav relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200',
     isActive
-      ? 'nav-active bg-accent-muted text-accent shadow-[inset_0_0_0_1px_oklch(0.72_0.17_165/0.25)]'
+      ? 'nav-active bg-accent-muted text-accent'
       : 'text-zinc-400 hover:bg-white/5 hover:text-zinc-100',
   ].join(' ')
 
@@ -164,7 +163,7 @@ function SidebarBody({ collapsed, onNavigate, onToggleCollapse, location, user, 
           type="button"
           onClick={() => { openCommandPalette(); onNavigate?.() }}
           className={[
-            'flex w-full items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-2 text-xs text-zinc-400 transition hover:border-white/20 hover:bg-white/[0.06] hover:text-zinc-200',
+            'glass-btn flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs text-zinc-400 hover:text-zinc-200',
             collapsed ? 'justify-center px-1' : '',
           ].join(' ')}
           aria-label="Search stocks (⌘K)"
@@ -296,7 +295,7 @@ function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-2xl border border-white/10 bg-neutral-950/95 shadow-2xl shadow-black/50 backdrop-blur-xl">
+        <div className="glass-bar absolute right-0 top-full z-50 mt-2 w-80 rounded-2xl border border-white/10 shadow-2xl shadow-black/50">
           <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
             <p className="text-sm font-semibold text-zinc-100">Alerts</p>
             {notifications.length > 0 && (
@@ -457,7 +456,7 @@ function AlertToasts() {
         return (
         <div
           key={n.id}
-          className="ember-toast pointer-events-auto relative flex items-start gap-3 rounded-2xl border border-accent/20 bg-neutral-950/95 px-4 py-3 shadow-2xl shadow-black/50 backdrop-blur-xl"
+          className="glass-bar ember-toast pointer-events-auto relative flex items-start gap-3 rounded-2xl border border-accent/20 px-4 py-3 shadow-2xl shadow-black/50"
         >
           <span className="ember-toast-ignition" aria-hidden="true">
             {Array.from({ length: 10 }).map((_, i) => (
@@ -614,7 +613,7 @@ export function Layout() {
                 <NotificationBell />
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1.5 text-xs font-medium text-zinc-300 transition hover:bg-white/[0.08] hover:text-zinc-100"
+                  className="glass-btn inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-zinc-300 hover:text-zinc-100"
                   onClick={() => {
                     logout()
                     navigate('/welcome', { replace: true })
@@ -635,7 +634,7 @@ export function Layout() {
                 <button
                   type="button"
                   onClick={signOutToWelcome}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1.5 text-xs font-medium text-zinc-300 transition hover:bg-white/[0.08] hover:text-zinc-100"
+                  className="glass-btn inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-zinc-300 hover:text-zinc-100"
                 >
                   <LogOut className="size-3.5 opacity-80" aria-hidden />
                   Sign out
@@ -655,7 +654,6 @@ export function Layout() {
 
       <MarketingHomeFab />
       <ClickSparkProvider />
-      <EmberIgnition />
       <AlertToasts />
     </div>
     </CommandPaletteProvider>

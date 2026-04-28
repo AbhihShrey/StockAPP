@@ -77,7 +77,7 @@ export function CommandBar({ items }) {
         onClick={() => setOpen(false)}
         aria-label="Close command bar"
       />
-      <div className="absolute left-1/2 top-20 w-[min(46rem,92vw)] -translate-x-1/2 overflow-hidden rounded-2xl border border-white/10 bg-neutral-950/90 shadow-2xl">
+      <div className="glass-bar absolute left-1/2 top-20 w-[min(46rem,92vw)] -translate-x-1/2 overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
         <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
           <Search className="size-4 text-zinc-500" aria-hidden />
           <input

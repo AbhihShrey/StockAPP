@@ -203,7 +203,7 @@ export function News() {
       className={[
         'rounded-lg px-4 py-2 text-xs font-medium transition',
         mode === id
-          ? 'bg-accent-muted text-accent shadow-[inset_0_0_0_1px_oklch(0.72_0.17_165/0.25)]'
+          ? 'bg-accent-muted text-accent accent-inset'
           : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300',
       ].join(' ')}
     >

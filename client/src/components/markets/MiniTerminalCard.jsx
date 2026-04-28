@@ -30,7 +30,7 @@ export function MiniTerminalCard({ asset, staggerMs = 0 }) {
   return (
     <div
       className={[
-        'dash-module-enter group flex min-h-[5.5rem] flex-col justify-between rounded-xl border border-white/10 bg-neutral-900/50 p-3',
+        'glass-bar dash-module-enter group flex min-h-[5.5rem] flex-col justify-between rounded-xl border border-white/10 p-3',
         'shadow-[0_4px_20px_-5px_rgba(0,0,0,0.55)] transition will-change-transform',
         'hover:-translate-y-0.5 hover:bg-white/[0.035] hover:shadow-[0_10px_30px_-12px_rgba(0,0,0,0.7)]',
       ].join(' ')}

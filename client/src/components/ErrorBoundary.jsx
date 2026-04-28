@@ -51,14 +51,14 @@ export class ErrorBoundary extends Component {
             <button
               type="button"
               onClick={this.reset}
-              className="rounded-lg bg-accent px-3 py-1.5 text-sm font-semibold text-zinc-950 hover:brightness-110"
+              className="glass-btn--accent rounded-lg px-3 py-1.5 text-sm font-semibold"
             >
               Try again
             </button>
             <button
               type="button"
               onClick={() => window.location.reload()}
-              className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-sm font-medium text-zinc-300 hover:bg-white/[0.08]"
+              className="glass-btn rounded-lg px-3 py-1.5 text-sm font-medium"
             >
               Reload page
             </button>

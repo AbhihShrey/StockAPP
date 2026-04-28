@@ -161,7 +161,7 @@ function CommandPalette({ onClose }) {
       aria-label="Search stocks"
     >
       <div
-        className="w-full max-w-[560px] mx-4 overflow-hidden rounded-2xl border border-white/10 bg-neutral-950/95 shadow-2xl shadow-black/60 backdrop-blur-xl"
+        className="glass-bar w-full max-w-[560px] mx-4 overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-black/60"
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3">

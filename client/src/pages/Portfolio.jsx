@@ -67,7 +67,7 @@ function PieTooltip({ active, payload }) {
   if (!active || !payload?.length) return null
   const d = payload[0]
   return (
-    <div className="rounded-xl border border-white/10 bg-zinc-900/95 px-3 py-2 text-xs shadow-xl">
+    <div className="glass-bar rounded-xl border border-white/10 px-3 py-2 text-xs shadow-xl">
       <p className="font-semibold text-zinc-100">{d.name}</p>
       <p className="text-zinc-400">{fmt(d.value, 1)}% of portfolio</p>
     </div>
@@ -92,7 +92,7 @@ function NewPortfolioModal({ onClose, onCreate }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <form onSubmit={submit} className="w-[360px] max-w-[calc(100vw-2rem)] rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl">
+      <form onSubmit={submit} className="glass-bar w-[360px] max-w-[calc(100vw-2rem)] rounded-2xl border border-white/10 p-6 shadow-2xl">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-base font-semibold text-zinc-100">New portfolio</h2>
           <button type="button" onClick={onClose} className="rounded-lg p-1 text-zinc-500 hover:text-zinc-300"><X className="size-4" /></button>
@@ -101,19 +101,19 @@ function NewPortfolioModal({ onClose, onCreate }) {
           <div>
             <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-zinc-500">Portfolio name</label>
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Tech focused, Long-term" autoFocus
-              className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-zinc-100 outline-none focus:border-white/20 transition placeholder:text-zinc-600" />
+              className="glass-input w-full rounded-xl px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600" />
           </div>
           <div>
             <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-zinc-500">Starting budget ($)</label>
             <input value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="100000"
-              className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 font-mono text-sm text-zinc-100 outline-none focus:border-white/20 transition" />
+              className="glass-input w-full rounded-xl px-3 py-2 font-mono text-sm text-zinc-100" />
             <p className="mt-1 text-[11px] text-zinc-600">This is the total virtual cash you start with. You can only spend what you have.</p>
           </div>
           {error && <p className="text-xs text-rose-400">{error}</p>}
         </div>
         <div className="mt-5 flex gap-2">
-          <button type="submit" className="flex-1 rounded-xl bg-accent py-2 text-sm font-semibold text-zinc-950 transition hover:brightness-110">Create</button>
-          <button type="button" onClick={onClose} className="rounded-xl border border-white/[0.08] px-4 py-2 text-sm text-zinc-400 transition hover:border-white/15 hover:text-zinc-200">Cancel</button>
+          <button type="submit" className="glass-btn--accent flex-1 rounded-xl py-2 text-sm font-semibold">Create</button>
+          <button type="button" onClick={onClose} className="glass-btn rounded-xl px-4 py-2 text-sm">Cancel</button>
         </div>
       </form>
     </div>
@@ -187,7 +187,7 @@ function AddPositionPanel({ cash, token, onBuy }) {
               onKeyDown={(e) => e.key === 'Enter' && handleSymbolBlur()}
               placeholder="AAPL"
               maxLength={12}
-              className="w-28 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 py-2 font-mono text-sm text-zinc-100 outline-none focus:border-white/20 transition placeholder:text-zinc-600"
+              className="glass-input w-28 rounded-xl px-3 py-2 font-mono text-sm text-zinc-100 placeholder:text-zinc-600"
             />
             {fetching && <Loader2 className="absolute right-2.5 top-1/2 size-3.5 -translate-y-1/2 animate-spin text-zinc-500" />}
           </div>
@@ -218,7 +218,7 @@ function AddPositionPanel({ cash, token, onBuy }) {
             onChange={(e) => setAmount(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && canBuy && handleBuy()}
             placeholder={inputMode === 'dollars' ? 'e.g. 5000' : 'e.g. 10'}
-            className="w-36 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 py-2 text-sm text-zinc-100 outline-none focus:border-white/20 transition placeholder:text-zinc-600"
+            className="glass-input w-36 rounded-xl px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600"
           />
         </div>
 
@@ -235,7 +235,7 @@ function AddPositionPanel({ cash, token, onBuy }) {
               type="button"
               onClick={handleBuy}
               disabled={!canBuy}
-              className="rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
+              className="glass-btn--accent rounded-xl px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40"
             >
               Buy
             </button>
@@ -414,7 +414,7 @@ export function Portfolio() {
         <button
           type="button"
           onClick={() => setShowNewModal(true)}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-white/15 hover:bg-white/[0.07]"
+          className="glass-btn inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"
         >
           <Plus className="size-3.5" /> New portfolio
         </button>
@@ -429,7 +429,7 @@ export function Portfolio() {
               type="button"
               onClick={() => setActive(p.id)}
               className={['rounded-lg px-3 py-1.5 text-xs font-medium transition', p.id === active.id
-                ? 'bg-accent-muted text-accent shadow-[inset_0_0_0_1px_oklch(0.72_0.17_165/0.25)]'
+                ? 'bg-accent-muted text-accent accent-inset'
                 : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300'].join(' ')}
             >
               {p.name}
@@ -562,7 +562,7 @@ export function Portfolio() {
             <button
               type="button"
               onClick={() => setShowResetConfirm(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs text-zinc-500 transition hover:border-amber-500/30 hover:text-amber-400"
+              className="glass-btn inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-zinc-500 hover:text-amber-400"
             >
               <RotateCcw className="size-3" /> Reset portfolio
             </button>
@@ -570,7 +570,7 @@ export function Portfolio() {
               <button
                 type="button"
                 onClick={() => setShowDeleteConfirm(true)}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs text-zinc-500 transition hover:border-rose-500/30 hover:text-rose-400"
+                className="glass-btn inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-zinc-500 hover:text-rose-400"
               >
                 <Trash2 className="size-3" /> Delete portfolio
               </button>
@@ -634,14 +634,14 @@ export function Portfolio() {
 
       {showResetConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-80 rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl">
+          <div className="glass-bar w-80 rounded-2xl border border-white/10 p-6 shadow-2xl">
             <h2 className="text-base font-semibold text-zinc-100">Reset portfolio?</h2>
             <p className="mt-2 text-sm text-zinc-400">
               All positions in <span className="font-semibold text-zinc-200">{active?.name}</span> will be cleared and cash will be restored to {fmtCash(active?.budget)}.
             </p>
             <div className="mt-5 flex gap-2">
               <button onClick={resetPortfolio} className="flex-1 rounded-xl bg-amber-500 py-2 text-sm font-semibold text-zinc-950 transition hover:brightness-110">Reset</button>
-              <button onClick={() => setShowResetConfirm(false)} className="rounded-xl border border-white/[0.08] px-4 py-2 text-sm text-zinc-400 transition hover:border-white/15">Cancel</button>
+              <button onClick={() => setShowResetConfirm(false)} className="glass-btn rounded-xl px-4 py-2 text-sm">Cancel</button>
             </div>
           </div>
         </div>
@@ -649,14 +649,14 @@ export function Portfolio() {
 
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-80 rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl">
+          <div className="glass-bar w-80 rounded-2xl border border-white/10 p-6 shadow-2xl">
             <h2 className="text-base font-semibold text-zinc-100">Delete portfolio?</h2>
             <p className="mt-2 text-sm text-zinc-400">
               <span className="font-semibold text-zinc-200">{active?.name}</span> will be permanently deleted. This cannot be undone.
             </p>
             <div className="mt-5 flex gap-2">
               <button onClick={deletePortfolio} className="flex-1 rounded-xl bg-rose-600 py-2 text-sm font-semibold text-white transition hover:brightness-110">Delete</button>
-              <button onClick={() => setShowDeleteConfirm(false)} className="rounded-xl border border-white/[0.08] px-4 py-2 text-sm text-zinc-400 transition hover:border-white/15">Cancel</button>
+              <button onClick={() => setShowDeleteConfirm(false)} className="glass-btn rounded-xl px-4 py-2 text-sm">Cancel</button>
             </div>
           </div>
         </div>

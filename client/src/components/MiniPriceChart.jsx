@@ -3,10 +3,15 @@ import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'rec
 import { apiUrl } from '../lib/apiBase'
 
 const TOOLTIP_STYLE = {
-  background: '#0c0e12',
-  border: '1px solid var(--color-border-subtle)',
-  borderRadius: '0.5rem',
+  background: 'rgba(20, 20, 24, 0.55)',
+  border: '1px solid rgba(255, 255, 255, 0.10)',
+  borderRadius: '0.75rem',
+  backdropFilter: 'blur(18px) saturate(170%)',
+  WebkitBackdropFilter: 'blur(18px) saturate(170%)',
+  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.35)',
+  color: 'oklch(0.92 0 0)',
   fontSize: '12px',
+  padding: '8px 10px',
   fontFamily:
     'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
 }
@@ -81,7 +86,7 @@ export function MiniPriceChart({ symbol, height = 140 }) {
   }, [pts])
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2.5">
+    <div className="glass-bar rounded-xl border border-white/10 px-3 py-2.5">
       <div className="flex items-baseline justify-between gap-3">
         <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Last 90d</p>
         <p className="text-[11px] font-medium text-zinc-600">{symbol}</p>

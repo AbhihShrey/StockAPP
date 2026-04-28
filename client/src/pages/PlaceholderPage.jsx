@@ -157,7 +157,7 @@ function ProductsPage() {
           <p className="mt-1 text-sm text-zinc-500">Create a free account and unlock everything in seconds.</p>
           <Link
             to="/welcome"
-            className="mt-6 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent-muted px-6 py-2.5 text-sm font-semibold text-accent shadow-[inset_0_0_0_1px_oklch(0.72_0.17_165/0.25)] transition hover:brightness-110"
+            className="glass-btn--accent ember-cta mt-6 inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold"
           >
             Get started <ArrowRight className="size-4" />
           </Link>
@@ -272,7 +272,7 @@ function SolutionsPage() {
           <p className="text-base font-medium text-zinc-100">Find your edge, whatever your style.</p>
           <Link
             to="/welcome"
-            className="mt-5 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent-muted px-6 py-2.5 text-sm font-semibold text-accent shadow-[inset_0_0_0_1px_oklch(0.72_0.17_165/0.25)] transition hover:brightness-110"
+            className="glass-btn--accent ember-cta mt-5 inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold"
           >
             Start free <ArrowRight className="size-4" />
           </Link>

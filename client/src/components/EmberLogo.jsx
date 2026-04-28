@@ -1,10 +1,10 @@
 import { useState } from 'react'
 
 const SIZES = {
-  xs: { box: 36, svg: 20, name: 11, spacing: 1, lineW: 24 },
-  sm: { box: 48, svg: 26, name: 14, spacing: 1, lineW: 32 },
-  md: { box: 72, svg: 38, name: 20, spacing: 1.5, lineW: 40 },
-  lg: { box: 96, svg: 52, name: 28, spacing: 2, lineW: 54 },
+  xs: { box: 36, svg: 20, name: 15, spacing: -0.2, lineW: 24 },
+  sm: { box: 48, svg: 26, name: 17, spacing: -0.2, lineW: 32 },
+  md: { box: 72, svg: 38, name: 22, spacing: -0.3, lineW: 40 },
+  lg: { box: 96, svg: 52, name: 30, spacing: -0.4, lineW: 54 },
 }
 
 function FlameSvg({ size, hovered }) {
@@ -68,7 +68,7 @@ function Wordmark({ s }) {
       style={{
         fontFamily: "'DM Sans', system-ui, sans-serif",
         fontSize: s.name,
-        fontWeight: 700,
+        fontWeight: 500,
         color: '#fafafa',
         letterSpacing: s.spacing,
         userSelect: 'none',

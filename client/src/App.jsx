@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import { getDefaultLanding } from './lib/prefs'
 import { Alerts } from './pages/Alerts'
 import { Dashboard } from './pages/Dashboard'
+import { FAQ } from './pages/FAQ'
 import { InsiderActivity } from './pages/InsiderActivity'
 import { Markets } from './pages/Markets'
 import { News } from './pages/News'
@@ -43,6 +44,7 @@ function AppRoutes() {
         <Route path="/welcome" element={<Welcome redirectIfAuthenticated={false} />} />
         <Route path="/products" element={<PlaceholderPage />} />
         <Route path="/solutions" element={<PlaceholderPage />} />
+        <Route path="/faq" element={<FAQ />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/disclaimer" element={<Disclaimer />} />

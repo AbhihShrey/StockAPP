@@ -66,7 +66,7 @@ export function VerifyEmail() {
               <p className="mt-2 text-sm text-zinc-500">Thanks — your account is fully verified.</p>
               <Link
                 to="/dashboard"
-                className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-accent py-2.5 text-sm font-semibold text-zinc-950 transition hover:brightness-110"
+                className="glass-btn--accent mt-6 inline-flex w-full items-center justify-center rounded-xl py-2.5 text-sm font-semibold"
               >
                 Continue to Ember Finances
               </Link>
@@ -78,7 +78,7 @@ export function VerifyEmail() {
               <p className="mt-2 text-sm text-zinc-500">{message}</p>
               <Link
                 to="/welcome?signin=1"
-                className="mt-6 inline-flex w-full items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.08]"
+                className="glass-btn mt-6 inline-flex w-full items-center justify-center rounded-xl py-2.5 text-sm font-medium"
               >
                 Sign in to request a new link
               </Link>

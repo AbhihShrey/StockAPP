@@ -118,7 +118,7 @@ export function WelcomeAuthModal({ open, mode, onClose, onSwitchMode }) {
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="welcome-modal-panel-enter relative w-full max-w-[420px] overflow-hidden rounded-2xl border border-white/10 bg-neutral-950/90 shadow-[0_24px_80px_-24px_rgba(0,0,0,0.85)] backdrop-blur-xl"
+        className="welcome-modal-panel-enter glass-bar relative w-full max-w-[420px] overflow-hidden rounded-2xl border border-white/10 shadow-[0_24px_80px_-24px_rgba(0,0,0,0.85)]"
       >
         <div className="flex items-start justify-between gap-3 border-b border-white/10 px-6 py-4">
           <div>
@@ -161,7 +161,7 @@ export function WelcomeAuthModal({ open, mode, onClose, onSwitchMode }) {
                 autoComplete="one-time-code"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-center font-mono text-lg tracking-[0.3em] text-zinc-100 outline-none ring-accent/25 placeholder:text-zinc-700 focus:border-accent/35 focus:ring-2"
+                className="glass-input w-full rounded-xl px-3 py-2.5 text-center font-mono text-lg tracking-[0.3em] text-zinc-100 placeholder:text-zinc-700"
                 placeholder="123456"
                 autoFocus
                 required
@@ -171,7 +171,7 @@ export function WelcomeAuthModal({ open, mode, onClose, onSwitchMode }) {
             <button
               type="submit"
               disabled={busy}
-              className="ember-cta flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3 text-sm font-semibold text-zinc-950 transition hover:brightness-110 disabled:opacity-60"
+              className="glass-btn--accent ember-cta flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold disabled:opacity-60"
             >
               {busy ? 'Verifying…' : 'Verify and sign in'}
             </button>
@@ -201,7 +201,7 @@ export function WelcomeAuthModal({ open, mode, onClose, onSwitchMode }) {
                 <button
                   type="button"
                   onClick={() => { setForgotMode(false); setForgotSent(false) }}
-                  className="flex w-full items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.08]"
+                  className="glass-btn flex w-full items-center justify-center rounded-xl py-2.5 text-sm font-medium text-zinc-200"
                 >
                   Back to sign in
                 </button>
@@ -217,7 +217,7 @@ export function WelcomeAuthModal({ open, mode, onClose, onSwitchMode }) {
                       autoComplete="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 pl-10 pr-3 text-sm text-zinc-100 outline-none ring-accent/25 placeholder:text-zinc-600 focus:border-accent/35 focus:ring-2"
+                      className="glass-input w-full rounded-xl py-2.5 pl-10 pr-3 text-sm text-zinc-100 placeholder:text-zinc-600"
                       placeholder="you@company.com"
                       required
                     />
@@ -226,7 +226,7 @@ export function WelcomeAuthModal({ open, mode, onClose, onSwitchMode }) {
                 <button
                   type="submit"
                   disabled={forgotBusy}
-                  className="ember-cta flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3 text-sm font-semibold text-zinc-950 transition hover:brightness-110 disabled:opacity-60"
+                  className="glass-btn--accent ember-cta flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold disabled:opacity-60"
                 >
                   {forgotBusy ? 'Sending…' : 'Send reset link'}
                 </button>
@@ -253,7 +253,7 @@ export function WelcomeAuthModal({ open, mode, onClose, onSwitchMode }) {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 pl-10 pr-3 text-sm text-zinc-100 outline-none ring-accent/25 placeholder:text-zinc-600 focus:border-accent/35 focus:ring-2"
+                className="glass-input w-full rounded-xl py-2.5 pl-10 pr-3 text-sm text-zinc-100 placeholder:text-zinc-600"
                 placeholder="you@company.com"
                 required
               />
@@ -279,7 +279,7 @@ export function WelcomeAuthModal({ open, mode, onClose, onSwitchMode }) {
                 autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 pl-10 pr-3 text-sm text-zinc-100 outline-none ring-accent/25 placeholder:text-zinc-600 focus:border-accent/35 focus:ring-2"
+                className="glass-input w-full rounded-xl py-2.5 pl-10 pr-3 text-sm text-zinc-100 placeholder:text-zinc-600"
                 placeholder="••••••••"
                 minLength={mode === 'signup' ? 8 : 1}
                 required
@@ -298,7 +298,7 @@ export function WelcomeAuthModal({ open, mode, onClose, onSwitchMode }) {
           <button
             type="submit"
             disabled={busy}
-            className="ember-cta flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3 text-sm font-semibold text-zinc-950 transition hover:brightness-110 disabled:opacity-60"
+            className="glass-btn--accent ember-cta flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold disabled:opacity-60"
           >
             {busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Create account'}
           </button>

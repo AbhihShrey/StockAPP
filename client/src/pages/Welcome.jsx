@@ -1,4 +1,4 @@
-import { ArrowRight, BarChart3, ChevronDown, FlaskConical, Grid3x3, LineChart, Sparkles } from 'lucide-react'
+import { ArrowRight, BarChart3, FlaskConical, Grid3x3, HelpCircle, Layers, LineChart, Mail, Package, Sparkles } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { RevealOnScroll } from '../components/RevealOnScroll'
@@ -37,13 +37,11 @@ const OFFERINGS = [
   },
 ]
 
-function EmberHeroBackdrop() {
+function PersistentEmberBackdrop() {
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-      <div className="welcome-hero-glow welcome-hero-glow--ember" />
-      <div className="welcome-ember-bed" />
-      <EmberParticles density={70} />
-      <div className="absolute inset-0 bg-gradient-to-b from-surface-0/10 via-surface-0/55 to-surface-0" />
+    <div className="welcome-persistent-backdrop pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden>
+      <div className="welcome-persistent-backdrop__glow" />
+      <EmberParticles density={18} />
     </div>
   )
 }
@@ -98,7 +96,8 @@ export function Welcome({ redirectIfAuthenticated = true }) {
   }
 
   return (
-    <div className="min-h-dvh bg-surface-0 text-zinc-200 antialiased">
+    <div className="relative min-h-dvh bg-surface-0 text-zinc-200 antialiased">
+      <PersistentEmberBackdrop />
       <WelcomeMarketingNav onSignIn={openSignin} onGetStarted={openSignup} />
 
       <WelcomeAuthModal
@@ -108,43 +107,34 @@ export function Welcome({ redirectIfAuthenticated = true }) {
         onSwitchMode={(m) => setAuthMode(m)}
       />
 
-      {/* Hero — centered (dark band below Dropbox-style chrome) */}
-      <section className="relative flex min-h-[calc(100dvh-7.5rem)] flex-col border-b border-white/[0.06]">
-        <EmberHeroBackdrop />
+      {/* Hero — centered, flows directly into details below */}
+      <section className="relative flex min-h-[calc(100dvh-7.5rem)] flex-col">
         <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 pb-16 pt-10 sm:px-6 sm:pb-20 sm:pt-14">
           <div className="welcome-hero-fade flex max-w-lg flex-col items-center text-center">
             <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-zinc-500">
               <Sparkles className="size-3.5 text-accent" aria-hidden />
               Markets workspace
             </p>
-            <h1 className="text-balance text-2xl font-semibold leading-snug tracking-tight text-zinc-50 sm:text-3xl md:text-[1.85rem] md:leading-tight">
-              A calmer way to read the tape, size risk, and stress-test ideas—before you trade.
+            <h1 className="text-balance text-3xl font-semibold leading-tight tracking-tight text-zinc-50 sm:text-4xl md:text-5xl">
+              The market, made clear.
             </h1>
-            <p className="mt-5 max-w-md text-pretty text-sm leading-relaxed text-zinc-500 sm:text-[0.9375rem]">
-              Breadth, sectors, charts, and backtests in one cohesive surface. Built for focus, speed, and clarity.
+            <p className="mt-5 max-w-md text-pretty text-sm leading-relaxed text-zinc-500 sm:text-base">
+              Charts, alerts, and backtests in one calm workspace.
             </p>
             <button
               type="button"
               onClick={openSignup}
-              className="ember-cta mt-10 inline-flex items-center justify-center gap-2 rounded-full border border-border-subtle bg-surface-1/70 px-8 py-3 text-sm font-semibold text-zinc-100 shadow-lg shadow-black/30 transition hover:border-white/15 hover:bg-surface-1/90"
+              className="glass-btn--accent ember-cta mt-10 inline-flex items-center justify-center gap-2 rounded-full px-8 py-3 text-sm font-semibold"
             >
               Create account
               <ArrowRight className="size-4 opacity-80" aria-hidden />
             </button>
             <p className="mt-3 text-center text-xs text-zinc-600">No card required · Free to sign up</p>
           </div>
-
-          <a
-            href="#details"
-            className="absolute bottom-6 flex flex-col items-center gap-1 text-xs font-medium text-zinc-500 transition hover:text-zinc-300"
-          >
-            Learn more
-            <ChevronDown className="size-4 motion-safe:animate-bounce" aria-hidden />
-          </a>
         </div>
       </section>
 
-      <section id="details" className="scroll-mt-16 border-b border-white/[0.06] bg-surface-0 py-20 sm:py-28">
+      <section id="details" className="relative z-10 scroll-mt-16 py-20 sm:py-28">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <RevealOnScroll repeat>
             <div className="mx-auto max-w-2xl text-center">
@@ -197,14 +187,14 @@ export function Welcome({ redirectIfAuthenticated = true }) {
                 <button
                   type="button"
                   onClick={openSignin}
-                  className="ember-cta inline-flex flex-1 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] px-5 py-2.5 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.08] sm:flex-initial"
+                  className="glass-btn ember-cta inline-flex flex-1 items-center justify-center rounded-xl px-5 py-2.5 text-sm font-medium text-zinc-200 sm:flex-initial"
                 >
                   Sign in
                 </button>
                 <button
                   type="button"
                   onClick={openSignup}
-                  className="ember-cta inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-accent/30 bg-accent-muted px-5 py-2.5 text-sm font-semibold text-accent shadow-[inset_0_0_0_1px_oklch(0.72_0.17_165/0.25)] transition hover:brightness-110 sm:flex-initial"
+                  className="glass-btn--accent ember-cta inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold sm:flex-initial"
                 >
                   Get started
                   <ArrowRight className="size-4" aria-hidden />
@@ -226,17 +216,71 @@ export function Welcome({ redirectIfAuthenticated = true }) {
 
       <WelcomeFireSpiritQA />
 
-      <footer className="border-t border-white/[0.06] py-10">
-        <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 px-4 text-center sm:flex-row sm:justify-between sm:px-6">
-          <p className="text-xs text-zinc-600">
-            © {new Date().getFullYear()} Ember Finances · For informational purposes only.
-          </p>
-          <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-zinc-500">
-            <Link to="/privacy" className="transition hover:text-zinc-300">Privacy</Link>
-            <Link to="/terms" className="transition hover:text-zinc-300">Terms</Link>
-            <Link to="/disclaimer" className="transition hover:text-zinc-300">Disclaimer</Link>
-            <Link to="/cookies" className="transition hover:text-zinc-300">Cookies</Link>
-          </nav>
+      <footer className="relative z-10 overflow-hidden border-t border-white/[0.06]">
+        <div className="pointer-events-none absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" aria-hidden />
+        <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16">
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="lg:col-span-2">
+              <div className="flex items-center gap-2.5">
+                <span className="flex size-9 items-center justify-center rounded-xl border border-accent/20 bg-accent/[0.06] text-accent shadow-[inset_0_0_18px_-4px_oklch(0.55_0.20_35_/0.45)]">
+                  <Sparkles className="size-4" aria-hidden />
+                </span>
+                <span className="text-base font-semibold tracking-tight text-zinc-100">Ember Finances</span>
+              </div>
+              <p className="mt-4 max-w-md text-sm leading-relaxed text-zinc-500">
+                A focused workspace for reading the market, tracking positions, and stress-testing trading
+                ideas. Built for clarity, not clutter.
+              </p>
+              <a
+                href="mailto:support@emberfinances.com"
+                className="mt-5 inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3.5 py-2 text-[13px] font-medium text-zinc-200 transition hover:border-accent/30 hover:bg-white/[0.06] hover:text-accent"
+              >
+                <Mail className="size-3.5 opacity-80" aria-hidden />
+                support@emberfinances.com
+              </a>
+            </div>
+
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Explore</p>
+              <ul className="mt-4 space-y-2.5 text-sm">
+                <li>
+                  <Link to="/products" className="group inline-flex items-center gap-2 text-zinc-400 transition hover:text-accent">
+                    <Package className="size-3.5 opacity-60 transition group-hover:opacity-100" aria-hidden />
+                    Products
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/solutions" className="group inline-flex items-center gap-2 text-zinc-400 transition hover:text-accent">
+                    <Layers className="size-3.5 opacity-60 transition group-hover:opacity-100" aria-hidden />
+                    Solutions
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/faq" className="group inline-flex items-center gap-2 text-zinc-400 transition hover:text-accent">
+                    <HelpCircle className="size-3.5 opacity-60 transition group-hover:opacity-100" aria-hidden />
+                    FAQ
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Legal</p>
+              <ul className="mt-4 space-y-2.5 text-sm">
+                <li><Link to="/privacy" className="text-zinc-400 transition hover:text-accent">Privacy Policy</Link></li>
+                <li><Link to="/terms" className="text-zinc-400 transition hover:text-accent">Terms of Service</Link></li>
+                <li><Link to="/disclaimer" className="text-zinc-400 transition hover:text-accent">Disclaimer</Link></li>
+                <li><Link to="/cookies" className="text-zinc-400 transition hover:text-accent">Cookie Policy</Link></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-12 flex flex-col items-center gap-2 border-t border-white/[0.05] pt-6 text-center sm:flex-row sm:justify-between sm:text-left">
+            <p className="text-xs text-zinc-600">
+              © {new Date().getFullYear()} Ember Finances · For informational purposes only — not investment advice.
+            </p>
+            <p className="text-[11px] text-zinc-700">Market data by Financial Modeling Prep</p>
+          </div>
         </div>
       </footer>
     </div>

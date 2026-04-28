@@ -30,7 +30,7 @@ export function NavigationProgress() {
     <div className="pointer-events-none fixed inset-x-0 top-0 z-[200] h-[2px] overflow-hidden" aria-hidden>
       <div
         className={[
-          'nav-progress-bar h-full bg-accent shadow-[0_0_14px_oklch(0.72_0.17_165/0.45)]',
+          'nav-progress-bar accent-glow h-full bg-accent',
           phase === 'enter' ? 'nav-progress-bar--enter' : 'nav-progress-bar--leave',
         ].join(' ')}
       />

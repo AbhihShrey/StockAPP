@@ -220,7 +220,7 @@ export function Sectors() {
           <button
             type="button"
             onClick={() => load()}
-            className="mt-3 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-xs text-zinc-300 transition hover:bg-white/10"
+            className="glass-btn mt-3 rounded-lg px-4 py-2 text-xs"
           >
             Retry
           </button>

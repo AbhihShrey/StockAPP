@@ -152,7 +152,7 @@ function ChangePasswordForm({ token }) {
               value={value}
               onChange={(e) => set(e.target.value)}
               required
-              className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 pr-9 text-sm text-zinc-100 outline-none focus:border-white/20 focus:bg-white/[0.06] transition"
+              className="glass-input w-full rounded-xl px-3 py-2 pr-9 text-sm text-zinc-100"
             />
             {toggle && (
               <button
@@ -172,7 +172,7 @@ function ChangePasswordForm({ token }) {
         <button
           type="submit"
           disabled={busy}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-xs font-semibold text-zinc-950 transition hover:brightness-110 disabled:opacity-60"
+          className="glass-btn--accent inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-semibold disabled:opacity-60"
         >
           {busy ? <Loader2 className="size-3.5 animate-spin" /> : <KeyRound className="size-3.5" />}
           {busy ? 'Saving…' : 'Update password'}
@@ -207,7 +207,7 @@ function LandingPagePicker() {
       <select
         value={value}
         onChange={handleChange}
-        className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-zinc-200 outline-none focus:border-white/20 transition"
+        className="glass-input rounded-xl px-3 py-2 text-sm text-zinc-200"
       >
         {LANDING_PAGES.map((p) => (
           <option key={p.value} value={p.value} className="bg-neutral-900">{p.label}</option>
@@ -399,10 +399,10 @@ function QuietHoursPicker() {
         <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-400">
           <span>From</span>
           <input type="time" value={prefs.start} onChange={(e) => update({ start: e.target.value })}
-            className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1.5 text-sm text-zinc-200 outline-none focus:border-white/20 transition" />
+            className="glass-input rounded-lg px-2.5 py-1.5 text-sm text-zinc-200" />
           <span>to</span>
           <input type="time" value={prefs.end} onChange={(e) => update({ end: e.target.value })}
-            className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1.5 text-sm text-zinc-200 outline-none focus:border-white/20 transition" />
+            className="glass-input rounded-lg px-2.5 py-1.5 text-sm text-zinc-200" />
           <span className="text-zinc-600">ET</span>
         </div>
       )}
@@ -551,7 +551,7 @@ function EmailNotificationSettings({ token, userEmail }) {
               value={alertEmail}
               onChange={(e) => setAlertEmail(e.target.value)}
               placeholder={userEmail}
-              className="w-52 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-zinc-200 outline-none placeholder:text-zinc-600 focus:border-white/20 transition"
+              className="glass-input w-52 rounded-xl px-3 py-2 text-sm text-zinc-200 placeholder:text-zinc-600"
             />
             <button
               type="button"
@@ -922,7 +922,7 @@ function TwoFactorSection({ token }) {
             onChange={(e) => setCode(e.target.value)}
             required
             autoFocus
-            className="w-40 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-center font-mono text-base tracking-[0.3em] text-zinc-100 outline-none focus:border-white/20 focus:bg-white/[0.06] transition"
+            className="glass-input w-40 rounded-xl px-3 py-2 text-center font-mono text-base tracking-[0.3em] text-zinc-100"
             placeholder="123456"
           />
         </div>
@@ -933,7 +933,7 @@ function TwoFactorSection({ token }) {
           <button
             type="submit"
             disabled={busy || !code}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-xs font-semibold text-zinc-950 transition hover:brightness-110 disabled:opacity-60"
+            className="glass-btn--accent inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-semibold disabled:opacity-60"
           >
             {busy ? <Loader2 className="size-3.5 animate-spin" /> : <ShieldCheck className="size-3.5" />}
             {busy ? 'Verifying…' : 'Verify and enable'}
@@ -965,7 +965,7 @@ function TwoFactorSection({ token }) {
             onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="current-password"
-            className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-zinc-100 outline-none focus:border-white/20 focus:bg-white/[0.06] transition"
+            className="glass-input w-full rounded-xl px-3 py-2 text-sm text-zinc-100"
           />
         </div>
         {error ? <p className="text-xs text-rose-400">{error}</p> : null}
@@ -1092,7 +1092,7 @@ function DeleteAccountForm({ token }) {
             onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="current-password"
-            className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 pr-9 text-sm text-zinc-100 outline-none focus:border-white/20 focus:bg-white/[0.06] transition"
+            className="glass-input w-full rounded-xl px-3 py-2 pr-9 text-sm text-zinc-100"
           />
           <button
             type="button"
@@ -1112,7 +1112,7 @@ function DeleteAccountForm({ token }) {
           autoCapitalize="characters"
           autoComplete="off"
           spellCheck={false}
-          className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-zinc-100 outline-none focus:border-white/20 focus:bg-white/[0.06] transition"
+          className="glass-input w-full rounded-xl px-3 py-2 text-sm text-zinc-100"
         />
       </div>
       {error && <p className="text-xs text-rose-400">{error}</p>}

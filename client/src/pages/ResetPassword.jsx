@@ -64,7 +64,7 @@ export function ResetPassword() {
               <p className="text-sm leading-relaxed text-zinc-400">Your password has been updated. You can now sign in with the new password.</p>
               <Link
                 to="/welcome?signin=1"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-2.5 text-sm font-semibold text-zinc-950 transition hover:brightness-110"
+                className="glass-btn--accent inline-flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold"
               >
                 Continue to sign in
               </Link>
@@ -84,7 +84,7 @@ export function ResetPassword() {
                     minLength={8}
                     autoComplete="new-password"
                     required
-                    className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 pr-9 text-sm text-zinc-100 outline-none focus:border-white/20 focus:bg-white/[0.06] transition"
+                    className="glass-input w-full rounded-xl px-3 py-2 pr-9 text-sm text-zinc-100"
                   />
                   <button type="button" onClick={() => setShow((v) => !v)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-300">
                     {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -100,14 +100,14 @@ export function ResetPassword() {
                   minLength={8}
                   autoComplete="new-password"
                   required
-                  className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-zinc-100 outline-none focus:border-white/20 focus:bg-white/[0.06] transition"
+                  className="glass-input w-full rounded-xl px-3 py-2 text-sm text-zinc-100"
                 />
               </div>
               {err ? <p className="text-xs text-rose-400">{err}</p> : null}
               <button
                 type="submit"
                 disabled={busy}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-2.5 text-sm font-semibold text-zinc-950 transition hover:brightness-110 disabled:opacity-60"
+                className="glass-btn--accent inline-flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold disabled:opacity-60"
               >
                 {busy ? <FlameSpinner size={16} /> : <KeyRound className="size-4" />}
                 {busy ? 'Updating…' : 'Update password'}

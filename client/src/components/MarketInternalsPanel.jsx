@@ -13,10 +13,15 @@ import {
 import { AnimatedNumber } from './AnimatedNumber'
 
 const TOOLTIP_STYLE = {
-  background: '#0c0e12',
-  border: '1px solid var(--color-border-subtle)',
-  borderRadius: '0.5rem',
+  background: 'rgba(20, 20, 24, 0.55)',
+  border: '1px solid rgba(255, 255, 255, 0.10)',
+  borderRadius: '0.75rem',
+  backdropFilter: 'blur(18px) saturate(170%)',
+  WebkitBackdropFilter: 'blur(18px) saturate(170%)',
+  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.35)',
+  color: 'oklch(0.92 0 0)',
   fontSize: '12px',
+  padding: '8px 10px',
   fontFamily:
     'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
 }

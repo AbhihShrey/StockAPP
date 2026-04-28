@@ -2,8 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { X, ChevronDown } from 'lucide-react'
 import { FireSpirit } from './FireSpirit'
 
-const SCROLL_REVEAL_PX = 280
-
 const FAQ = [
   {
     q: 'What is Ember Finances?',
@@ -36,17 +34,9 @@ const FAQ = [
 ]
 
 export function WelcomeFireSpiritQA() {
-  const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
   const [expanded, setExpanded] = useState(0)
   const panelRef = useRef(null)
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > SCROLL_REVEAL_PX)
-    window.addEventListener('scroll', onScroll, { passive: true })
-    onScroll()
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
 
   useEffect(() => {
     if (!open) return
@@ -64,8 +54,6 @@ export function WelcomeFireSpiritQA() {
       document.removeEventListener('keydown', onKey)
     }
   }, [open])
-
-  if (!scrolled) return null
 
   return (
     <>

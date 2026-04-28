@@ -2,7 +2,7 @@ export function DashboardCard({ title, action, children, className = '', ...rest
   return (
     <section
       className={[
-        'flex h-full flex-col rounded-xl border border-white/10 bg-neutral-900/50 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.55)]',
+        'glass-bar flex h-full flex-col rounded-xl border border-white/10 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.55)]',
         className,
       ].join(' ')}
       {...rest}

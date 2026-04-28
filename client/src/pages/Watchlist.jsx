@@ -225,13 +225,13 @@ function WatchlistTab({ token }) {
               onChange={(e) => { setAddInput(e.target.value.toUpperCase()); setAddError(null) }}
               placeholder="Add symbol (e.g. AAPL)"
               maxLength={12}
-              className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2 pl-3 pr-3 text-sm text-zinc-100 outline-none ring-accent/25 placeholder:text-zinc-600 focus:border-accent/35 focus:ring-2"
+              className="glass-input w-full rounded-xl py-2 pl-3 pr-3 text-sm text-zinc-100 placeholder:text-zinc-600"
             />
           </div>
           <button
             type="submit"
             disabled={addBusy || !addInput.trim()}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-accent/30 bg-accent-muted px-3 py-2 text-sm font-semibold text-accent shadow-[inset_0_0_0_1px_oklch(0.72_0.17_165/0.25)] transition hover:brightness-110 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-accent/30 bg-accent-muted px-3 py-2 text-sm font-semibold text-accent accent-inset transition hover:brightness-110 disabled:opacity-50"
           >
             {addBusy ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
             Add
@@ -360,7 +360,7 @@ function FilterInput({ label, value, onChange, placeholder }) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder ?? '—'}
-        className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-zinc-100 outline-none ring-accent/25 placeholder:text-zinc-600 focus:border-accent/35 focus:ring-2"
+        className="glass-input rounded-xl px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600"
       />
     </div>
   )
@@ -512,7 +512,7 @@ function ScreenerTab({ token }) {
               type="button"
               onClick={handleRun}
               disabled={running}
-              className="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-zinc-950 transition hover:brightness-110 disabled:opacity-60"
+              className="glass-btn--accent inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold disabled:opacity-60"
             >
               {running ? <Loader2 className="size-4 animate-spin" /> : <Search className="size-4" />}
               {running ? 'Running…' : 'Run screener'}
@@ -618,7 +618,7 @@ export function Watchlist() {
             className={[
               'rounded-lg px-4 py-2 text-xs font-medium transition',
               tab === t.id
-                ? 'bg-accent-muted text-accent shadow-[inset_0_0_0_1px_oklch(0.72_0.17_165/0.25)]'
+                ? 'bg-accent-muted text-accent accent-inset'
                 : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300',
             ].join(' ')}
           >

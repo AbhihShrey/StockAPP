@@ -320,7 +320,7 @@ export function NewsMasterDetail() {
               <button
                 type="button"
                 onClick={applySymbol}
-                className="rounded-lg bg-accent-muted px-3 py-2 text-xs font-semibold text-accent shadow-[inset_0_0_0_1px_oklch(0.72_0.17_165/0.25)] hover:bg-accent-muted/80"
+                className="rounded-lg bg-accent-muted px-3 py-2 text-xs font-semibold text-accent accent-inset hover:bg-accent-muted/80"
               >
                 Load
               </button>
@@ -353,7 +353,7 @@ export function NewsMasterDetail() {
                 className={[
                   'rounded-lg px-3 py-1.5 text-xs font-semibold transition',
                   category === c.id
-                    ? 'bg-accent-muted text-accent shadow-[inset_0_0_0_1px_oklch(0.72_0.17_165/0.25)]'
+                    ? 'bg-accent-muted text-accent accent-inset'
                     : 'border border-border-subtle bg-surface-0/50 text-zinc-400 hover:border-zinc-600 hover:text-zinc-200',
                 ].join(' ')}
               >
@@ -467,7 +467,7 @@ export function NewsMasterDetail() {
                         className={[
                           'w-full rounded-xl border px-3 py-2.5 text-left transition',
                           active
-                            ? 'border-accent/40 bg-accent-muted/25 shadow-[inset_0_0_0_1px_oklch(0.72_0.17_165/0.15)]'
+                            ? 'border-accent/40 bg-accent-muted/25 accent-inset-light'
                             : 'border-border-subtle/80 bg-surface-0/40 hover:border-zinc-600 hover:bg-surface-0/70',
                         ].join(' ')}
                       >

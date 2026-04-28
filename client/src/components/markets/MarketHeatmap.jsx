@@ -30,7 +30,7 @@ function HeatmapTooltip({ active, payload }) {
   const pct = d.changePercent
   const sign = pct >= 0 ? '+' : ''
   return (
-    <div className="rounded-lg border border-white/10 bg-neutral-900/95 px-3 py-2 text-xs shadow-[0_4px_20px_-5px_rgba(0,0,0,0.55)] backdrop-blur">
+    <div className="glass-bar rounded-xl border border-white/10 px-3 py-2 text-xs shadow-[0_8px_24px_rgba(0,0,0,0.35)]">
       <p className="text-sm font-semibold tracking-tight text-zinc-100">{d.symbol}</p>
       <p className={`tabular-nums ${pct >= 0 ? 'text-emerald-300/90' : 'text-rose-300/90'}`}>
         {sign}{pct.toFixed(2)}%
@@ -49,22 +49,23 @@ function HeatmapTile(props) {
   const showLabel = width > 32 && height > 20
   const showPct = width > 52 && height > 36
   const sign = pct != null && pct >= 0 ? '+' : ''
-  // Browser-rendered HTML inside foreignObject → sharp, anti-aliased typography
-  // (SVG <text> looks chunky at small sizes; this renders identically to the rest of the site).
   const sideLen = Math.sqrt(width * height)
   const symFs = Math.min(15, Math.max(10, sideLen / 7))
   const pctFs = Math.min(11, Math.max(9, sideLen / 11))
+  const radius = Math.min(6, Math.min(width, height) / 6)
   return (
     <g
       onClick={() => symbol && onClick?.(symbol)}
       style={{ cursor: symbol ? 'pointer' : 'default' }}
     >
       <rect
-        x={x}
-        y={y}
-        width={width}
-        height={height}
-        style={{ fill, stroke: 'rgba(255,255,255,0.05)', strokeWidth: 1 }}
+        x={x + 1}
+        y={y + 1}
+        width={Math.max(0, width - 2)}
+        height={Math.max(0, height - 2)}
+        rx={radius}
+        ry={radius}
+        style={{ fill, stroke: 'rgba(255,255,255,0.06)', strokeWidth: 1 }}
       />
       {showLabel && symbol ? (
         <foreignObject x={x} y={y} width={width} height={height} style={{ pointerEvents: 'none' }}>
@@ -157,18 +158,18 @@ export function MarketHeatmap() {
   }, [rows])
 
   if (loading) {
-    return <div className="h-[560px] animate-pulse rounded-xl border border-white/[0.06] bg-white/[0.02]" />
+    return <div className="glass-bar h-[440px] animate-pulse rounded-2xl border border-white/[0.08]" />
   }
   if (error) {
     return (
-      <div className="rounded-xl border border-rose-500/20 bg-rose-500/5 p-4 text-sm text-rose-300">
+      <div className="rounded-2xl border border-rose-500/20 bg-rose-500/5 p-4 text-sm text-rose-300">
         {error}
       </div>
     )
   }
   if (!data.length) {
     return (
-      <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] py-10 text-center text-sm text-zinc-500">
+      <div className="glass-bar rounded-2xl border border-white/[0.08] py-10 text-center text-sm text-zinc-500">
         No heatmap data.
       </div>
     )
@@ -179,44 +180,43 @@ export function MarketHeatmap() {
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-3 text-[11px] text-zinc-500">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-[11px] text-zinc-500">
         <div className="flex items-center gap-3">
           <span>S&amp;P 500 — top {data.length} by |% change|</span>
           <span className="hidden h-3 w-px bg-white/10 sm:inline-block" />
           <span className="hidden tabular-nums text-emerald-300/80 sm:inline">▲ {advancers}</span>
           <span className="hidden tabular-nums text-rose-300/80 sm:inline">▼ {decliners}</span>
         </div>
-        {asOf ? (
-          <span className="tabular-nums text-zinc-500">
-            as of {new Date(asOf).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </span>
-        ) : null}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="tabular-nums">−4%</span>
+            <span className="flex h-2 overflow-hidden rounded-full ring-1 ring-white/10">
+              {[-4, -2.5, -1, -0.25, 0.25, 1, 2.5, 4].map((p) => (
+                <span key={p} className="block w-3.5" style={{ background: colorFor(p) }} />
+              ))}
+            </span>
+            <span className="tabular-nums">+4%</span>
+          </div>
+          {asOf ? (
+            <span className="tabular-nums">
+              as of {new Date(asOf).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          ) : null}
+        </div>
       </div>
-      <div className="h-[560px] w-full overflow-hidden rounded-xl border border-white/[0.06] bg-neutral-950/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)]">
+      <div className="glass-bar h-[440px] w-full overflow-hidden rounded-2xl border border-white/[0.08] p-1.5">
         <ResponsiveContainer width="100%" height="100%">
           <Treemap
             data={data}
             dataKey="size"
             nameKey="symbol"
-            stroke="rgba(255,255,255,0.05)"
+            stroke="transparent"
             content={<HeatmapTile onClick={(sym) => navigate(`/analysis/${sym}`)} />}
             isAnimationActive={false}
           >
             <Tooltip content={<HeatmapTooltip />} cursor={{ fill: 'rgba(255,255,255,0.04)' }} />
           </Treemap>
         </ResponsiveContainer>
-      </div>
-      <div className="flex flex-wrap items-center justify-between gap-3 text-[11px] text-zinc-500">
-        <span>Tile size = |return|, color = direction</span>
-        <div className="flex items-center gap-2.5">
-          <span className="tabular-nums text-zinc-500">−4%</span>
-          <span className="flex h-2.5 overflow-hidden rounded-sm">
-            {[-4, -2.5, -1, -0.25, 0.25, 1, 2.5, 4].map((p) => (
-              <span key={p} className="block w-5" style={{ background: colorFor(p) }} />
-            ))}
-          </span>
-          <span className="tabular-nums text-zinc-500">+4%</span>
-        </div>
       </div>
     </div>
   )

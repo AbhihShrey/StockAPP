@@ -496,7 +496,7 @@ function CreateAlertForm({ token, onCreated, lockedType }) {
     }
   }, [symbol, condition, threshold, cooldown, volMult, timeWin, bufPct, alertType, isSwing, isEarnings, needsPriceThreshold, isOrhl, token, onCreated])
 
-  const selectCls = 'rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-zinc-100 outline-none ring-accent/25 focus:border-accent/35 focus:ring-2'
+  const selectCls = 'glass-input rounded-xl px-3 py-2 text-sm text-zinc-100'
 
   const advancedBadgeLabels = [
     volMult !== '' && 'vol',
@@ -553,7 +553,7 @@ function CreateAlertForm({ token, onCreated, lockedType }) {
             placeholder="e.g. AAPL"
             maxLength={12}
             required
-            className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-zinc-100 outline-none ring-accent/25 placeholder:text-zinc-600 focus:border-accent/35 focus:ring-2"
+            className="glass-input rounded-xl px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600"
           />
         </div>
 
@@ -604,7 +604,7 @@ function CreateAlertForm({ token, onCreated, lockedType }) {
                 min={0}
                 step="0.01"
                 required={needsPriceThreshold}
-                className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-zinc-100 outline-none ring-accent/25 placeholder:text-zinc-600 focus:border-accent/35 focus:ring-2 disabled:opacity-40"
+                className="glass-input rounded-xl px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 disabled:opacity-40"
               />
             </>
           )}
@@ -628,7 +628,7 @@ function CreateAlertForm({ token, onCreated, lockedType }) {
           <button
             type="submit"
             disabled={busy}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent py-2 text-sm font-semibold text-zinc-950 transition hover:brightness-110 disabled:opacity-60"
+            className="glass-btn--accent inline-flex items-center justify-center gap-2 rounded-xl py-2 text-sm font-semibold disabled:opacity-60"
           >
             {busy ? <Loader2 className="size-4 animate-spin" /> : <Bell className="size-4" />}
             {busy ? 'Adding…' : 'Add alert'}
@@ -843,7 +843,7 @@ export function Alerts() {
             className={[
               'rounded-lg px-4 py-2 text-xs font-medium transition',
               activeTab === t.id
-                ? 'bg-accent-muted text-accent shadow-[inset_0_0_0_1px_oklch(0.72_0.17_165/0.25)]'
+                ? 'bg-accent-muted text-accent accent-inset'
                 : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300',
             ].join(' ')}
           >
@@ -1088,7 +1088,7 @@ export function Alerts() {
                       className={[
                         'rounded-md px-2.5 py-1 text-[11px] font-medium transition',
                         historyFilter === f.id
-                          ? 'bg-accent-muted text-accent shadow-[inset_0_0_0_1px_oklch(0.72_0.17_165/0.25)]'
+                          ? 'bg-accent-muted text-accent accent-inset'
                           : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300',
                       ].join(' ')}
                     >

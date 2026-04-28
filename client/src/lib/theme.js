@@ -24,12 +24,8 @@ export function applyDensity(density) {
 }
 
 export function saveTheme(theme) {
-  const previous = localStorage.getItem(THEME_KEY)
   localStorage.setItem(THEME_KEY, theme)
   applyTheme(theme)
-  if (theme === 'ember' && previous !== 'ember' && typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('ember-theme-ignition'))
-  }
 }
 
 export function saveDensity(density) {

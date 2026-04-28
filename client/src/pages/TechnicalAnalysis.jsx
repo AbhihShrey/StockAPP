@@ -66,7 +66,7 @@ function MiniChartCard({ ticker, score, onExpand, refreshKey }) {
       tabIndex={0}
       onClick={() => onExpand(ticker)}
       onKeyDown={onKey}
-      className="card-hover group cursor-pointer rounded-xl border border-white/[0.08] bg-gradient-to-b from-surface-2/55 to-surface-1/85 p-3 shadow-lg shadow-black/40 outline-none transition hover:border-sky-500/55 hover:shadow-sky-500/10 focus-visible:ring-2 focus-visible:ring-sky-500/50"
+      className="glass-bar card-hover group cursor-pointer rounded-xl border border-white/[0.08] p-3 shadow-lg shadow-black/40 outline-none transition hover:border-sky-500/55 hover:shadow-sky-500/10 focus-visible:ring-2 focus-visible:ring-sky-500/50"
     >
       <div className="mb-1.5 flex items-start justify-between gap-2">
         <p className="text-sm font-semibold tracking-tight text-zinc-100">{ticker}</p>
@@ -276,7 +276,7 @@ function QuickComparePanel({ symbols, routeTicker, onExpand, refreshKey, token, 
             type="button"
             onClick={save}
             disabled={validating}
-            className="rounded-lg bg-accent px-4 py-2 text-xs font-semibold text-zinc-950 transition hover:brightness-110 disabled:opacity-60"
+            className="glass-btn--accent rounded-lg px-4 py-2 text-xs font-semibold disabled:opacity-60"
           >
             {validating ? 'Saving…' : 'Save'}
           </button>
@@ -399,7 +399,7 @@ export function TechnicalAnalysis() {
         <div className="flex shrink-0 gap-2">
           <MagneticButton
             type="submit"
-            className="rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-zinc-950 transition hover:brightness-110"
+            className="glass-btn--accent rounded-xl px-4 py-2.5 text-sm font-semibold"
           >
             Load chart
           </MagneticButton>
@@ -407,7 +407,7 @@ export function TechnicalAnalysis() {
             <button
               type="button"
               onClick={() => navigate('/charts')}
-              className="rounded-xl border border-border-subtle px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-white/5"
+              className="glass-btn rounded-xl px-4 py-2.5 text-sm font-medium"
             >
               Overview
             </button>
