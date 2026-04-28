@@ -576,7 +576,7 @@ function EmailNotificationSettings({ token, userEmail }) {
 const SOUND_KEY = 'ember_alert_sound'
 
 function FeedbackActions() {
-  const email = 'stockline000@gmail.com'
+  const email = 'support@emberfinances.com'
   const subject = 'Ember Finances feedback'
   const gmailHref = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=${encodeURIComponent(subject)}`
   const mailtoHref = `mailto:${email}?subject=${encodeURIComponent(subject)}`

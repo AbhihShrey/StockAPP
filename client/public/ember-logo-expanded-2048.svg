@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048" width="2048" height="2048">
+  <rect x="0" y="0" width="2048" height="2048" fill="#000000"/>
+
+  <g transform="translate(424, 424) scale(40)">
+    <path
+      d="M 15 4 C 18 9, 22 13, 22 18 C 22 23, 18 26, 15 26 C 12 26, 8 23, 8 18 C 8 14, 12 11, 14 7 Z"
+      fill="#c2421e"/>
+    <path
+      d="M 15 9 C 18 13, 20 16, 20 20 C 20 24, 17 25, 15 25 C 13 25, 10 24, 10 20 C 10 16, 12 13, 14 10 Z"
+      fill="#ff8a3d"/>
+    <path
+      d="M 15 14 C 17 16, 18 19, 17 22 C 16 24, 14 24, 13 22 C 12 19, 13 17, 15 14 Z"
+      fill="#ffe0a8"/>
+  </g>
+</svg>

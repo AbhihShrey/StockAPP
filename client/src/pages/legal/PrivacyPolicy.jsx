@@ -77,7 +77,7 @@ export function PrivacyPolicy() {
 
       <h2>10. Contact</h2>
       <p>
-        Questions or requests? Reach us at <a href="mailto:stockline000@gmail.com">stockline000@gmail.com</a>.
+        Questions or requests? Reach us at <a href="mailto:support@emberfinances.com">support@emberfinances.com</a>.
       </p>
 
     </LegalShell>

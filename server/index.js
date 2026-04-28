@@ -148,7 +148,7 @@ for (const p of PUBLIC_RATE_LIMITED_PATHS) {
 }
 
 app.get('/api/health', (_req, res) => {
-  res.json({ ok: true, service: 'investaiv1-api' })
+  res.json({ ok: true, service: 'ember-finances-api' })
 })
 
 app.post('/api/auth/signup', authLimiter, async (req, res) => {

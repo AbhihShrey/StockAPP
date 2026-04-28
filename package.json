@@ -1,5 +1,5 @@
 {
-  "name": "investaiv1",
+  "name": "ember-finances",
   "private": true,
   "workspaces": ["client", "server"],
   "scripts": {

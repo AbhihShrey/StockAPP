@@ -47,7 +47,7 @@ export function CookiePolicy() {
       </p>
 
       <h2>6. Contact</h2>
-      <p>Questions? Email <a href="mailto:stockline000@gmail.com">stockline000@gmail.com</a>.</p>
+      <p>Questions? Email <a href="mailto:support@emberfinances.com">support@emberfinances.com</a>.</p>
 
     </LegalShell>
   )

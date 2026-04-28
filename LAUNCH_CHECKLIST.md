@@ -164,7 +164,7 @@ Leave these **blank for now** — you'll fill them in Phase F:
       `https://ember-finances-api.onrender.com`). Save it temporarily — you'll
       use it in C5 and replace it with `api.<your-domain>` in Phase F.
 - [ ] **Smoke test:** `curl https://ember-finances-api.onrender.com/api/health`
-      should return `{"ok":true,"service":"investaiv1-api"}`.
+      should return `{"ok":true,"service":"ember-finances-api"}`.
 
 ### C5. Don't proceed until C4 returns green and the smoke test passes.
 
@@ -414,7 +414,7 @@ flow. **Check off each only after it passes:**
 ## Phase I — Customize legal templates (~30 min, do within first week)
 
 The four legal pages already have your name, email, and jurisdiction baked
-in (operator: Abhih Kodavanty, contact: stockline000@gmail.com, governing
+in (operator: Abhih Kodavanty, contact: support@emberfinances.com, governing
 law: State of California, jurisdiction: Alameda County). Re-read each once
 to make sure the language reads correctly for your situation:
 

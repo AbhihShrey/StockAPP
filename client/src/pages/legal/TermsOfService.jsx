@@ -102,7 +102,7 @@ export function TermsOfService() {
       </p>
 
       <h2>13. Contact</h2>
-      <p>Questions about these Terms? Reach us at <a href="mailto:stockline000@gmail.com">stockline000@gmail.com</a>.</p>
+      <p>Questions about these Terms? Reach us at <a href="mailto:support@emberfinances.com">support@emberfinances.com</a>.</p>
 
     </LegalShell>
   )
