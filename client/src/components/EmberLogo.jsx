@@ -1,5 +1,3 @@
-import { useState } from 'react'
-
 const SIZES = {
   xs: { box: 36, svg: 20, name: 15, spacing: -0.2, lineW: 24 },
   sm: { box: 48, svg: 26, name: 17, spacing: -0.2, lineW: 32 },
@@ -7,56 +5,34 @@ const SIZES = {
   lg: { box: 96, svg: 52, name: 30, spacing: -0.4, lineW: 54 },
 }
 
-function FlameSvg({ size, hovered }) {
+function FlameSvg({ size }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 30 30"
-      style={{
-        transform: hovered ? 'scale(1.06)' : 'scale(1)',
-        transition: 'transform 0.4s ease',
-      }}
-    >
+    <svg width={size} height={size} viewBox="0 0 30 30">
       <path
-        d="M 15 4 C 18 9, 22 13, 22 18 C 22 23, 18 26, 15 26 C 12 26, 8 23, 8 18 C 8 14, 12 11, 14 7 Z"
-        fill="var(--color-ember-outer, #c2421e)"
-      />
-      <path
-        d="M 15 9 C 18 13, 20 16, 20 20 C 20 24, 17 25, 15 25 C 13 25, 10 24, 10 20 C 10 16, 12 13, 14 10 Z"
-        fill="var(--color-ember-mid, #ff8a3d)"
-      />
-      <path
-        d="M 15 14 C 17 16, 18 19, 17 22 C 16 24, 14 24, 13 22 C 12 19, 13 17, 15 14 Z"
-        fill="var(--color-ember-hot, #ffe0a8)"
-        style={{
-          opacity: hovered ? 1 : 0.9,
-          transition: 'opacity 0.4s ease',
-        }}
+        d="M 15 5 C 18 10, 21.5 13.5, 21.5 18.5 C 21.5 22.8, 18.5 25.5, 15 25.5 C 11.5 25.5, 8.5 22.8, 8.5 18.5 C 8.5 14.8, 12 11.5, 14 8 Z"
+        fill="var(--color-accent)"
       />
     </svg>
   )
 }
 
-function IconTile({ s, hovered, onEnter, onLeave }) {
+function IconTile({ s }) {
   return (
     <div
-      onMouseEnter={onEnter}
-      onMouseLeave={onLeave}
       className="ember-logo-tile"
       style={{
         width: s.box,
         height: s.box,
-        background: 'linear-gradient(135deg, #0d0d0d, #000)',
-        border: '1px solid #1a1a1a',
-        borderRadius: Math.round(s.box * 0.27),
+        background: '#0a0a0a',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: Math.round(s.box * 0.30),
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
       }}
     >
-      <FlameSvg size={s.svg} hovered={hovered} />
+      <FlameSvg size={s.svg} />
     </div>
   )
 }
@@ -98,17 +74,8 @@ export function EmberLogo({
   showTagline = false,
   className,
 }) {
-  const [hovered, setHovered] = useState(false)
   const s = SIZES[size] ?? SIZES.md
-
-  const tile = (
-    <IconTile
-      s={s}
-      hovered={hovered}
-      onEnter={() => setHovered(true)}
-      onLeave={() => setHovered(false)}
-    />
-  )
+  const tile = <IconTile s={s} />
 
   if (iconOnly) {
     return <div className={className}>{tile}</div>
