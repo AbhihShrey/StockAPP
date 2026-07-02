@@ -8,13 +8,13 @@ const SIZES = {
 }
 
 /**
- * Icon mark: "the lit candle" — a bullish chart candlestick whose upper wick
- * has become a flame. All coordinates in a 32×32 viewBox.
+ * Icon mark: a lit candle drawn as one fused, all-warm object.
+ * All coordinates in a 32×32 viewBox.
  *
- * Flame: asymmetric teardrop, tip pulled up and slightly right so it reads
- *   as fire, with a bright inner core near the base for depth.
- * Candle: rounded green body (the site accent — an "up" candle) with a short
- *   lower wick, so the shape stays chart data rather than a wax candle.
+ * The flame's rounded base overlaps the candle body, and the body's own
+ * gradient runs hottest at the top — so fire and wax melt into each other
+ * instead of reading as two separate shapes. A cream core at the junction
+ * bridges them. Single ember palette throughout (no cool colors).
  */
 function EmberMark({ size, uid }) {
   return (
@@ -27,43 +27,48 @@ function EmberMark({ size, uid }) {
       aria-hidden
     >
       <defs>
-        {/* Flame: hot orange tip cooling into amber at the base */}
-        <linearGradient id={`emf-${uid}`} x1="16" y1="3" x2="16" y2="16.5" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#ff4d1f" />
-          <stop offset="55%" stopColor="#ff7a2e" />
-          <stop offset="100%" stopColor="#ffb64f" />
+        {/* Flame: red-hot tip cooling into amber where it meets the wax */}
+        <linearGradient id={`emf-${uid}`} x1="16" y1="3.2" x2="16" y2="18.6" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#ff4a21" />
+          <stop offset="55%" stopColor="#ff8434" />
+          <stop offset="100%" stopColor="#ffbe5f" />
         </linearGradient>
-        {/* Candle body: the app's mint accent, lit slightly from above */}
-        <linearGradient id={`emc-${uid}`} x1="16" y1="18.6" x2="16" y2="26.8" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#41e2a1" />
-          <stop offset="100%" stopColor="#14b87c" />
+        {/* Body: molten at the rim, deep ember red at the base */}
+        <linearGradient id={`emc-${uid}`} x1="16" y1="16.9" x2="16" y2="27.6" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#f56f2f" />
+          <stop offset="45%" stopColor="#c8431c" />
+          <stop offset="100%" stopColor="#99290f" />
+        </linearGradient>
+        {/* Core: the brightest point, bridging flame and body */}
+        <linearGradient id={`emk-${uid}`} x1="16" y1="10.4" x2="16" y2="17.8" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#fff1c6" />
+          <stop offset="100%" stopColor="#ffd27f" />
         </linearGradient>
       </defs>
 
-      {/* Flame — replaces the candle's upper wick */}
+      {/* Candle body */}
+      <rect x="11.3" y="16.9" width="9.4" height="10.7" rx="3.1" fill={`url(#emc-${uid})`} />
+
+      {/* Flame — its base sinks into the molten top of the body */}
       <path
-        d="M 16.9 2.8
-           C 16.9 5.7 21.3 8.5 21.3 12
-           C 21.3 14.7 19 16.5 16.1 16.5
-           C 13.2 16.5 10.9 14.7 10.9 12
-           C 10.9 10.2 11.9 8.8 13 7.4
-           C 14.3 5.8 15.2 4.5 16.9 2.8 Z"
+        d="M 17 3.2
+           C 17 6.2 21.5 9.2 21.5 12.8
+           C 21.5 16.2 19 18.6 16 18.6
+           C 13 18.6 10.5 16.2 10.5 12.8
+           C 10.5 10.8 11.6 9.3 12.8 7.9
+           C 14.1 6.3 15.3 5 17 3.2 Z"
         fill={`url(#emf-${uid})`}
       />
-      {/* Inner core — the glow of the ember */}
-      <path
-        d="M 16.1 9.6
-           C 17.6 11.3 18.55 12.5 18.55 13.7
-           C 18.55 15.1 17.5 16 16.1 16
-           C 14.7 16 13.65 15.1 13.65 13.7
-           C 13.65 12.5 14.6 11.3 16.1 9.6 Z"
-        fill="#ffdf9e"
-      />
 
-      {/* Candle body — a green "up" candle */}
-      <rect x="11.5" y="18.6" width="9.2" height="8.2" rx="1.9" fill={`url(#emc-${uid})`} />
-      {/* Lower wick */}
-      <path d="M 16.1 26.8 L 16.1 29.6" stroke="#2bcf90" strokeWidth="2" strokeLinecap="round" />
+      {/* Inner core */}
+      <path
+        d="M 16 10.4
+           C 17.6 12.2 18.6 13.6 18.6 15
+           C 18.6 16.7 17.5 17.8 16 17.8
+           C 14.5 17.8 13.4 16.7 13.4 15
+           C 13.4 13.6 14.4 12.2 16 10.4 Z"
+        fill={`url(#emk-${uid})`}
+      />
     </svg>
   )
 }
@@ -77,8 +82,7 @@ function IconTile({ s, uid }) {
         width: s.box,
         height: s.box,
         background:
-          'radial-gradient(130% 110% at 50% 12%, rgba(255,122,46,0.16), transparent 58%),' +
-          'radial-gradient(120% 90% at 50% 108%, rgba(20,184,124,0.14), transparent 55%),' +
+          'radial-gradient(120% 100% at 50% 34%, rgba(255,120,40,0.18), transparent 62%),' +
           '#101010',
         border: '1px solid rgba(255,255,255,0.09)',
         borderRadius: r,

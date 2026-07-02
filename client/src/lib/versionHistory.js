@@ -17,6 +17,19 @@
 /** @type {Release[]} */
 export const VERSION_HISTORY = [
   {
+    version: '1.3.1',
+    date: 'Jul 2026',
+    type: 'patch',
+    title: 'Logo, blended',
+    summary: 'The new mark is now one fused, all-warm candle — flame, molten rim, and body melt together.',
+    changes: [
+      'Dropped the green candle body; the whole mark now lives in a single ember palette.',
+      'The flame base sinks into the candle’s molten top, so nothing floats or clashes.',
+      'Brighter cream core at the junction bridges fire and wax.',
+      'Favicon and brand SVGs updated to match.',
+    ],
+  },
+  {
     version: '1.3.0',
     date: 'Jul 2026',
     type: 'minor',

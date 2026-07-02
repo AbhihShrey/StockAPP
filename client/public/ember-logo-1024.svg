@@ -1,42 +1,46 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
   <defs>
-    <linearGradient id="ef" x1="512" y1="82" x2="512" y2="532" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#ff4d1f"/>
-      <stop offset="55%" stop-color="#ff7a2e"/>
-      <stop offset="100%" stop-color="#ffb64f"/>
+    <linearGradient id="ef" x1="512" y1="102.4" x2="512" y2="595.2" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ff4a21"/>
+      <stop offset="55%" stop-color="#ff8434"/>
+      <stop offset="100%" stop-color="#ffbe5f"/>
     </linearGradient>
-    <linearGradient id="ec" x1="512" y1="584" x2="512" y2="881" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#41e2a1"/>
-      <stop offset="100%" stop-color="#14b87c"/>
+    <linearGradient id="ec" x1="512" y1="540.8" x2="512" y2="883.2" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f56f2f"/>
+      <stop offset="45%" stop-color="#c8431c"/>
+      <stop offset="100%" stop-color="#99290f"/>
     </linearGradient>
-    <radialGradient id="eg" cx="50%" cy="12%" r="80%">
-      <stop offset="0%" stop-color="rgba(255,122,46,0.18)"/>
-      <stop offset="60%" stop-color="rgba(255,122,46,0)"/>
+    <linearGradient id="ek" x1="512" y1="332.8" x2="512" y2="569.6" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#fff1c6"/>
+      <stop offset="100%" stop-color="#ffd27f"/>
+    </linearGradient>
+    <radialGradient id="eg" cx="50%" cy="34%" r="75%">
+      <stop offset="0%" stop-color="rgba(255,120,40,0.18)"/>
+      <stop offset="62%" stop-color="rgba(255,120,40,0)"/>
     </radialGradient>
   </defs>
 
-  <!-- Dark tile with a faint warm glow -->
+  <!-- Dark tile with a warm glow behind the mark -->
   <rect width="1024" height="1024" rx="246" fill="#101010"/>
   <rect width="1024" height="1024" rx="246" fill="url(#eg)"/>
 
-  <!-- Flame (upper wick of the candle) -->
-  <path d="M 540.7 76.8
-           C 540.7 170 682 259.1 682 371.7
-           C 682 457.7 608.3 515.1 515.1 515.1
-           C 421.9 515.1 348.2 457.7 348.2 371.7
-           C 348.2 314.4 380.9 269.3 415.7 224.3
-           C 457.7 173.1 486.4 131.1 540.7 76.8 Z"
-        fill="url(#ef)"/>
-  <!-- Inner ember core -->
-  <path d="M 515.1 293.9
-           C 563.2 348.2 593.9 387.1 593.9 425
-           C 593.9 470 560.1 498.7 515.1 498.7
-           C 470.1 498.7 436.3 470 436.3 425
-           C 436.3 387.1 467 348.2 515.1 293.9 Z"
-        fill="#ffdf9e"/>
+  <!-- Candle body -->
+  <rect x="361.6" y="540.8" width="300.8" height="342.4" rx="99.2" fill="url(#ec)"/>
 
-  <!-- Green "up" candle body -->
-  <rect x="368" y="595.2" width="294.4" height="262.4" rx="60.8" fill="url(#ec)"/>
-  <!-- Lower wick -->
-  <path d="M 515.1 857.6 L 515.1 947.2" stroke="#2bcf90" stroke-width="64" stroke-linecap="round"/>
+  <!-- Flame — base sinks into the molten top of the body -->
+  <path d="M 544 102.4
+           C 544 198.4 688 294.4 688 409.6
+           C 688 518.4 608 595.2 512 595.2
+           C 416 595.2 336 518.4 336 409.6
+           C 336 345.6 371.2 297.6 409.6 252.8
+           C 451.2 201.6 489.6 160 544 102.4 Z"
+        fill="url(#ef)"/>
+
+  <!-- Inner core -->
+  <path d="M 512 332.8
+           C 563.2 390.4 595.2 435.2 595.2 480
+           C 595.2 534.4 560 569.6 512 569.6
+           C 464 569.6 428.8 534.4 428.8 480
+           C 428.8 435.2 460.8 390.4 512 332.8 Z"
+        fill="url(#ek)"/>
 </svg>
