@@ -1,27 +1,42 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
   <defs>
-    <radialGradient id="fg" cx="50%" cy="30%" r="70%" gradientUnits="objectBoundingBox">
-      <stop offset="0%"   stop-color="#ff7830"/>
-      <stop offset="40%"  stop-color="#e84420"/>
-      <stop offset="100%" stop-color="#a82408"/>
+    <linearGradient id="ef" x1="512" y1="82" x2="512" y2="532" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ff4d1f"/>
+      <stop offset="55%" stop-color="#ff7a2e"/>
+      <stop offset="100%" stop-color="#ffb64f"/>
+    </linearGradient>
+    <linearGradient id="ec" x1="512" y1="584" x2="512" y2="881" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#41e2a1"/>
+      <stop offset="100%" stop-color="#14b87c"/>
+    </linearGradient>
+    <radialGradient id="eg" cx="50%" cy="12%" r="80%">
+      <stop offset="0%" stop-color="rgba(255,122,46,0.18)"/>
+      <stop offset="60%" stop-color="rgba(255,122,46,0)"/>
     </radialGradient>
   </defs>
 
-  <!-- Dark tile -->
-  <rect width="1024" height="1024" rx="277" fill="#0e0b0a"/>
-  <rect x="2" y="2" width="1020" height="1020" rx="275"
-        fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="3"/>
+  <!-- Dark tile with a faint warm glow -->
+  <rect width="1024" height="1024" rx="246" fill="#101010"/>
+  <rect width="1024" height="1024" rx="246" fill="url(#eg)"/>
 
-  <!-- Horseshoe arc with round caps -->
-  <path d="M 164 624 C 164 993 860 993 860 624"
-        stroke="#c83412" stroke-width="147" stroke-linecap="round" fill="none"/>
+  <!-- Flame (upper wick of the candle) -->
+  <path d="M 540.7 76.8
+           C 540.7 170 682 259.1 682 371.7
+           C 682 457.7 608.3 515.1 515.1 515.1
+           C 421.9 515.1 348.2 457.7 348.2 371.7
+           C 348.2 314.4 380.9 269.3 415.7 224.3
+           C 457.7 173.1 486.4 131.1 540.7 76.8 Z"
+        fill="url(#ef)"/>
+  <!-- Inner ember core -->
+  <path d="M 515.1 293.9
+           C 563.2 348.2 593.9 387.1 593.9 425
+           C 593.9 470 560.1 498.7 515.1 498.7
+           C 470.1 498.7 436.3 470 436.3 425
+           C 436.3 387.1 467 348.2 515.1 293.9 Z"
+        fill="#ffdf9e"/>
 
-  <!-- Teardrop flame -->
-  <path d="M 512 123
-           C 625 277 706 420 706 532
-           C 706 635 618 706 512 706
-           C 406 706 318 635 318 532
-           C 318 420 399 277 512 123 Z"
-        fill="url(#fg)"/>
+  <!-- Green "up" candle body -->
+  <rect x="368" y="595.2" width="294.4" height="262.4" rx="60.8" fill="url(#ec)"/>
+  <!-- Lower wick -->
+  <path d="M 515.1 857.6 L 515.1 947.2" stroke="#2bcf90" stroke-width="64" stroke-linecap="round"/>
 </svg>

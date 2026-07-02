@@ -17,6 +17,19 @@
 /** @type {Release[]} */
 export const VERSION_HISTORY = [
   {
+    version: '1.3.0',
+    date: 'Jul 2026',
+    type: 'minor',
+    title: 'New brand mark',
+    summary: 'A redesigned logo: the Ember flame igniting a green up-candle, in the app’s own accent colors.',
+    changes: [
+      'New icon mark — a chart candlestick whose upper wick is the Ember flame, with a glowing inner core.',
+      'The candle body uses the app’s mint accent, tying the brand to the UI palette.',
+      'Refreshed wordmark: “Ember” bold, “Finances” light, tighter letterspacing.',
+      'Matching favicon and brand SVGs.',
+    ],
+  },
+  {
     version: '1.2.1',
     date: 'Jul 2026',
     type: 'patch',

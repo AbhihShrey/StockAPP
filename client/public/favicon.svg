@@ -1,26 +1,44 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <defs>
-    <radialGradient id="fg" cx="50%" cy="30%" r="70%" gradientUnits="objectBoundingBox">
-      <stop offset="0%"   stop-color="#ff7830"/>
-      <stop offset="40%"  stop-color="#e84420"/>
-      <stop offset="100%" stop-color="#a82408"/>
+    <linearGradient id="ef" x1="50" y1="8" x2="50" y2="52" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ff4d1f"/>
+      <stop offset="55%" stop-color="#ff7a2e"/>
+      <stop offset="100%" stop-color="#ffb64f"/>
+    </linearGradient>
+    <linearGradient id="ec" x1="50" y1="58" x2="50" y2="84" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#41e2a1"/>
+      <stop offset="100%" stop-color="#14b87c"/>
+    </linearGradient>
+    <radialGradient id="eg" cx="50%" cy="12%" r="80%">
+      <stop offset="0%" stop-color="rgba(255,122,46,0.18)"/>
+      <stop offset="60%" stop-color="rgba(255,122,46,0)"/>
     </radialGradient>
   </defs>
 
-  <!-- Dark tile -->
-  <rect width="100" height="100" rx="22" fill="#0e0b0a"/>
-  <rect x="0.5" y="0.5" width="99" height="99" rx="21.5"
-        fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  <!-- Dark tile with a faint warm glow -->
+  <rect width="100" height="100" rx="24" fill="#101010"/>
+  <rect width="100" height="100" rx="24" fill="url(#eg)"/>
+  <rect x="0.5" y="0.5" width="99" height="99" rx="23.5"
+        fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
 
-  <!-- Horseshoe arc with round caps -->
-  <path d="M 16 61 C 16 97 84 97 84 61"
-        stroke="#c83412" stroke-width="14.4" stroke-linecap="round" fill="none"/>
+  <!-- Flame (upper wick of the candle) -->
+  <path d="M 52.8 7.5
+           C 52.8 16.6 66.6 25.3 66.6 36.3
+           C 66.6 44.7 59.4 50.3 50.3 50.3
+           C 41.2 50.3 34 44.7 34 36.3
+           C 34 30.7 37.2 26.3 40.6 21.9
+           C 44.7 16.9 47.5 12.8 52.8 7.5 Z"
+        fill="url(#ef)"/>
+  <!-- Inner ember core -->
+  <path d="M 50.3 28.7
+           C 55 34 58 37.8 58 41.5
+           C 58 45.9 54.7 48.7 50.3 48.7
+           C 45.9 48.7 42.6 45.9 42.6 41.5
+           C 42.6 37.8 45.6 34 50.3 28.7 Z"
+        fill="#ffdf9e"/>
 
-  <!-- Teardrop flame -->
-  <path d="M 50 12
-           C 61 27 69 41 69 52
-           C 69 62 60.5 69 50 69
-           C 39.5 69 31 62 31 52
-           C 31 41 39 27 50 12 Z"
-        fill="url(#fg)"/>
+  <!-- Green "up" candle body -->
+  <rect x="35.9" y="58.1" width="28.8" height="25.6" rx="5.9" fill="url(#ec)"/>
+  <!-- Lower wick -->
+  <path d="M 50.3 83.7 L 50.3 92.5" stroke="#2bcf90" stroke-width="6.3" stroke-linecap="round"/>
 </svg>

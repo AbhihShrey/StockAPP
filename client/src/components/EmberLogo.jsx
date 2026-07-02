@@ -1,21 +1,20 @@
 import { useId } from 'react'
 
 const SIZES = {
-  xs: { box: 36, mark: 21, name: 15, tracking: '0.06em' },
-  sm: { box: 48, mark: 28, name: 17, tracking: '0.06em' },
-  md: { box: 72, mark: 43, name: 22, tracking: '0.07em' },
-  lg: { box: 96, mark: 57, name: 30, tracking: '0.07em' },
+  xs: { box: 36, mark: 22, name: 15 },
+  sm: { box: 48, mark: 30, name: 17 },
+  md: { box: 72, mark: 46, name: 22 },
+  lg: { box: 96, mark: 60, name: 30 },
 }
 
 /**
- * Icon mark: horseshoe arc + teardrop flame.
- * All coordinates in a 32×32 viewBox.
+ * Icon mark: "the lit candle" — a bullish chart candlestick whose upper wick
+ * has become a flame. All coordinates in a 32×32 viewBox.
  *
- * Arc: a single cubic bezier with stroke-linecap="round" — this produces
- *   the characteristic round dot caps at each endpoint automatically.
- *
- * Flame: classic pointed-top teardrop. Widest point sits ~60% down the
- *   body so it reads as fire rather than a water drop.
+ * Flame: asymmetric teardrop, tip pulled up and slightly right so it reads
+ *   as fire, with a bright inner core near the base for depth.
+ * Candle: rounded green body (the site accent — an "up" candle) with a short
+ *   lower wick, so the shape stays chart data rather than a wax candle.
  */
 function EmberMark({ size, uid }) {
   return (
@@ -28,72 +27,66 @@ function EmberMark({ size, uid }) {
       aria-hidden
     >
       <defs>
-        {/*
-          Flame gradient: bright orange-red at the pointed tip fading to
-          a deep red-brown at the rounded base — warm fire colours,
-          not the yellow-gold that reads as water.
-        */}
-        <radialGradient
-          id={`emf-${uid}`}
-          cx="50%" cy="30%"
-          r="70%"
-          gradientUnits="objectBoundingBox"
-        >
-          <stop offset="0%"   stopColor="#ff7830" />
-          <stop offset="40%"  stopColor="#e84420" />
-          <stop offset="100%" stopColor="#a82408" />
-        </radialGradient>
+        {/* Flame: hot orange tip cooling into amber at the base */}
+        <linearGradient id={`emf-${uid}`} x1="16" y1="3" x2="16" y2="16.5" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#ff4d1f" />
+          <stop offset="55%" stopColor="#ff7a2e" />
+          <stop offset="100%" stopColor="#ffb64f" />
+        </linearGradient>
+        {/* Candle body: the app's mint accent, lit slightly from above */}
+        <linearGradient id={`emc-${uid}`} x1="16" y1="18.6" x2="16" y2="26.8" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#41e2a1" />
+          <stop offset="100%" stopColor="#14b87c" />
+        </linearGradient>
       </defs>
 
-      {/*
-        Horseshoe arc — opens upward, curves down and around.
-        The symmetric cubic bezier (both control points directly below
-        their respective endpoints) makes a clean U.
-        stroke-linecap="round" grows a half-circle cap at each end,
-        giving the two characteristic dots without any extra markup.
-      */}
+      {/* Flame — replaces the candle's upper wick */}
       <path
-        d="M 5.2 19.5 C 5.2 31 26.8 31 26.8 19.5"
-        stroke="#c83412"
-        strokeWidth="4.6"
-        strokeLinecap="round"
-        fill="none"
-      />
-
-      {/*
-        Flame — teardrop with the widest point lower than the midpoint
-        so it tapers more sharply at the tip (fire) instead of being
-        symmetric (water drop).
-        Tip: (16, 4)   Widest: ±6 units at y ≈ 16   Base: (16, 22)
-      */}
-      <path
-        d="M 16 4
-           C 19.5 8.5 22.2 13 22.2 16.5
-           C 22.2 19.8 19.4 22.2 16 22.2
-           C 12.6 22.2 9.8 19.8 9.8 16.5
-           C 9.8 13 12.5 8.5 16 4 Z"
+        d="M 16.9 2.8
+           C 16.9 5.7 21.3 8.5 21.3 12
+           C 21.3 14.7 19 16.5 16.1 16.5
+           C 13.2 16.5 10.9 14.7 10.9 12
+           C 10.9 10.2 11.9 8.8 13 7.4
+           C 14.3 5.8 15.2 4.5 16.9 2.8 Z"
         fill={`url(#emf-${uid})`}
       />
+      {/* Inner core — the glow of the ember */}
+      <path
+        d="M 16.1 9.6
+           C 17.6 11.3 18.55 12.5 18.55 13.7
+           C 18.55 15.1 17.5 16 16.1 16
+           C 14.7 16 13.65 15.1 13.65 13.7
+           C 13.65 12.5 14.6 11.3 16.1 9.6 Z"
+        fill="#ffdf9e"
+      />
+
+      {/* Candle body — a green "up" candle */}
+      <rect x="11.5" y="18.6" width="9.2" height="8.2" rx="1.9" fill={`url(#emc-${uid})`} />
+      {/* Lower wick */}
+      <path d="M 16.1 26.8 L 16.1 29.6" stroke="#2bcf90" strokeWidth="2" strokeLinecap="round" />
     </svg>
   )
 }
 
 function IconTile({ s, uid }) {
-  const r = Math.round(s.box * 0.24)
+  const r = Math.round(s.box * 0.26)
   return (
     <div
       className="ember-logo-tile"
       style={{
         width: s.box,
         height: s.box,
-        background: '#0e0b0a',
-        border: '1px solid rgba(255,255,255,0.08)',
+        background:
+          'radial-gradient(130% 110% at 50% 12%, rgba(255,122,46,0.16), transparent 58%),' +
+          'radial-gradient(120% 90% at 50% 108%, rgba(20,184,124,0.14), transparent 55%),' +
+          '#101010',
+        border: '1px solid rgba(255,255,255,0.09)',
         borderRadius: r,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 8px rgba(0,0,0,0.5)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 10px rgba(0,0,0,0.45)',
       }}
     >
       <EmberMark size={s.mark} uid={uid} />
@@ -108,15 +101,17 @@ function Wordmark({ s }) {
       style={{
         fontFamily: "'DM Sans', system-ui, sans-serif",
         fontSize: s.name,
-        fontWeight: 500,
-        color: '#ede8e2',
-        letterSpacing: s.tracking,
+        letterSpacing: '-0.015em',
         userSelect: 'none',
         lineHeight: 1,
         whiteSpace: 'nowrap',
+        display: 'flex',
+        alignItems: 'baseline',
+        gap: '0.32ch',
       }}
     >
-      Ember Finances
+      <span style={{ fontWeight: 700, color: '#f2ede7' }}>Ember</span>
+      <span style={{ fontWeight: 450, color: 'rgba(242,237,231,0.58)' }}>Finances</span>
     </div>
   )
 }
