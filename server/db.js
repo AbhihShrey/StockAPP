@@ -103,6 +103,13 @@ db.exec(`
     created_at        INTEGER NOT NULL DEFAULT (unixepoch())
   );
 
+  CREATE TABLE IF NOT EXISTS kv_cache (
+    key        TEXT    PRIMARY KEY,
+    value      TEXT    NOT NULL,
+    expires_at INTEGER NOT NULL
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_kv_cache_expires ON kv_cache(expires_at);
   CREATE INDEX IF NOT EXISTS idx_pw_reset_user ON password_reset_tokens(user_id);
   CREATE INDEX IF NOT EXISTS idx_pw_reset_expires ON password_reset_tokens(expires_at);
   CREATE INDEX IF NOT EXISTS idx_email_verify_user ON email_verification_tokens(user_id);

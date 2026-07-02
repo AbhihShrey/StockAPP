@@ -50,6 +50,24 @@ function confirmationsFor(quote, closes) {
   return { aboveAvgVolume, trend, volumeMult: vol != null && avg ? Math.round((vol / avg) * 100) / 100 : null }
 }
 
+// Readiness weights (proximity / momentum / volume). Defaults 0.5 / 0.4 / 0.1; override via env
+// (READINESS_WEIGHT_*), normalized to sum to 1. Resolved lazily so a .env loaded after import is
+// still picked up, and memoized so it's read once per process.
+let _weights = null
+function readinessWeights() {
+  if (_weights) return _weights
+  const read = (v, d) => {
+    const n = Number(v)
+    return Number.isFinite(n) && n >= 0 ? n : d
+  }
+  let wP = read(process.env.READINESS_WEIGHT_PROXIMITY, 0.5)
+  let wM = read(process.env.READINESS_WEIGHT_MOMENTUM, 0.4)
+  let wC = read(process.env.READINESS_WEIGHT_VOLUME, 0.1)
+  const sum = wP + wM + wC
+  _weights = sum > 0 ? { wP: wP / sum, wM: wM / sum, wC: wC / sum } : { wP: 0.5, wM: 0.4, wC: 0.1 }
+  return _weights
+}
+
 function readinessScore({ distancePct, thresholdValue, etaBars, quote, targetBars = 5 }) {
   const p = clamp01(1 - distancePct / thresholdValue) // 1 at the level, 0 at the band edge
   const m = etaBars != null && etaBars >= 0 ? clamp01(targetBars / (targetBars + etaBars)) : 0
@@ -57,7 +75,8 @@ function readinessScore({ distancePct, thresholdValue, etaBars, quote, targetBar
   const vol = num(quote?.volume)
   const avg = num(quote?.avgVolume)
   if (vol != null && avg && avg > 0) c = clamp01(vol / avg - 1) // >avg volume contributes up to 1
-  return Math.round(100 * (0.5 * p + 0.4 * m + 0.1 * c))
+  const { wP, wM, wC } = readinessWeights()
+  return Math.round(100 * (wP * p + wM * m + wC * c))
 }
 
 /**

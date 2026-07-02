@@ -3,6 +3,7 @@ import path from 'node:path'
 import cron from 'node-cron'
 import db, { DB_DIR, DB_PATH } from '../db.js'
 import { pruneExpiredTokens } from './tokenService.js'
+import { pruneExpiredCache } from './persistentCache.js'
 
 const BACKUP_RETENTION_DAYS = 30
 const ALERT_HISTORY_PER_USER_CAP = 1000
@@ -100,6 +101,13 @@ async function runDailyCleanup() {
     if (trimmed > 0) console.log(`[cleanup] trimmed ${trimmed} old alert history row(s)`)
   } catch (err) {
     console.error('[cleanup] alert history prune error:', err.message)
+  }
+
+  try {
+    const expired = pruneExpiredCache()
+    if (expired > 0) console.log(`[cleanup] pruned ${expired} expired cache row(s)`)
+  } catch (err) {
+    console.error('[cleanup] cache prune error:', err.message)
   }
 }
 

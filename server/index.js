@@ -507,13 +507,14 @@ app.get('/api/screener/strategies', requireAuth, (_req, res) => {
 
 app.post('/api/screener/strategy/run', requireAuth, async (req, res) => {
   try {
-    const { strategyId, universe, symbols, params, threshold, intraday } = req.body ?? {}
+    const { strategyId, universe, symbols, params, threshold, intraday, liquidityFilter, minPrice, minDollarVol } = req.body ?? {}
     if (!strategyId || typeof strategyId !== 'string') {
       res.status(400).json({ ok: false, error: 'bad_request', message: 'strategyId is required' })
       return
     }
     const result = await runStrategyScreener({
-      strategyId, universe, symbols, params, threshold, intraday, userId: req.user.id,
+      strategyId, universe, symbols, params, threshold, intraday,
+      liquidityFilter, minPrice, minDollarVol, userId: req.user.id,
     })
     res.json({ ok: true, ...result })
   } catch (err) {

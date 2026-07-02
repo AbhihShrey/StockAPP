@@ -11,6 +11,8 @@ import { fetchBatchQuotesBySymbols, fmpGet } from './fmp.js'
 import { getDailyOhlcvCached } from './vwapData.js'
 import { getWatchlistSymbols } from './watchlistService.js'
 import { fetchSp500Symbols } from './sp500Snapshot.js'
+import { fetchNextEarnings } from './earningsAlerts.js'
+import { pcGet, pcSet } from './persistentCache.js'
 import { quoteSnapshotCacheMs } from './marketQuoteCacheMs.js'
 import {
   getStrategy,
@@ -27,6 +29,31 @@ const UNIVERSE_CAPS = {
   ohlcv: Number(process.env.SCREENER_CAP_OHLCV) || 250,
   intraday: Number(process.env.SCREENER_CAP_INTRADAY) || 60,
   options: 60,
+}
+
+// Liquidity floor — drop untradeable names so every hit is actionable.
+const LIQ_MIN_PRICE = Number(process.env.SCREENER_MIN_PRICE) || 3
+const LIQ_MIN_DOLLAR_VOL = Number(process.env.SCREENER_MIN_DOLLAR_VOL) || 5_000_000
+
+// Earnings-landmine flag — flag (never exclude) matched names reporting soon.
+const EARNINGS_FLAG_DAYS = Number(process.env.SCREENER_EARNINGS_FLAG_DAYS) || 7
+const EARNINGS_ATTACH_DAYS = 21 // attach the date within this window; flag when ≤ EARNINGS_FLAG_DAYS
+const EARNINGS_CACHE_TTL_MS = 12 * 60 * 60 * 1000 // earnings dates change slowly
+
+/** Cached next-earnings lookup (persists across restarts). `null` = known "no upcoming earnings". */
+async function getNextEarningsCached(symbol) {
+  const key = `earnings:${symbol}`
+  const cached = pcGet(key)
+  if (cached !== undefined) return cached
+  const next = await fetchNextEarnings(symbol)
+  pcSet(key, next ?? null, EARNINGS_CACHE_TTL_MS)
+  return next ?? null
+}
+
+function daysUntilIso(fromIso, toIso) {
+  const a = new Date(`${fromIso}T00:00:00Z`)
+  const b = new Date(`${toIso}T00:00:00Z`)
+  return Math.round((b - a) / 86_400_000)
 }
 
 /** effective tier: vwap_proximity becomes intraday-tier when the intraday flag is on */
@@ -146,12 +173,17 @@ export async function runStrategyScreener(req) {
   const intraday = Boolean(req.intraday) && Boolean(strategy.supportsIntraday)
   const tier = effectiveTier(strategy, intraday)
 
+  const liquidityFilter = req.liquidityFilter !== false // default on
+  const minPrice = Number.isFinite(Number(req.minPrice)) ? Number(req.minPrice) : LIQ_MIN_PRICE
+  const minDollarVol = Number.isFinite(Number(req.minDollarVol)) ? Number(req.minDollarVol) : LIQ_MIN_DOLLAR_VOL
+
   const cacheKey = [
     strategy.id,
     universeCacheKey(universe, req.userId),
     JSON.stringify(params),
     thresholdValue,
     intraday ? 1 : 0,
+    liquidityFilter ? `liq:${minPrice}:${minDollarVol}` : 'liq:off',
   ].join('|')
 
   const cached = resultCache.get(cacheKey)
@@ -165,7 +197,8 @@ export async function runStrategyScreener(req) {
     return {
       strategyId: strategy.id, universe, params, threshold: thresholdValue, intraday,
       results: [], universeSize: 0, scanned: 0, matched: 0, nearButStalled: 0, skipped: 0,
-      truncated: false, cap: UNIVERSE_CAPS[tier] ?? 0, asOf: new Date().toISOString(), cached: false,
+      illiquidFiltered: 0, truncated: false, cap: UNIVERSE_CAPS[tier] ?? 0,
+      asOf: new Date().toISOString(), cached: false,
     }
   }
 
@@ -173,6 +206,20 @@ export async function runStrategyScreener(req) {
 
   // Only work symbols that have a live price.
   let workable = universeSymbols.filter((s) => quoteMap.get(s)?.price != null)
+
+  // Liquidity floor — drop penny / thinly-traded names so every hit is tradeable.
+  let illiquidFiltered = 0
+  if (liquidityFilter) {
+    const before = workable.length
+    workable = workable.filter((s) => {
+      const q = quoteMap.get(s)
+      const price = Number(q.price) || 0
+      const dollarVol = price * (Number(q.avgVolume) || Number(q.volume) || 0)
+      return price >= minPrice && dollarVol >= minDollarVol
+    })
+    illiquidFiltered = before - workable.length
+  }
+
   if (tier !== 'quote') workable = rankByLiquidity(workable, quoteMap)
 
   const cap = UNIVERSE_CAPS[tier] ?? UNIVERSE_CAPS.ohlcv
@@ -215,6 +262,25 @@ export async function runStrategyScreener(req) {
 
   results.sort((a, b) => (b.readiness ?? 0) - (a.readiness ?? 0))
 
+  // Earnings-landmine flag — enrich the (small) matched set with the next earnings date.
+  // Flag names reporting soon so the user knows a setup could gap overnight; never remove them.
+  if (results.length > 0) {
+    const todayEt = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date())
+    const earningsMap = await mapWithConcurrency(results.map((r) => r.symbol), (s) => getNextEarningsCached(s))
+    for (const r of results) {
+      const e = earningsMap.get(r.symbol)
+      if (e?.date) {
+        const d = daysUntilIso(todayEt, e.date)
+        if (d >= 0 && d <= EARNINGS_ATTACH_DAYS) {
+          r.earningsDate = e.date
+          r.earningsInDays = d
+          r.earningsSession = e.session ?? null
+          r.earningsFlag = d <= EARNINGS_FLAG_DAYS
+        }
+      }
+    }
+  }
+
   const value = {
     strategyId: strategy.id,
     strategyLabel: strategy.label,
@@ -229,6 +295,7 @@ export async function runStrategyScreener(req) {
     matched: results.length,
     nearButStalled: stalled,
     skipped: capped.length - evaluated,
+    illiquidFiltered,
     truncated,
     cap,
     asOf: new Date().toISOString(),

@@ -1,4 +1,4 @@
-import { ArrowUpRight, Bell, BellRing, Check, Loader2, Radar, TrendingDown, TrendingUp } from 'lucide-react'
+import { ArrowUpRight, Bell, BellRing, CalendarClock, Check, Loader2, Radar, TrendingDown, TrendingUp } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { TableShell } from '../TableShell'
@@ -56,6 +56,7 @@ export function StrategyScreener({ token }) {
   const [threshold, setThreshold] = useState(0.5)
   const [universe, setUniverse] = useState('watchlist')
   const [intraday, setIntraday] = useState(false)
+  const [liquidityFilter, setLiquidityFilter] = useState(true)
 
   const [loadingStrategies, setLoadingStrategies] = useState(true)
   const [running, setRunning] = useState(false)
@@ -111,7 +112,7 @@ export function StrategyScreener({ token }) {
       const res = await fetch(apiUrl('/api/screener/strategy/run'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeaders(token) },
-        body: JSON.stringify({ strategyId, universe, params, threshold, intraday }),
+        body: JSON.stringify({ strategyId, universe, params, threshold, intraday, liquidityFilter }),
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.message ?? 'Screener failed')
@@ -121,7 +122,7 @@ export function StrategyScreener({ token }) {
     } finally {
       setRunning(false)
     }
-  }, [strategy, strategyId, universe, params, threshold, intraday, token])
+  }, [strategy, strategyId, universe, params, threshold, intraday, liquidityFilter, token])
 
   const createSymbolAlert = useCallback(async (symbol) => {
     setAlertState((prev) => ({ ...prev, [symbol]: 'saving' }))
@@ -225,6 +226,16 @@ export function StrategyScreener({ token }) {
                   ) : null}
                 </label>
               ) : null}
+              <label className="mt-1 inline-flex items-center gap-2 text-xs text-zinc-400">
+                <input
+                  type="checkbox"
+                  checked={liquidityFilter}
+                  onChange={(e) => setLiquidityFilter(e.target.checked)}
+                  className="size-3.5 accent-[color:var(--accent,#c0431f)]"
+                />
+                Liquid names only
+                <span className="text-zinc-600">(skip penny / thin volume)</span>
+              </label>
             </div>
           </div>
 
@@ -310,6 +321,7 @@ export function StrategyScreener({ token }) {
             subtitle={[
               `Scanned ${run.scanned} of ${run.universeSize}`,
               run.nearButStalled > 0 ? `${run.nearButStalled} near but stalled (hidden)` : null,
+              run.illiquidFiltered > 0 ? `${run.illiquidFiltered} illiquid filtered` : null,
               run.truncated ? `capped at ${run.cap} most-liquid` : null,
             ].filter(Boolean).join(' · ')}
           >
@@ -332,14 +344,30 @@ export function StrategyScreener({ token }) {
                   return (
                     <tr key={r.symbol} className="group transition-colors hover:bg-white/5">
                       <td className="px-4 py-2.5">
-                        <button
-                          type="button"
-                          onClick={() => navigate(`/analysis/${r.symbol}`)}
-                          className="inline-flex items-center gap-2 font-semibold text-zinc-100 hover:text-accent"
-                        >
-                          {r.symbol}
-                          <ArrowUpRight className="size-3.5 opacity-0 transition group-hover:opacity-60" aria-hidden />
-                        </button>
+                        <div className="flex flex-col items-start gap-1">
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/analysis/${r.symbol}`)}
+                            className="inline-flex items-center gap-2 font-semibold text-zinc-100 hover:text-accent"
+                          >
+                            {r.symbol}
+                            <ArrowUpRight className="size-3.5 opacity-0 transition group-hover:opacity-60" aria-hidden />
+                          </button>
+                          {r.earningsInDays != null ? (
+                            <span
+                              className={[
+                                'inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium',
+                                r.earningsFlag
+                                  ? 'bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/25'
+                                  : 'bg-zinc-800 text-zinc-400 ring-1 ring-white/5',
+                              ].join(' ')}
+                              title={`Reports earnings ${r.earningsDate}${r.earningsSession && r.earningsSession !== 'any' ? ` (${r.earningsSession.toUpperCase()})` : ''}`}
+                            >
+                              <CalendarClock className="size-3" />
+                              {r.earningsInDays === 0 ? 'Earnings today' : `Earnings in ${r.earningsInDays}d`}
+                            </span>
+                          ) : null}
+                        </div>
                       </td>
                       <td className="px-4 py-2.5 text-right tabular-nums text-zinc-300">{fmtPrice(r.price)}</td>
                       <td className="px-4 py-2.5 text-zinc-400">

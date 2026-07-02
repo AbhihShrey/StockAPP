@@ -6,6 +6,7 @@ import {
   Eye,
   EyeOff,
   Flame,
+  History,
   KeyRound,
   LayoutDashboard,
   Loader2,
@@ -22,6 +23,7 @@ import { useAuth } from '../context/AuthContext'
 import { apiUrl, authHeaders } from '../lib/apiBase'
 import { getChartStyle, getDefaultLanding, getLocale, getQuietHours, saveChartStyle, saveDefaultLanding, saveLocale, saveQuietHours } from '../lib/prefs'
 import { getDensity, getTheme, saveDensity, saveTheme } from '../lib/theme'
+import { CURRENT_VERSION, VERSION_HISTORY } from '../lib/versionHistory'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -1282,7 +1284,7 @@ export function Settings() {
       {/* About */}
       <Section icon={SettingsIcon} title="About">
         <Row label="Version">
-          <span className="text-sm tabular-nums text-zinc-500">0.1.0-alpha</span>
+          <span className="text-sm tabular-nums text-zinc-300">v{CURRENT_VERSION}</span>
         </Row>
         <Row label="Data provider">
           <a
@@ -1297,6 +1299,38 @@ export function Settings() {
         <Row label="Send feedback" hint="Report a bug or request a feature">
           <FeedbackActions />
         </Row>
+      </Section>
+
+      <Section icon={History} title="Version history" description="What's new">
+        {VERSION_HISTORY.map((rel) => (
+          <div key={rel.version} className="py-3.5">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold tabular-nums text-zinc-100">v{rel.version}</span>
+              <span
+                className={[
+                  'inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ring-1',
+                  rel.type === 'major'
+                    ? 'bg-accent-muted text-accent ring-accent/30'
+                    : rel.type === 'minor'
+                      ? 'bg-sky-500/15 text-sky-300 ring-sky-500/25'
+                      : 'bg-zinc-800 text-zinc-400 ring-white/5',
+                ].join(' ')}
+              >
+                {rel.type}
+              </span>
+              <span className="text-xs text-zinc-500">{rel.title}</span>
+              <span className="ml-auto text-xs text-zinc-600">{rel.date}</span>
+            </div>
+            <ul className="mt-2 space-y-1">
+              {rel.changes.map((c, i) => (
+                <li key={i} className="flex gap-2 text-xs text-zinc-400">
+                  <span className="mt-1 size-1 shrink-0 rounded-full bg-accent/60" />
+                  <span>{c}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </Section>
     </div>
   )

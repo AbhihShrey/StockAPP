@@ -4,8 +4,13 @@
  * backtest alignment we compute from stable EOD history (same cadence as vectorbt Yahoo daily bars).
  */
 import { fetchHistoricalEodFullOhlcv } from './fmp.js'
+import { pcGet, pcSet } from './persistentCache.js'
 
 const CACHE_TTL_MS = Number(process.env.VWAP_CACHE_MS) || 15 * 60_000
+
+// The screener's longest window is the 200-day MA; keep a comfortable trailing buffer so the
+// persisted history stays small (vs. FMP's full multi-year payload) while covering every strategy.
+const OHLCV_KEEP_BARS = Number(process.env.SCREENER_OHLCV_KEEP_BARS) || 300
 
 /** @type {Map<string, { at: number, rows: Array<{ date: string, open: number, high: number, low: number, close: number, volume: number }> }>} */
 const cacheBySymbol = new Map()
@@ -86,11 +91,13 @@ export function computeRollingVwapSeries(rows, window = 20) {
 export async function getDailyOhlcvCached(symbol) {
   const sym = String(symbol ?? '').trim().toUpperCase()
   if (!sym) return []
-  const cached = cacheBySymbol.get(sym)
-  if (cached && now() - cached.at < CACHE_TTL_MS) return cached.rows
+  const key = `ohlcv:${sym}`
+  const cached = pcGet(key)
+  if (cached) return cached
   const rows = await fetchHistoricalEodFullOhlcv(sym)
-  cacheBySymbol.set(sym, { at: now(), rows })
-  return rows
+  const trimmed = rows.length > OHLCV_KEEP_BARS ? rows.slice(-OHLCV_KEEP_BARS) : rows
+  pcSet(key, trimmed, CACHE_TTL_MS)
+  return trimmed
 }
 
 function sliceByDateRange(rows, start, end) {
