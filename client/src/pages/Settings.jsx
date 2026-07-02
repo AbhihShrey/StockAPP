@@ -2,6 +2,7 @@ import {
   AlertCircle,
   Bell,
   Check,
+  ChevronDown,
   Database,
   Eye,
   EyeOff,
@@ -65,6 +66,52 @@ function Row({ label, hint, children }) {
         {hint && <p className="mt-0.5 text-xs text-zinc-500">{hint}</p>}
       </div>
       <div className="shrink-0">{children}</div>
+    </div>
+  )
+}
+
+// A single changelog release — shows the version, a one-line summary, and reveals the
+// full list of changes when clicked.
+function VersionEntry({ release, defaultOpen = false }) {
+  const [open, setOpen] = useState(defaultOpen)
+  const badgeClass =
+    release.type === 'major'
+      ? 'bg-accent-muted text-accent ring-accent/30'
+      : release.type === 'minor'
+        ? 'bg-sky-500/15 text-sky-300 ring-sky-500/25'
+        : 'bg-zinc-800 text-zinc-400 ring-white/5'
+
+  return (
+    <div className="py-3.5">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-2 text-left"
+      >
+        <span className="text-sm font-semibold tabular-nums text-zinc-100">v{release.version}</span>
+        <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ring-1 ${badgeClass}`}>
+          {release.type}
+        </span>
+        <span className="hidden text-xs text-zinc-500 sm:inline">{release.title}</span>
+        <span className="ml-auto flex items-center gap-2">
+          <span className="text-xs text-zinc-600">{release.date}</span>
+          <ChevronDown className={`size-4 text-zinc-500 transition-transform ${open ? 'rotate-180' : ''}`} />
+        </span>
+      </button>
+
+      {release.summary && <p className="mt-1 pr-6 text-xs text-zinc-400">{release.summary}</p>}
+
+      {open && (
+        <ul className="mt-2 space-y-1">
+          {release.changes.map((c, i) => (
+            <li key={i} className="flex gap-2 text-xs text-zinc-400">
+              <span className="mt-1 size-1 shrink-0 rounded-full bg-accent/60" />
+              <span>{c}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }
@@ -1302,34 +1349,8 @@ export function Settings() {
       </Section>
 
       <Section icon={History} title="Version history" description="What's new">
-        {VERSION_HISTORY.map((rel) => (
-          <div key={rel.version} className="py-3.5">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold tabular-nums text-zinc-100">v{rel.version}</span>
-              <span
-                className={[
-                  'inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ring-1',
-                  rel.type === 'major'
-                    ? 'bg-accent-muted text-accent ring-accent/30'
-                    : rel.type === 'minor'
-                      ? 'bg-sky-500/15 text-sky-300 ring-sky-500/25'
-                      : 'bg-zinc-800 text-zinc-400 ring-white/5',
-                ].join(' ')}
-              >
-                {rel.type}
-              </span>
-              <span className="text-xs text-zinc-500">{rel.title}</span>
-              <span className="ml-auto text-xs text-zinc-600">{rel.date}</span>
-            </div>
-            <ul className="mt-2 space-y-1">
-              {rel.changes.map((c, i) => (
-                <li key={i} className="flex gap-2 text-xs text-zinc-400">
-                  <span className="mt-1 size-1 shrink-0 rounded-full bg-accent/60" />
-                  <span>{c}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {VERSION_HISTORY.map((rel, i) => (
+          <VersionEntry key={rel.version} release={rel} defaultOpen={i === 0} />
         ))}
       </Section>
     </div>

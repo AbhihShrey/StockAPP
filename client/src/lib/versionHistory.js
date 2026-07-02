@@ -9,18 +9,30 @@
  *   • minor (x.+1.0) — a new feature or notable improvement
  *   • major (+1.0.0) — a large release or overhaul
  *
- * On every deploy, add a new entry at the top describing what changed.
+ * On every deploy, add a new entry at the top: a one-line `summary` plus the detailed `changes`.
  */
 
-/** @typedef {{ version: string, date: string, type: 'major'|'minor'|'patch', title: string, changes: string[] }} Release */
+/** @typedef {{ version: string, date: string, type: 'major'|'minor'|'patch', title: string, summary: string, changes: string[] }} Release */
 
 /** @type {Release[]} */
 export const VERSION_HISTORY = [
+  {
+    version: '1.2.1',
+    date: 'Jul 2026',
+    type: 'patch',
+    title: 'Expandable changelog',
+    summary: 'Version history entries now expand — click any release to see exactly what changed.',
+    changes: [
+      'Each release shows a one-line summary, with the full details a click away.',
+      'The latest version is expanded by default.',
+    ],
+  },
   {
     version: '1.2.0',
     date: 'Jul 2026',
     type: 'minor',
     title: 'Screener refinements',
+    summary: 'Sharper, more tradeable screener results — plus a cache that survives restarts.',
     changes: [
       'Liquidity filter — skip penny / thinly-traded names so every result is tradeable.',
       'Earnings flags — matched names reporting soon are marked so a setup can’t surprise you.',
@@ -34,6 +46,7 @@ export const VERSION_HISTORY = [
     date: 'Jul 2026',
     type: 'minor',
     title: 'Strategy-proximity screener',
+    summary: 'Find stocks approaching a strategy target, ranked by how ready they are to trigger.',
     changes: [
       'New Screener page: find stocks approaching a strategy target (VWAP, MA crossover, 52-week high/low, moving averages, RSI, Bollinger, round numbers, gap fills, opening range).',
       'Only surfaces names with real momentum toward the level, ranked by a readiness score.',
@@ -46,6 +59,7 @@ export const VERSION_HISTORY = [
     date: 'Jun 2026',
     type: 'major',
     title: 'Ember Finances launch',
+    summary: 'The first Ember Finances release.',
     changes: [
       'Dashboard, Markets, Watchlist, Sectors, News, Insider Activity, and Technical Analysis.',
       'Accounts with email verification, password reset, and two-factor authentication.',
