@@ -1,7 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="22" fill="#0a0a0a"/>
-  <rect width="100" height="100" rx="22" fill="none" stroke="#ff6a2c" stroke-width="1" opacity="0.18"/>
-  <path d="M 50 14 C 60 30, 73 43, 73 60 C 73 77, 60 87, 50 87 C 40 87, 27 77, 27 60 C 27 47, 40 37, 47 24 Z" fill="#c2421e"/>
-  <path d="M 50 30 C 60 43, 67 53, 67 65 C 67 77, 59 84, 50 84 C 41 84, 33 77, 33 65 C 33 55, 41 47, 47 35 Z" fill="#ff8a3d"/>
-  <path d="M 50 47 C 56 54, 60 62, 57 70 C 55 75, 45 75, 43 70 C 40 62, 44 55, 50 47 Z" fill="#ffe0a8" opacity="0.92"/>
+  <defs>
+    <radialGradient id="fg" cx="50%" cy="30%" r="70%" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#ff7830"/>
+      <stop offset="40%"  stop-color="#e84420"/>
+      <stop offset="100%" stop-color="#a82408"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Dark tile -->
+  <rect width="100" height="100" rx="22" fill="#0e0b0a"/>
+  <rect x="0.5" y="0.5" width="99" height="99" rx="21.5"
+        fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+
+  <!-- Horseshoe arc with round caps -->
+  <path d="M 16 61 C 16 97 84 97 84 61"
+        stroke="#c83412" stroke-width="14.4" stroke-linecap="round" fill="none"/>
+
+  <!-- Teardrop flame -->
+  <path d="M 50 12
+           C 61 27 69 41 69 52
+           C 69 62 60.5 69 50 69
+           C 39.5 69 31 62 31 52
+           C 31 41 39 27 50 12 Z"
+        fill="url(#fg)"/>
 </svg>

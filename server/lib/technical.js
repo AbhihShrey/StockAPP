@@ -36,7 +36,7 @@ export function rsiWilder(closes, period = 14) {
   return 100 - 100 / (1 + rs)
 }
 
-function emaSeries(values, span) {
+export function emaSeries(values, span) {
   if (!values.length) return []
   const k = 2 / (span + 1)
   const out = [values[0]]
@@ -46,6 +46,92 @@ function emaSeries(values, span) {
     out.push(e)
   }
   return out
+}
+
+/**
+ * Simple moving average series, aligned to `values` (oldest → newest).
+ * Entries before a full `window` is available are `null`.
+ * @param {number[]} values
+ * @param {number} window
+ * @returns {(number|null)[]}
+ */
+export function smaSeries(values, window) {
+  const n = values?.length ?? 0
+  const out = new Array(n).fill(null)
+  if (n === 0 || window < 1) return out
+  let sum = 0
+  for (let i = 0; i < n; i++) {
+    sum += values[i]
+    if (i >= window) sum -= values[i - window]
+    if (i >= window - 1) out[i] = sum / window
+  }
+  return out
+}
+
+/**
+ * Rolling population standard-deviation series, aligned to `values`.
+ * Entries before a full `window` is available are `null`.
+ * @returns {(number|null)[]}
+ */
+export function stddevSeries(values, window) {
+  const n = values?.length ?? 0
+  const out = new Array(n).fill(null)
+  if (n === 0 || window < 1) return out
+  const means = smaSeries(values, window)
+  for (let i = window - 1; i < n; i++) {
+    const mean = means[i]
+    if (mean == null) continue
+    let acc = 0
+    for (let j = i - window + 1; j <= i; j++) {
+      const d = values[j] - mean
+      acc += d * d
+    }
+    out[i] = Math.sqrt(acc / window)
+  }
+  return out
+}
+
+/**
+ * Wilder ATR (last value) from OHLC bars (oldest → newest).
+ * @param {Array<{ high: number, low: number, close: number }>} bars
+ * @param {number} period
+ * @returns {number | null}
+ */
+export function atr14(bars, period = 14) {
+  if (!bars?.length || bars.length < period + 1) return null
+  const trs = []
+  for (let i = 1; i < bars.length; i++) {
+    const h = Number(bars[i].high)
+    const l = Number(bars[i].low)
+    const pc = Number(bars[i - 1].close)
+    if (![h, l, pc].every(Number.isFinite)) return null
+    trs.push(Math.max(h - l, Math.abs(h - pc), Math.abs(l - pc)))
+  }
+  if (trs.length < period) return null
+  // Seed with the simple average of the first `period` true ranges, then Wilder-smooth.
+  let atr = trs.slice(0, period).reduce((s, v) => s + v, 0) / period
+  for (let i = period; i < trs.length; i++) {
+    atr = (atr * (period - 1) + trs[i]) / period
+  }
+  return Number.isFinite(atr) ? atr : null
+}
+
+/**
+ * Convergence velocity of a distance series (oldest → newest): the average
+ * per-bar *shrinkage* of the distance over the last `k` bars.
+ * Positive → the value is moving toward the target (converging); ≤ 0 → flat or diverging.
+ * @param {(number|null)[]} distSeries  distance-to-target per bar (same units throughout)
+ * @param {number} k lookback in bars
+ * @returns {number | null}
+ */
+export function convergenceVelocity(distSeries, k = 3) {
+  if (!distSeries?.length || k < 1) return null
+  const n = distSeries.length
+  if (n < k + 1) return null
+  const dNow = distSeries[n - 1]
+  const dPast = distSeries[n - 1 - k]
+  if (dNow == null || dPast == null || !Number.isFinite(dNow) || !Number.isFinite(dPast)) return null
+  return (dPast - dNow) / k
 }
 
 /**

@@ -12,6 +12,8 @@ export async function runScreener(filters = {}) {
   if (filters.volumeMin != null && filters.volumeMin !== '') params.volumeMoreThan = Number(filters.volumeMin)
   if (filters.changeMin != null && filters.changeMin !== '') params.changeMoreThan = Number(filters.changeMin)
   if (filters.changeMax != null && filters.changeMax !== '') params.changeLowerThan = Number(filters.changeMax)
+  if (filters.marketCapMin != null && filters.marketCapMin !== '') params.marketCapMoreThan = Number(filters.marketCapMin)
+  if (filters.marketCapMax != null && filters.marketCapMax !== '') params.marketCapLowerThan = Number(filters.marketCapMax)
   if (filters.sector && filters.sector !== 'any') params.sector = filters.sector
 
   const data = await fmpGet('/stock-screener', params)

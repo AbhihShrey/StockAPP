@@ -38,6 +38,61 @@ export function computeCumulativeVwapSeries(rows) {
   return out
 }
 
+/**
+ * Rolling VWAP over a trailing window of `window` bars, aligned to `rows`
+ * (ascending date). Unlike the cumulative variant this does not grow without
+ * bound — it reflects the "recent" volume-weighted fair value that swing
+ * traders watch. Entries before a full window are `null`.
+ * @param {Array<{ date: string, high: number, low: number, close: number, volume?: number }>} rows
+ * @param {number} window
+ * @returns {Array<{ date: string, close: number, vwap: number|null }>}
+ */
+export function computeRollingVwapSeries(rows, window = 20) {
+  const n = rows.length
+  const out = new Array(n)
+  let cumPv = 0
+  let cumV = 0
+  const pv = new Array(n)
+  const vv = new Array(n)
+  for (let i = 0; i < n; i++) {
+    const r = rows[i]
+    const tp = (Number(r.high) + Number(r.low) + Number(r.close)) / 3
+    let vol = Number(r.volume)
+    if (!Number.isFinite(vol) || vol < 0) vol = 0
+    if (vol === 0) vol = 1
+    pv[i] = tp * vol
+    vv[i] = vol
+    cumPv += pv[i]
+    cumV += vv[i]
+    if (i >= window) {
+      cumPv -= pv[i - window]
+      cumV -= vv[i - window]
+    }
+    const ready = i >= window - 1
+    out[i] = {
+      date: r.date,
+      close: Number(r.close),
+      vwap: ready && cumV > 0 ? cumPv / cumV : null,
+    }
+  }
+  return out
+}
+
+/**
+ * Cached ascending daily OHLCV per symbol (15-min TTL, shared with the VWAP chart).
+ * Central getter so many-symbol scans don't each re-fetch full history.
+ * @returns {Promise<Array<{ date: string, open: number, high: number, low: number, close: number, volume: number }>>}
+ */
+export async function getDailyOhlcvCached(symbol) {
+  const sym = String(symbol ?? '').trim().toUpperCase()
+  if (!sym) return []
+  const cached = cacheBySymbol.get(sym)
+  if (cached && now() - cached.at < CACHE_TTL_MS) return cached.rows
+  const rows = await fetchHistoricalEodFullOhlcv(sym)
+  cacheBySymbol.set(sym, { at: now(), rows })
+  return rows
+}
+
 function sliceByDateRange(rows, start, end) {
   let s = rows
   if (start && String(start).trim()) {

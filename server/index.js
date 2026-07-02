@@ -25,7 +25,9 @@ import {
 } from './services/twoFactorService.js'
 import { addToWatchlist, getWatchlistWithQuotes, removeFromWatchlist, validateSymbol } from './services/watchlistService.js'
 import { getScreenerFilters, runScreener, saveScreenerFilters } from './services/screenerService.js'
-import { createAlert, deleteAlert, getAlertHistoryByUser, getAlertsByUser, getUserSettings, reactivateAllAlerts, toggleAlert, updateAlertCooldown, updateUserSettings } from './services/alertService.js'
+import { runStrategyScreener } from './services/strategyScreener.js'
+import { listStrategies } from './lib/screenerStrategies.js'
+import { createAlert, createStrategyAlert, deleteAlert, getAlertHistoryByUser, getAlertsByUser, getUserSettings, reactivateAllAlerts, toggleAlert, updateAlertCooldown, updateUserSettings } from './services/alertService.js'
 import { broadcastToUser, fetchBarsForDate, fetchTodayBars, runAlertCheck, setWsBroadcast, startAlertEngine } from './services/alertEngine.js'
 import { startCleanupJobs } from './services/cleanupJobs.js'
 import { getChartsUniverse } from './services/chartsUniverse.js'
@@ -496,6 +498,30 @@ app.post('/api/screener/run', requireAuth, async (req, res) => {
   }
 })
 
+// ── Strategy-proximity screener ────────────────────────────────────────────────
+
+app.get('/api/screener/strategies', requireAuth, (_req, res) => {
+  // Include disabled strategies (e.g. gamma_levels) so the UI can show them greyed out.
+  res.json({ ok: true, strategies: listStrategies({ includeDisabled: true }) })
+})
+
+app.post('/api/screener/strategy/run', requireAuth, async (req, res) => {
+  try {
+    const { strategyId, universe, symbols, params, threshold, intraday } = req.body ?? {}
+    if (!strategyId || typeof strategyId !== 'string') {
+      res.status(400).json({ ok: false, error: 'bad_request', message: 'strategyId is required' })
+      return
+    }
+    const result = await runStrategyScreener({
+      strategyId, universe, symbols, params, threshold, intraday, userId: req.user.id,
+    })
+    res.json({ ok: true, ...result })
+  } catch (err) {
+    const status = err?.code === 'BAD_REQUEST' ? 400 : statusForProviderError(err)
+    res.status(status).json({ ok: false, error: 'strategy_screener_failed', message: err.message })
+  }
+})
+
 app.get('/api/market-summary', async (_req, res) => {
   try {
     const summary = await getMarketSummary()
@@ -952,6 +978,24 @@ app.get('/api/market-movers', async (_req, res) => {
 
 app.get('/api/alerts', requireAuth, (req, res) => {
   res.json({ ok: true, alerts: getAlertsByUser(req.user.id) })
+})
+
+// Strategy-proximity alert: per-symbol ("alert me when AAPL enters this setup") or a
+// whole-screen subscription ("alert me when any name newly enters this screen").
+app.post('/api/alerts/strategy', requireAuth, (req, res) => {
+  const { scope, symbol, strategyId, universe, params, threshold, intraday, cooldown_minutes } = req.body ?? {}
+  if (!strategyId || typeof strategyId !== 'string') {
+    res.status(400).json({ ok: false, error: 'bad_request', message: 'strategyId is required' })
+    return
+  }
+  const result = createStrategyAlert(req.user.id, {
+    scope, symbol, strategyId, universe, params, threshold, intraday, cooldown_minutes,
+  })
+  if (!result.ok) {
+    res.status(400).json({ ok: false, error: 'create_strategy_alert_failed', message: result.error })
+    return
+  }
+  res.json({ ok: true, alert: result.alert })
 })
 
 app.post('/api/alerts', requireAuth, async (req, res) => {

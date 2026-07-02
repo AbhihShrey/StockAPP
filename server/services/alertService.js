@@ -1,6 +1,12 @@
 import db from '../db.js'
+import { getStrategy, resolveParams, resolveThreshold } from '../lib/screenerStrategies.js'
 
 export const VALID_CONDITIONS = ['vwap_above', 'vwap_below', 'price_above', 'price_below', 'orhl_above', 'orhl_below', 'earnings_report']
+export const STRATEGY_CONDITION = 'strategy_proximity'
+export const STRATEGY_ALERT_SCOPES = ['symbol', 'screen']
+export const STRATEGY_SCREEN_UNIVERSES = ['watchlist', 'sp500']
+// Strategy proximity alerts re-arm after entry/exit; default cooldown 4h (must be > 0 so it isn't a one-shot).
+export const STRATEGY_DEFAULT_COOLDOWN = 240
 export const ORHL_CONDITIONS = ['orhl_above', 'orhl_below']
 export const ORHL_VALID_MINUTES = [1, 3, 5, 15, 30, 60]
 export const SWING_CONDITIONS = ['price_above', 'price_below']
@@ -10,6 +16,10 @@ const VALID_EARNINGS_SESSIONS = ['any', 'bmo', 'amc']
 
 function normalizeAlertRow(r) {
   if (!r) return r
+  let strategyParams = null
+  if (r.params_json) {
+    try { strategyParams = JSON.parse(r.params_json) } catch { strategyParams = null }
+  }
   return {
     ...r,
     alert_type: r.alert_type ?? 'intraday',
@@ -21,6 +31,8 @@ function normalizeAlertRow(r) {
     earnings_session: r.earnings_session ?? null,
     earnings_eps_est: r.earnings_eps_est != null ? Number(r.earnings_eps_est) : null,
     earnings_prev_date: r.earnings_prev_date ?? null,
+    strategy_id: r.strategy_id ?? null,
+    strategy_params: strategyParams,
   }
 }
 
@@ -33,6 +45,7 @@ export function conditionLabel(condition, threshold) {
     case 'orhl_above': return `Crosses above OR High (${threshold}min)`
     case 'orhl_below': return `Crosses below OR Low (${threshold}min)`
     case 'earnings_report': return 'Earnings Report'
+    case STRATEGY_CONDITION: return 'Strategy proximity'
     default: return condition
   }
 }
@@ -46,6 +59,20 @@ export function getActiveAlerts(alertType = 'intraday') {
       AND a.alert_type = ?
       AND (a.last_fired_at IS NULL OR (unixepoch() - a.last_fired_at) >= a.cooldown_minutes * 60)
   `).all(alertType)
+}
+
+/**
+ * Active strategy-proximity alerts joined with delivery settings.
+ * NOT gated on cooldown — the engine dedupes via crossing-state (per-symbol) or the
+ * entered-set (screen subscriptions), so it must see every active row each tick.
+ */
+export function getActiveStrategyAlerts() {
+  return db.prepare(`
+    SELECT a.*, u.email, u.email_alerts_enabled, u.alert_email
+    FROM alerts a
+    JOIN users u ON u.id = a.user_id
+    WHERE a.is_active = 1 AND a.alert_type = 'strategy'
+  `).all().map(normalizeAlertRow)
 }
 
 export function getUserSettings(userId) {
@@ -195,6 +222,66 @@ export function createAlert(userId, { symbol, condition, threshold, cooldown_min
 
   const row = db.prepare('SELECT * FROM alerts WHERE id = ?').get(id)
   return { ok: true, alert: normalizeAlertRow(row) }
+}
+
+/**
+ * Create a strategy-proximity alert (per-symbol or a whole-screen subscription).
+ * Stores the strategy config in params_json so the engine reuses the exact screener logic.
+ */
+export function createStrategyAlert(userId, { scope, symbol, strategyId, universe, params, threshold, intraday, cooldown_minutes }) {
+  const strategy = getStrategy(strategyId)
+  if (!strategy || strategy.disabled) return { ok: false, error: 'Unknown or unavailable strategy.' }
+
+  const scopeVal = STRATEGY_ALERT_SCOPES.includes(scope) ? scope : 'symbol'
+  const resolvedParams = resolveParams(strategy, params ?? {})
+  const resolvedThreshold = resolveThreshold(strategy, threshold)
+  const intradayVal = Boolean(intraday) && Boolean(strategy.supportsIntraday)
+
+  let symToStore
+  let universeVal = null
+  if (scopeVal === 'screen') {
+    universeVal = STRATEGY_SCREEN_UNIVERSES.includes(universe) ? universe : null
+    if (!universeVal) return { ok: false, error: 'A valid universe (watchlist or sp500) is required for a screen subscription.' }
+    symToStore = universeVal.toUpperCase()
+  } else {
+    symToStore = String(symbol ?? '').trim().toUpperCase()
+    if (!symToStore || symToStore.length > 12) return { ok: false, error: 'Invalid symbol.' }
+  }
+
+  const cfg = {
+    scope: scopeVal,
+    universe: universeVal,
+    params: resolvedParams,
+    threshold: resolvedThreshold,
+    intraday: intradayVal,
+    // Screen subscriptions track which symbols are already inside the band (null = uninitialized → first
+    // scan seeds it silently so we don't fire on every current match).
+    ...(scopeVal === 'screen' ? { entered: null } : {}),
+  }
+
+  const cooldown = Number.isFinite(Number(cooldown_minutes)) && Number(cooldown_minutes) > 0
+    ? Math.floor(Number(cooldown_minutes))
+    : STRATEGY_DEFAULT_COOLDOWN
+
+  const count = db.prepare('SELECT COUNT(*) as n FROM alerts WHERE user_id = ? AND is_active = 1').get(userId).n
+  if (count >= 30) return { ok: false, error: 'Active alert limit is 30.' }
+
+  const { lastInsertRowid: id } = db.prepare(`
+    INSERT INTO alerts (user_id, symbol, condition, threshold, cooldown_minutes, alert_type, strategy_id, params_json)
+    VALUES (?, ?, ?, ?, ?, 'strategy', ?, ?)
+  `).run(userId, symToStore, STRATEGY_CONDITION, resolvedThreshold, cooldown, strategyId, JSON.stringify(cfg))
+
+  const row = db.prepare('SELECT * FROM alerts WHERE id = ?').get(id)
+  return { ok: true, alert: normalizeAlertRow(row) }
+}
+
+/** Persist the entered-set for a screen-subscription alert (JSON in params_json). */
+export function updateAlertStrategyEntered(alertId, enteredArr) {
+  const row = db.prepare('SELECT params_json FROM alerts WHERE id = ?').get(alertId)
+  let cfg = {}
+  try { cfg = JSON.parse(row?.params_json ?? '{}') } catch { cfg = {} }
+  cfg.entered = Array.isArray(enteredArr) ? enteredArr : []
+  db.prepare('UPDATE alerts SET params_json = ? WHERE id = ?').run(JSON.stringify(cfg), alertId)
 }
 
 export function toggleAlert(userId, alertId, isActive) {

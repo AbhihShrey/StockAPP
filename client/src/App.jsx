@@ -14,6 +14,7 @@ import { Markets } from './pages/Markets'
 import { News } from './pages/News'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import { Portfolio } from './pages/Portfolio'
+import { Screener } from './pages/Screener'
 import { Sectors } from './pages/Sectors'
 import { Strategies } from './pages/Strategies'
 import { TechnicalAnalysis } from './pages/TechnicalAnalysis'
@@ -67,6 +68,7 @@ function AppRoutes() {
               <Route path="strategies" element={<Navigate to="/dashboard" replace />} />
             )}
             <Route path="watchlist" element={<Watchlist />} />
+            <Route path="screener" element={<Screener />} />
             <Route path="alerts" element={<Alerts />} />
             <Route path="portfolio" element={<Portfolio />} />
             <Route path="heatmap" element={<Navigate to="/sectors" replace />} />

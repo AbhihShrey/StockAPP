@@ -153,6 +153,13 @@ if (!existingAlertCols.includes('earnings_eps_est')) {
 if (!existingAlertCols.includes('earnings_prev_date')) {
   db.exec('ALTER TABLE alerts ADD COLUMN earnings_prev_date TEXT')
 }
+// Strategy-proximity alerts: which strategy + its config (params/threshold/intraday/scope/entered-set)
+if (!existingAlertCols.includes('strategy_id')) {
+  db.exec('ALTER TABLE alerts ADD COLUMN strategy_id TEXT')
+}
+if (!existingAlertCols.includes('params_json')) {
+  db.exec('ALTER TABLE alerts ADD COLUMN params_json TEXT')
+}
 
 const existingUserCols = db.pragma('table_info(users)').map((c) => c.name)
 if (!existingUserCols.includes('email_alerts_enabled')) {

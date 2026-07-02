@@ -1,6 +1,7 @@
 import { Activity, AlertCircle, BarChart2, Bell, BellOff, CalendarClock, ChevronDown, Loader2, Plus, RefreshCw, RotateCcw, Trash2, X } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { Link } from 'react-router-dom'
 import { TableShell } from '../components/TableShell'
 import { useAuth } from '../context/AuthContext'
 import { useAlerts } from '../context/AlertContext'
@@ -132,8 +133,31 @@ function conditionLabel(condition, threshold) {
     case 'orhl_above': return `Crosses above OR High (${orhlThresholdLabel(threshold)})`
     case 'orhl_below': return `Crosses below OR Low (${orhlThresholdLabel(threshold)})`
     case 'earnings_report': return 'Earnings Report'
+    case 'strategy_proximity': return 'Strategy proximity'
     default: return condition
   }
+}
+
+const STRATEGY_LABELS = {
+  vwap_proximity: 'Approaching VWAP',
+  ma_cross_approach: 'MA crossover imminent',
+  rsi_extreme_approach: 'RSI nearing extreme',
+  bollinger_approach: 'Approaching Bollinger band',
+  near_52w_high: 'Approaching 52w high',
+  near_52w_low: 'Approaching 52w low',
+  near_50dma: 'Approaching 50-DMA',
+  near_200dma: 'Approaching 200-DMA',
+  near_round_number: 'Approaching round number',
+  gap_fill: 'Approaching gap fill',
+  orb_approach: 'Approaching OR break',
+  gamma_levels: 'Approaching call wall / put support',
+}
+
+function describeStrategyAlert(alert) {
+  const sp = alert.strategy_params ?? {}
+  const label = STRATEGY_LABELS[alert.strategy_id] ?? alert.strategy_id ?? 'Strategy'
+  const scope = sp.scope === 'screen' ? ` · screen (${sp.universe ?? 'universe'})` : ''
+  return `${label}${scope}`
 }
 
 function formatCooldownMinutes(alert) {
@@ -818,7 +842,8 @@ export function Alerts() {
   const tabAlerts = alerts.filter((a) => {
     if (activeTab === 'swing') return a.alert_type === 'swing'
     if (activeTab === 'earnings') return a.alert_type === 'earnings' || a.condition === 'earnings_report'
-    return a.alert_type !== 'swing' && a.alert_type !== 'earnings' && a.condition !== 'earnings_report'
+    if (activeTab === 'strategy') return a.alert_type === 'strategy'
+    return a.alert_type !== 'swing' && a.alert_type !== 'earnings' && a.alert_type !== 'strategy' && a.condition !== 'earnings_report'
   })
   const activeAlerts = tabAlerts.filter((a) => a.is_active === 1)
   const inactiveAlerts = tabAlerts.filter((a) => a.is_active === 0)
@@ -835,6 +860,7 @@ export function Alerts() {
           { id: 'intraday', label: 'Intraday' },
           { id: 'swing', label: 'Long-term' },
           { id: 'earnings', label: 'Earnings' },
+          { id: 'strategy', label: 'Strategy' },
         ].map((t) => (
           <button
             key={t.id}
@@ -852,7 +878,15 @@ export function Alerts() {
         ))}
       </div>
 
-      <CreateAlertForm token={token} onCreated={handleCreated} lockedType={activeTab} />
+      {activeTab === 'strategy' ? (
+        <div className="rounded-2xl border border-border-subtle bg-surface-1/40 p-4 text-sm text-zinc-400">
+          Strategy alerts are created from the{' '}
+          <Link to="/screener" className="font-medium text-accent hover:underline">Screener</Link> — run a strategy scan,
+          then use the 🔔 on a result to watch one symbol, or “Watch this screen” to be alerted when any name newly enters.
+        </div>
+      ) : (
+        <CreateAlertForm token={token} onCreated={handleCreated} lockedType={activeTab} />
+      )}
 
       {loading ? (
         <div className="flex items-center justify-center py-12 text-sm text-zinc-500">
@@ -861,7 +895,7 @@ export function Alerts() {
       ) : (
         <>
           <TableShell
-            title={`${activeTab === 'swing' ? 'Long-term' : activeTab === 'earnings' ? 'Earnings' : 'Intraday'} alerts (${activeAlerts.length} active, ${inactiveAlerts.length} triggered)`}
+            title={`${activeTab === 'swing' ? 'Long-term' : activeTab === 'earnings' ? 'Earnings' : activeTab === 'strategy' ? 'Strategy' : 'Intraday'} alerts (${activeAlerts.length} active, ${inactiveAlerts.length} triggered)`}
             rightSlot={
               inactiveAlerts.length > 0 && (
                 <button
@@ -892,6 +926,7 @@ export function Alerts() {
                   const cooling = isCooling(alert, nowSec)
                   const remaining = cooling ? formatCooldownRemaining(alert, nowSec) : null
                   const isEarnings = alert.alert_type === 'earnings' || alert.condition === 'earnings_report'
+                  const isStrategy = alert.alert_type === 'strategy'
                   const liveFuse = activeTab === 'intraday' && alert.is_active === 1 && !cooling
                   return (
                     <tr
@@ -910,6 +945,11 @@ export function Alerts() {
                           <span className="mt-0.5 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium bg-teal-500/15 text-teal-300 ring-1 ring-teal-500/20">
                             <CalendarClock className="size-3" />
                             Earnings
+                          </span>
+                        )}
+                        {isStrategy && (
+                          <span className="mt-0.5 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium bg-orange-500/15 text-orange-300 ring-1 ring-orange-500/20">
+                            {alert.strategy_params?.scope === 'screen' ? 'Screen' : 'Strategy'}
                           </span>
                         )}
                       </td>
@@ -944,6 +984,14 @@ export function Alerts() {
                                 </button>
                               </span>
                             )}
+                          </div>
+                        ) : isStrategy ? (
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-zinc-200">{describeStrategyAlert(alert)}</span>
+                            <span className="text-[11px] text-zinc-500">
+                              within {alert.strategy_params?.threshold ?? alert.threshold}
+                              {alert.strategy_params?.intraday ? ' · intraday' : ''} · converging only
+                            </span>
                           </div>
                         ) : (
                           <>{conditionLabel(alert.condition, alert.threshold)}</>

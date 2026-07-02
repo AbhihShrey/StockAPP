@@ -3,15 +3,19 @@ import { fetchBatchQuotesBySymbols, fmpGet } from './fmp.js'
 import {
   ORHL_CONDITIONS,
   getActiveAlerts,
+  getActiveStrategyAlerts,
   getTodayAlertHistory,
   getUsersForDigest,
   loadActiveAlertPositions,
   recordAlertFired,
   updateAlertPosition,
+  updateAlertStrategyEntered,
 } from './alertService.js'
 import { refreshEarningsDates, runEarningsCheck } from './earningsAlerts.js'
 import { getWatchlistSymbols } from './watchlistService.js'
 import { isEmailConfigured, sendAlertEmail, sendDailyDigestEmail } from './emailService.js'
+import { evaluateOneSymbol, runStrategyScreener } from './strategyScreener.js'
+import { getStrategy } from '../lib/screenerStrategies.js'
 
 let wsBroadcast = null
 
@@ -20,6 +24,7 @@ let wsBroadcast = null
 const vwapPositionMap  = new Map() // alertId -> 'above' | 'below'
 const orhlPositionMap  = new Map()
 const pricePositionMap = new Map() // used by both intraday and swing price alerts
+const strategyPositionMap = new Map() // alertId -> 'inside' | 'outside' (per-symbol strategy alerts)
 
 export function setWsBroadcast(fn) {
   wsBroadcast = fn
@@ -382,6 +387,118 @@ export async function runSwingCheck() {
   }
 }
 
+// ── Strategy-proximity alerts (every 5 min, weekdays) ─────────────────────────
+
+/** Fire a strategy-proximity alert for a specific symbol + its evaluate() result. */
+function fireStrategyAlert(alert, sym, result) {
+  try {
+    const level = result?.levelValue ?? null
+    const price = result?.price ?? null
+    recordAlertFired(alert.id, alert.user_id, {
+      symbol: sym,
+      condition: alert.condition,
+      threshold: level,
+      triggeredPrice: price,
+      vwapAtTrigger: level,
+    })
+
+    const strategyLabel = getStrategy(alert.strategy_id)?.label ?? alert.strategy_id
+    const payload = {
+      type: 'alert_fired',
+      alertId: alert.id,
+      symbol: sym,
+      condition: alert.condition,
+      strategyId: alert.strategy_id,
+      strategyLabel,
+      levelValue: level,
+      levelLabel: result?.levelLabel ?? null,
+      distancePct: result?.distancePct ?? null,
+      direction: result?.direction ?? null,
+      readiness: result?.readiness ?? null,
+      triggeredPrice: price,
+      triggeredAt: Math.floor(Date.now() / 1000),
+      alertType: 'strategy',
+    }
+    if (wsBroadcast) wsBroadcast(alert.user_id, payload)
+
+    if (alert.email_alerts_enabled === 1 && isEmailConfigured()) {
+      const deliveryEmail = alert.alert_email || alert.email
+      if (deliveryEmail && price != null) {
+        sendAlertEmail(deliveryEmail, {
+          symbol: sym,
+          condition: `${strategyLabel}${result?.levelLabel ? ` — ${result.levelLabel}` : ''}`,
+          threshold: level,
+          triggeredPrice: price,
+          vwapAtTrigger: level,
+        }).catch((err) => console.error('[alerts] strategy email send error:', err.message))
+      }
+    }
+
+    console.log(`[alerts] ${sym} ${alert.strategy_id} entered band (readiness ${result?.readiness ?? '?'}, user ${alert.user_id})`)
+  } catch (err) {
+    console.error('[alerts] fireStrategyAlert error:', err.message)
+  }
+}
+
+const MAX_SCREEN_ENTRANTS_PER_TICK = 10
+
+export async function runStrategyAlertCheck() {
+  const alerts = getActiveStrategyAlerts()
+  if (alerts.length === 0) return
+
+  const nowSec = Math.floor(Date.now() / 1000)
+
+  for (const alert of alerts) {
+    const cfg = alert.strategy_params ?? {}
+    const scope = cfg.scope ?? 'symbol'
+    try {
+      if (scope === 'screen') {
+        const run = await runStrategyScreener({
+          strategyId: alert.strategy_id,
+          universe: cfg.universe,
+          userId: alert.user_id,
+          params: cfg.params,
+          threshold: cfg.threshold,
+          intraday: cfg.intraday,
+        })
+        const matchedSyms = run.results.map((r) => r.symbol)
+
+        // First observation: seed the entered-set silently (don't fire on every current match).
+        if (cfg.entered == null) {
+          updateAlertStrategyEntered(alert.id, matchedSyms)
+          continue
+        }
+
+        const enteredSet = new Set(cfg.entered)
+        const fresh = run.results.filter((r) => !enteredSet.has(r.symbol))
+        const toFire = fresh.slice(0, MAX_SCREEN_ENTRANTS_PER_TICK)
+        for (const r of toFire) fireStrategyAlert(alert, r.symbol, r)
+        if (fresh.length > MAX_SCREEN_ENTRANTS_PER_TICK) {
+          console.warn(`[alerts] screen-sub ${alert.id}: ${fresh.length} new entrants, fired first ${MAX_SCREEN_ENTRANTS_PER_TICK}`)
+        }
+        updateAlertStrategyEntered(alert.id, matchedSyms)
+      } else {
+        const sym = alert.symbol.toUpperCase()
+        const result = await evaluateOneSymbol(alert.strategy_id, sym, {
+          params: cfg.params,
+          threshold: cfg.threshold,
+          intraday: cfg.intraday,
+        })
+        const inside = Boolean(result?.matches)
+        const prev = setPosition(strategyPositionMap, alert.id, inside ? 'inside' : 'outside')
+        if (prev === undefined) continue // first observation — no fire
+        if (prev === 'outside' && inside) {
+          const cooldownSec = (alert.cooldown_minutes || 0) * 60
+          if (alert.last_fired_at && nowSec - alert.last_fired_at < cooldownSec) continue
+          fireStrategyAlert(alert, sym, result)
+        }
+      }
+    } catch (err) {
+      console.error(`[alerts] strategy alert ${alert.id} error:`, err.message)
+    }
+  }
+}
+
 async function sendDailyDigests() {
   if (!isWeekday() || !isEmailConfigured()) return
 
@@ -455,6 +572,13 @@ export function startAlertEngine() {
   // Swing: every 5 minutes on weekdays (runs all day, uses aftermarket quotes when available)
   cron.schedule('*/5 * * * 1-5', () => {
     runSwingCheck().catch((err) => console.error('[alerts] swing engine error:', err.message))
+  })
+
+  // Strategy proximity: every 5 minutes on weekdays (daily-tier any weekday; intraday-tier
+  // strategies naturally no-op outside RTH when session bars are unavailable).
+  const strategyCron = ignoreRth ? '*/2 * * * *' : '*/5 * * * 1-5'
+  cron.schedule(strategyCron, () => {
+    runStrategyAlertCheck().catch((err) => console.error('[alerts] strategy engine error:', err.message))
   })
 
   // Daily digest: 4:30 PM ET on weekdays
