@@ -29,9 +29,10 @@ export function MarketBreadthGauge({ data, loading, error }) {
   }
   if (error) {
     return (
-      <div className="text-sm text-rose-200">
-        <p className="font-medium">Market breadth</p>
-        <p className="mt-1 text-rose-200/80">{error}</p>
+      <div className="text-sm">
+        <p className="font-medium text-ink">Market breadth failed to load</p>
+        <p className="mt-1 text-down">{error}</p>
+        <p className="mt-1 text-ink-3">It retries on the next refresh.</p>
       </div>
     )
   }
@@ -42,18 +43,13 @@ export function MarketBreadthGauge({ data, loading, error }) {
   const history = Array.isArray(data?.history24h) ? data.history24h : []
   const z = data?.zScore24h
 
-  const barColor =
-    zone === 'strong'
-      ? 'bg-[color:var(--color-success)]'
-      : zone === 'weak'
-        ? 'bg-rose-500'
-        : 'bg-zinc-500'
+  const barColor = zone === 'strong' ? 'bg-up' : zone === 'weak' ? 'bg-down' : 'bg-ink-3'
 
   const glow =
     zone === 'strong'
-      ? 'shadow-[0_0_18px_rgba(52,211,153,0.25)]'
+      ? 'shadow-[0_0_18px_rgba(61,220,151,0.25)]'
       : zone === 'weak'
-        ? 'shadow-[0_0_18px_rgba(248,113,113,0.22)]'
+        ? 'shadow-[0_0_18px_rgba(255,97,97,0.22)]'
         : ''
 
   const widthPct = pct == null ? 0 : Math.min(100, Math.max(0, pct))
@@ -68,24 +64,15 @@ export function MarketBreadthGauge({ data, loading, error }) {
     return { label: 'Normal', tone: 'neutral' }
   })()
 
-  const zToneClass =
-    zState.tone === 'hot'
-      ? 'border-amber-500/30 bg-amber-500/10 text-amber-200'
-      : zState.tone === 'cold'
-        ? 'border-sky-500/30 bg-sky-500/10 text-sky-200'
-        : 'border-white/10 bg-white/5 text-zinc-200'
+  const zChipClass = zState.tone === 'hot' ? 'chip chip-warn' : zState.tone === 'cold' ? 'chip chip-down' : 'chip'
 
   return (
     <div className="space-y-4">
       <div className="flex items-baseline justify-between gap-3">
         <p
           className={[
-            'text-4xl font-semibold tabular-nums tracking-tight',
-            zone === 'strong'
-              ? 'text-[color:var(--color-success)]'
-              : zone === 'weak'
-                ? 'text-rose-300'
-                : 'text-zinc-100',
+            'display num text-4xl',
+            zone === 'strong' ? 'text-up' : zone === 'weak' ? 'text-down' : 'text-ink',
           ].join(' ')}
         >
           {pctNum == null ? (
@@ -95,30 +82,24 @@ export function MarketBreadthGauge({ data, loading, error }) {
           )}
         </p>
         <div className="flex flex-col items-end gap-1">
-          <span className="text-right text-sm font-medium text-zinc-300">{label}</span>
-          <span
-            className={[
-              'inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium',
-              zToneClass,
-            ].join(' ')}
-            title="Breadth z-score vs last 24h"
-          >
+          <span className="text-right text-sm font-medium text-ink-2">{label}</span>
+          <span className={zChipClass} title="Breadth z-score vs last 24h">
             {zState.label}
-            <span className="tabular-nums opacity-80">{z == null ? '' : `z=${z.toFixed(2)}`}</span>
+            <span className="num opacity-80">{z == null ? '' : `z=${z.toFixed(2)}`}</span>
           </span>
         </div>
       </div>
-      <div className="h-3 overflow-hidden rounded-full bg-white/5">
+      <div className="h-3 overflow-hidden rounded-full bg-surface-3">
         <div
           className={[
-            'metric-bar-fill-inner metric-bar-fill-spring h-full rounded-full',
+            'h-full rounded-full transition-[width] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]',
             barColor,
             glow,
           ].join(' ')}
           style={{ width: fillIntro ? `${widthPct}%` : '0%' }}
         />
       </div>
-      <div className="flex justify-between text-[11px] text-zinc-600">
+      <div className="num flex justify-between text-[11px] text-ink-3">
         <span>0%</span>
         <span>50%</span>
         <span>100%</span>

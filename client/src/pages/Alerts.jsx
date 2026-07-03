@@ -1,4 +1,4 @@
-import { Activity, AlertCircle, BarChart2, Bell, BellOff, CalendarClock, ChevronDown, Loader2, Plus, RefreshCw, RotateCcw, Trash2, X } from 'lucide-react'
+import { Activity, AlertCircle, BarChart2, Bell, CalendarClock, ChevronDown, Loader2, Pencil, Plus, RefreshCw, RotateCcw, Trash2, X } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { Link } from 'react-router-dom'
@@ -55,16 +55,11 @@ function EarningsCountdownBadge({ iso }) {
     : days === 1 ? 'Tomorrow'
     : `in ${days} days`
   const tone =
-    days < 0 ? 'bg-zinc-500/15 text-zinc-400 ring-zinc-500/20'
-    : days === 0 ? 'bg-rose-500/15 text-rose-300 ring-rose-500/25'
-    : days <= 3 ? 'bg-amber-500/15 text-amber-300 ring-amber-500/25'
-    : days <= 7 ? 'bg-teal-500/15 text-teal-300 ring-teal-500/25'
-    : 'bg-zinc-500/10 text-zinc-300 ring-zinc-500/20'
-  return (
-    <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold ring-1 ${tone}`}>
-      {label}
-    </span>
-  )
+    days < 0 ? 'chip'
+    : days === 0 ? 'chip chip-ember'
+    : days <= 3 ? 'chip chip-warn'
+    : 'chip'
+  return <span className={`${tone} num`}>{label}</span>
 }
 
 const COOLDOWN_OPTIONS = [
@@ -195,21 +190,24 @@ function fmtTs(unixSec) {
 function StatusBadge({ active, cooling }) {
   if (cooling) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 bg-amber-500/10 text-amber-300 ring-amber-500/25">
-        <span className="size-1.5 rounded-full bg-amber-400" />
+      <span className="chip chip-warn">
+        <span className="size-1.5 rounded-full bg-warn" aria-hidden />
         Cooling
       </span>
     )
   }
+  if (active) {
+    return (
+      <span className="chip chip-ember">
+        <span className="size-1.5 rounded-full bg-ember" aria-hidden />
+        Active
+      </span>
+    )
+  }
   return (
-    <span className={[
-      'inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ring-1',
-      active
-        ? 'bg-emerald-500/10 text-emerald-300 ring-emerald-500/25'
-        : 'bg-zinc-500/10 text-zinc-500 ring-zinc-500/20',
-    ].join(' ')}>
-      <span className={['size-1.5 rounded-full', active ? 'bg-emerald-400' : 'bg-zinc-600'].join(' ')} />
-      {active ? 'Active' : 'Triggered'}
+    <span className="chip">
+      <span className="size-1.5 rounded-full bg-ink-3" aria-hidden />
+      Triggered
     </span>
   )
 }
@@ -217,17 +215,43 @@ function StatusBadge({ active, cooling }) {
 function EarningsStatusBadge({ active }) {
   if (active) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 bg-teal-500/10 text-teal-300 ring-teal-500/25">
-        <span className="size-1.5 rounded-full bg-teal-400" />
+      <span className="chip chip-ember">
+        <span className="size-1.5 rounded-full bg-ember" aria-hidden />
         Watching
       </span>
     )
   }
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 bg-zinc-500/10 text-zinc-400 ring-zinc-500/20">
-      <span className="size-1.5 rounded-full bg-zinc-500" />
+    <span className="chip">
+      <span className="size-1.5 rounded-full bg-ink-3" aria-hidden />
       Triggered
     </span>
+  )
+}
+
+// ── Toggle switch (ember gradient when on) ────────────────────────────────────
+
+function ToggleSwitch({ on, onToggle, label }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      aria-label={label}
+      onClick={onToggle}
+      className={[
+        'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border outline-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-ember/60',
+        on ? 'bg-ember-grad border-transparent' : 'border-line-strong bg-surface-3',
+      ].join(' ')}
+    >
+      <span
+        className={[
+          'inline-block size-3.5 rounded-full bg-ink transition-transform duration-200',
+          on ? 'translate-x-[1.125rem]' : 'translate-x-0.5',
+        ].join(' ')}
+        aria-hidden
+      />
+    </button>
   )
 }
 
@@ -235,8 +259,9 @@ function EarningsStatusBadge({ active }) {
 
 function MiniChartPanel({ bars, loading, error, emptyMsg = 'No intraday data yet.' }) {
   const fmtTime = (str) => str?.split(' ')[1]?.slice(0, 5) ?? str
-  const priceColor = '#e4e4e7'
-  const vwapColor = '#00ff88'
+  // Chart palette per MASTER.md data-color rules
+  const priceColor = '#FF6B2C'
+  const vwapColor = '#B5AB9F'
 
   const yDomain = bars && bars.length > 0
     ? (() => {
@@ -248,19 +273,19 @@ function MiniChartPanel({ bars, loading, error, emptyMsg = 'No intraday data yet
       })()
     : ['auto', 'auto']
 
-  if (loading) return <div className="flex h-64 items-center justify-center"><Loader2 className="size-5 animate-spin text-zinc-500" /></div>
-  if (error) return <div className="flex h-64 items-center justify-center px-4 text-center text-sm text-rose-400">{error}</div>
-  if (!bars || bars.length === 0) return <div className="flex h-64 items-center justify-center text-sm text-zinc-500">{emptyMsg}</div>
+  if (loading) return <div className="flex h-64 items-center justify-center"><div className="ember-spinner size-6" aria-label="Loading chart" /></div>
+  if (error) return <div className="flex h-64 items-center justify-center px-4 text-center text-sm text-down">{error}</div>
+  if (!bars || bars.length === 0) return <div className="flex h-64 items-center justify-center text-sm text-ink-3">{emptyMsg}</div>
 
   return (
     <>
       <ResponsiveContainer width="100%" height={260}>
         <LineChart data={bars} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
-          <XAxis dataKey="time" tickFormatter={fmtTime} tick={{ fontSize: 10, fill: '#71717a' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
-          <YAxis domain={yDomain} tick={{ fontSize: 10, fill: '#71717a' }} axisLine={false} tickLine={false} width={56} tickFormatter={(v) => `$${Number(v).toFixed(2)}`} />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(244,232,216,0.06)" />
+          <XAxis dataKey="time" tickFormatter={fmtTime} tick={{ fontSize: 10, fill: '#837A6F' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+          <YAxis domain={yDomain} tick={{ fontSize: 10, fill: '#837A6F' }} axisLine={false} tickLine={false} width={56} tickFormatter={(v) => `$${Number(v).toFixed(2)}`} />
           <Tooltip
-            contentStyle={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, fontSize: 12, color: '#e4e4e7' }}
+            contentStyle={{ background: '#14110E', border: '1px solid rgba(244,232,216,0.16)', borderRadius: 10, fontSize: 12, color: '#F4EFE9' }}
             labelFormatter={fmtTime}
             formatter={(val, key) => [`$${Number(val).toFixed(2)}`, key === 'price' ? 'Price' : 'VWAP']}
           />
@@ -269,10 +294,10 @@ function MiniChartPanel({ bars, loading, error, emptyMsg = 'No intraday data yet
         </LineChart>
       </ResponsiveContainer>
       <div className="mt-2 flex items-center justify-center gap-5">
-        <span className="flex items-center gap-1.5 text-[11px] text-zinc-400">
-          <span className="inline-block h-px w-5 rounded" style={{ background: priceColor }} /> Price
+        <span className="flex items-center gap-1.5 text-[11px] text-ink-2">
+          <span className="inline-block h-px w-5 rounded" style={{ background: priceColor }} aria-hidden /> Price
         </span>
-        <span className="flex items-center gap-1.5 text-[11px] text-zinc-400">
+        <span className="flex items-center gap-1.5 text-[11px] text-ink-2">
           <svg width="20" height="4" viewBox="0 0 20 4" aria-hidden>
             <line x1="0" y1="2" x2="20" y2="2" stroke={vwapColor} strokeWidth="1.5" strokeDasharray="5 3" />
           </svg>
@@ -294,22 +319,28 @@ function ChartPopup({ title, subtitle, onClose, onRefresh, children }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="w-[720px] max-w-[calc(100vw-2rem)] rounded-2xl border border-white/10 bg-neutral-950 shadow-2xl shadow-black/60">
-        <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${title} chart`}
+        className="glass w-[720px] max-w-full rounded-[14px] border border-line-strong shadow-2xl shadow-black/50"
+      >
+        <div className="flex items-center justify-between border-b border-line px-4 py-3">
           <div>
-            <p className="text-sm font-semibold text-zinc-100">{title}</p>
-            <p className="text-xs text-zinc-500">{subtitle}</p>
+            <p className="num text-sm font-semibold text-ink">{title}</p>
+            <p className="text-xs text-ink-3">{subtitle}</p>
           </div>
           <div className="flex items-center gap-1">
             {onRefresh && (
               <button
                 type="button"
                 onClick={onRefresh}
+                aria-label="Refresh chart"
                 title="Refresh chart"
-                className="rounded-lg p-1.5 text-zinc-500 transition hover:bg-white/5 hover:text-zinc-200"
+                className="rounded-lg p-2 text-ink-3 outline-none transition-colors duration-150 hover:bg-surface-2 hover:text-ink focus-visible:ring-2 focus-visible:ring-ember/60"
               >
                 <RefreshCw className="size-4" />
               </button>
@@ -317,7 +348,8 @@ function ChartPopup({ title, subtitle, onClose, onRefresh, children }) {
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg p-1.5 text-zinc-500 transition hover:bg-white/5 hover:text-zinc-200"
+              aria-label="Close chart"
+              className="rounded-lg p-2 text-ink-3 outline-none transition-colors duration-150 hover:bg-surface-2 hover:text-ink focus-visible:ring-2 focus-visible:ring-ember/60"
             >
               <X className="size-4" />
             </button>
@@ -520,8 +552,6 @@ function CreateAlertForm({ token, onCreated, lockedType }) {
     }
   }, [symbol, condition, threshold, cooldown, volMult, timeWin, bufPct, alertType, isSwing, isEarnings, needsPriceThreshold, isOrhl, token, onCreated])
 
-  const selectCls = 'glass-input rounded-xl px-3 py-2 text-sm text-zinc-100'
-
   const advancedBadgeLabels = [
     volMult !== '' && 'vol',
     timeWin !== '' && 'time',
@@ -529,15 +559,15 @@ function CreateAlertForm({ token, onCreated, lockedType }) {
   ].filter(Boolean)
 
   return (
-    <section className="rounded-2xl border border-border-subtle bg-gradient-to-b from-surface-1/80 to-surface-1/55 shadow-xl shadow-black/20">
-      <div className="flex items-center justify-between border-b border-border-subtle px-5 py-3.5">
+    <section className="panel">
+      <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3 sm:px-5">
         <div className="flex items-center gap-2">
-          <Plus className="size-4 text-zinc-400" />
-          <h2 className="text-sm font-semibold tracking-tight text-zinc-100">Create alert</h2>
+          <Plus className="size-4 text-ink-3" aria-hidden />
+          <h2 className="eyebrow">Create alert</h2>
         </div>
         {/* Alert type tab switcher (hidden when page-level tab controls the type) */}
         {!lockedType && (
-          <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.04] p-0.5">
+          <div className="flex items-center gap-1 rounded-lg border border-line bg-surface-2 p-0.5" role="tablist" aria-label="Alert type">
             {[
               { id: 'intraday', label: 'Intraday' },
               { id: 'swing', label: 'Long-term' },
@@ -545,12 +575,14 @@ function CreateAlertForm({ token, onCreated, lockedType }) {
               <button
                 key={t.id}
                 type="button"
+                role="tab"
+                aria-selected={alertType === t.id}
                 onClick={() => switchType(t.id)}
                 className={[
-                  'rounded-md px-3 py-1 text-xs font-medium transition',
+                  'rounded-md px-3 py-1.5 text-xs font-medium outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-ember/60',
                   alertType === t.id
-                    ? 'bg-accent text-zinc-950 shadow-sm'
-                    : 'text-zinc-500 hover:text-zinc-300',
+                    ? 'bg-surface-3 text-flame'
+                    : 'text-ink-3 hover:text-ink',
                 ].join(' ')}
               >
                 {t.label}
@@ -560,31 +592,31 @@ function CreateAlertForm({ token, onCreated, lockedType }) {
         )}
       </div>
       {isSwing && (
-        <div className="border-b border-amber-500/15 bg-amber-500/5 px-5 py-2.5">
-          <p className="text-[11px] text-amber-300/80">
+        <div className="border-b border-line bg-warn/5 px-4 py-2.5 sm:px-5">
+          <p className="text-xs text-warn">
             Long-term alerts watch for price crossings over days or weeks. Checked every 5 min on weekdays during market hours. Only price above/below conditions are supported.
           </p>
         </div>
       )}
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 lg:grid-cols-5">
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 sm:p-5 lg:grid-cols-5">
 
         {/* Symbol */}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Symbol</span>
+        <label className="block">
+          <span className="field-label">Symbol</span>
           <input
             value={symbol}
             onChange={(e) => setSymbol(e.target.value.toUpperCase())}
             placeholder="e.g. AAPL"
             maxLength={12}
             required
-            className="glass-input rounded-xl px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600"
+            className="input num"
           />
-        </div>
+        </label>
 
         {/* Condition (hidden for earnings — only one option) */}
         {!isEarnings && (
-          <div className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Condition</span>
+          <label className="block">
+            <span className="field-label">Condition</span>
             <select
               value={condition}
               onChange={(e) => {
@@ -592,31 +624,30 @@ function CreateAlertForm({ token, onCreated, lockedType }) {
                 setThreshold('')
                 setBufPct('')
               }}
-              className={selectCls}
+              className="select"
             >
               {activeConditions.map((c) => (
-                <option key={c.id} value={c.id} className="bg-neutral-900">{c.label}</option>
+                <option key={c.id} value={c.id}>{c.label}</option>
               ))}
             </select>
-          </div>
+          </label>
         )}
 
         {/* Threshold / Opening range (not shown for earnings) */}
         {!isEarnings && (
-        <div className="flex flex-col gap-1.5">
-          {isOrhl ? (
-            <>
-              <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Opening range</span>
-              <select value={threshold} onChange={(e) => setThreshold(e.target.value)} required className={selectCls}>
-                <option value="" className="bg-neutral-900">Select range…</option>
+          isOrhl ? (
+            <label className="block">
+              <span className="field-label">Opening range</span>
+              <select value={threshold} onChange={(e) => setThreshold(e.target.value)} required className="select">
+                <option value="">Select range…</option>
                 {ORHL_MINUTES.map((o) => (
-                  <option key={o.value} value={o.value} className="bg-neutral-900">{o.label}</option>
+                  <option key={o.value} value={o.value}>{o.label}</option>
                 ))}
               </select>
-            </>
+            </label>
           ) : (
-            <>
-              <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            <label className="block">
+              <span className="field-label">
                 Price level {needsPriceThreshold ? '($)' : '(VWAP — auto)'}
               </span>
               <input
@@ -628,33 +659,28 @@ function CreateAlertForm({ token, onCreated, lockedType }) {
                 min={0}
                 step="0.01"
                 required={needsPriceThreshold}
-                className="glass-input rounded-xl px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 disabled:opacity-40"
+                className="input num disabled:opacity-40"
               />
-            </>
-          )}
-        </div>
+            </label>
+          )
         )}
 
         {/* Cooldown — hidden for earnings (always one-shot) */}
         {!isEarnings && (
-          <div className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Cooldown</span>
-            <select value={cooldown} onChange={(e) => setCooldown(Number(e.target.value))} className={selectCls}>
+          <label className="block">
+            <span className="field-label">Cooldown</span>
+            <select value={cooldown} onChange={(e) => setCooldown(Number(e.target.value))} className="select">
               {activeCooldownOptions.map((o) => (
-                <option key={o.value} value={o.value} className="bg-neutral-900">{o.label}</option>
+                <option key={o.value} value={o.value}>{o.label}</option>
               ))}
             </select>
-          </div>
+          </label>
         )}
 
         {/* Submit */}
-        <div className="flex flex-col justify-end gap-1.5">
-          <button
-            type="submit"
-            disabled={busy}
-            className="glass-btn--accent inline-flex items-center justify-center gap-2 rounded-xl py-2 text-sm font-semibold disabled:opacity-60"
-          >
-            {busy ? <Loader2 className="size-4 animate-spin" /> : <Bell className="size-4" />}
+        <div className="flex flex-col justify-end">
+          <button type="submit" disabled={busy} className="btn-primary w-full">
+            {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Bell className="size-4" aria-hidden />}
             {busy ? 'Adding…' : 'Add alert'}
           </button>
         </div>
@@ -662,7 +688,7 @@ function CreateAlertForm({ token, onCreated, lockedType }) {
         {/* Earnings note */}
         {isEarnings && (
           <div className="sm:col-span-2 lg:col-span-5">
-            <p className="rounded-lg border border-teal-500/20 bg-teal-500/5 px-3 py-2 text-[11px] text-teal-300/90">
+            <p className="rounded-lg border border-line bg-surface-2 px-3 py-2 text-xs text-ink-2">
               You'll be notified once at 8:00 AM ET on the day the company reports earnings. Date is auto-fetched and refreshed daily.
             </p>
           </div>
@@ -673,12 +699,13 @@ function CreateAlertForm({ token, onCreated, lockedType }) {
           <button
             type="button"
             onClick={() => setShowAdvanced((v) => !v)}
-            className="inline-flex items-center gap-1.5 text-xs text-zinc-500 transition hover:text-zinc-300"
+            aria-expanded={showAdvanced}
+            className="inline-flex items-center gap-1.5 rounded-md py-1.5 text-xs text-ink-3 outline-none transition-colors duration-150 hover:text-ink focus-visible:ring-2 focus-visible:ring-ember/60"
           >
-            <ChevronDown className={['size-3.5 transition-transform duration-200', showAdvanced ? 'rotate-180' : ''].join(' ')} />
+            <ChevronDown className={['size-3.5 transition-transform duration-200', showAdvanced ? 'rotate-180' : ''].join(' ')} aria-hidden />
             Advanced options
             {advancedBadgeLabels.length > 0 && (
-              <span className="ml-1 rounded-full bg-accent/20 px-1.5 py-0.5 text-[10px] font-medium text-accent">
+              <span className="chip chip-ember ml-1">
                 {advancedBadgeLabels.join(' + ')}
               </span>
             )}
@@ -689,44 +716,50 @@ function CreateAlertForm({ token, onCreated, lockedType }) {
         {showAdvanced && !isSwing && !isEarnings && (
           <>
             {/* Volume filter */}
-            <div className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Volume filter</span>
-              <select value={volMult} onChange={(e) => setVolMult(e.target.value)} className={selectCls}>
-                {VOLUME_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value} className="bg-neutral-900">{o.label}</option>
-                ))}
-              </select>
-              <p className="text-[10px] text-zinc-600">Only fire when last bar's volume exceeds the session average by this multiple.</p>
+            <div>
+              <label className="block">
+                <span className="field-label">Volume filter</span>
+                <select value={volMult} onChange={(e) => setVolMult(e.target.value)} className="select">
+                  {VOLUME_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+              </label>
+              <p className="mt-1.5 text-[11px] text-ink-3">Only fire when last bar's volume exceeds the session average by this multiple.</p>
             </div>
 
             {/* Time window */}
-            <div className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Time window</span>
-              <select value={timeWin} onChange={(e) => setTimeWin(e.target.value)} className={selectCls}>
-                {TIME_WINDOW_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value} className="bg-neutral-900">{o.label}</option>
-                ))}
-              </select>
-              <p className="text-[10px] text-zinc-600">Restrict firing to within N minutes of the 9:30 ET open.</p>
+            <div>
+              <label className="block">
+                <span className="field-label">Time window</span>
+                <select value={timeWin} onChange={(e) => setTimeWin(e.target.value)} className="select">
+                  {TIME_WINDOW_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+              </label>
+              <p className="mt-1.5 text-[11px] text-ink-3">Restrict firing to within N minutes of the 9:30 ET open.</p>
             </div>
 
             {/* Buffer (price alerts only) */}
             {needsPriceThreshold && (
-              <div className="flex flex-col gap-1.5">
-                <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Buffer zone</span>
-                <select value={bufPct} onChange={(e) => setBufPct(e.target.value)} className={selectCls}>
-                  {BUFFER_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value} className="bg-neutral-900">{o.label}</option>
-                  ))}
-                </select>
-                <p className="text-[10px] text-zinc-600">Expand the trigger level by ±% to avoid false triggers on thin spikes.</p>
+              <div>
+                <label className="block">
+                  <span className="field-label">Buffer zone</span>
+                  <select value={bufPct} onChange={(e) => setBufPct(e.target.value)} className="select">
+                    {BUFFER_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>{o.label}</option>
+                    ))}
+                  </select>
+                </label>
+                <p className="mt-1.5 text-[11px] text-ink-3">Expand the trigger level by ±% to avoid false triggers on thin spikes.</p>
               </div>
             )}
           </>
         )}
 
         {error ? (
-          <p className="sm:col-span-2 lg:col-span-5 text-sm text-rose-400">{error}</p>
+          <p className="text-sm text-down sm:col-span-2 lg:col-span-5">{error}</p>
         ) : null}
       </form>
     </section>
@@ -849,51 +882,65 @@ export function Alerts() {
   const inactiveAlerts = tabAlerts.filter((a) => a.is_active === 0)
 
   return (
-    <div className="app-page-enter space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">Alerts</h1>
+    <div className="space-y-6">
+      <header className="rise">
+        <p className="eyebrow">Monitoring · Price &amp; event triggers</p>
+        <h1 className="display mt-1 text-2xl sm:text-3xl">Alerts</h1>
+        <div className="ember-rule mt-4" aria-hidden />
       </header>
 
       {/* Page-level tab switcher */}
-      <div className="flex items-center gap-2 self-start rounded-xl border border-border-subtle bg-surface-1/40 p-2">
-        {[
-          { id: 'intraday', label: 'Intraday' },
-          { id: 'swing', label: 'Long-term' },
-          { id: 'earnings', label: 'Earnings' },
-          { id: 'strategy', label: 'Strategy' },
-        ].map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => setActiveTab(t.id)}
-            className={[
-              'rounded-lg px-4 py-2 text-xs font-medium transition',
-              activeTab === t.id
-                ? 'bg-accent-muted text-accent accent-inset'
-                : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300',
-            ].join(' ')}
-          >
-            {t.label}
-          </button>
-        ))}
+      <div className="rise rise-1 max-w-full overflow-x-auto">
+        <div className="inline-flex items-center gap-1 rounded-xl border border-line bg-surface-1 p-1" role="tablist" aria-label="Alert category">
+          {[
+            { id: 'intraday', label: 'Intraday' },
+            { id: 'swing', label: 'Long-term' },
+            { id: 'earnings', label: 'Earnings' },
+            { id: 'strategy', label: 'Strategy' },
+          ].map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              role="tab"
+              aria-selected={activeTab === t.id}
+              onClick={() => setActiveTab(t.id)}
+              className={[
+                'rounded-lg px-4 py-2 text-xs font-medium whitespace-nowrap outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-ember/60',
+                activeTab === t.id
+                  ? 'bg-surface-3 text-flame'
+                  : 'text-ink-3 hover:bg-surface-2 hover:text-ink',
+              ].join(' ')}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {activeTab === 'strategy' ? (
-        <div className="rounded-2xl border border-border-subtle bg-surface-1/40 p-4 text-sm text-zinc-400">
+        <div className="panel panel-pad rise rise-2 text-sm text-ink-2">
           Strategy alerts are created from the{' '}
-          <Link to="/screener" className="font-medium text-accent hover:underline">Screener</Link> — run a strategy scan,
-          then use the 🔔 on a result to watch one symbol, or “Watch this screen” to be alerted when any name newly enters.
+          <Link to="/screener" className="rounded font-medium text-ember outline-none transition-colors duration-150 hover:text-flame hover:underline focus-visible:ring-2 focus-visible:ring-ember/60">Screener</Link>
+          {' '}— run a strategy scan, then use the{' '}
+          <Bell className="inline size-3.5 align-[-2px] text-ink-3" aria-label="bell" />
+          {' '}on a result to watch one symbol, or "Watch this screen" to be alerted when any name newly enters.
         </div>
       ) : (
-        <CreateAlertForm token={token} onCreated={handleCreated} lockedType={activeTab} />
+        <div className="rise rise-2">
+          <CreateAlertForm token={token} onCreated={handleCreated} lockedType={activeTab} />
+        </div>
       )}
 
       {loading ? (
-        <div className="flex items-center justify-center py-12 text-sm text-zinc-500">
-          <Loader2 className="mr-2 size-4 animate-spin" />Loading…
-        </div>
+        <section className="panel panel-pad rise rise-3 space-y-3" aria-busy aria-label="Loading alerts">
+          <div className="skeleton h-4 w-48" />
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="skeleton h-9 w-full" />
+          ))}
+        </section>
       ) : (
         <>
+          <div className="rise rise-3">
           <TableShell
             title={`${activeTab === 'swing' ? 'Long-term' : activeTab === 'earnings' ? 'Earnings' : activeTab === 'strategy' ? 'Strategy' : 'Intraday'} alerts (${activeAlerts.length} active, ${inactiveAlerts.length} triggered)`}
             rightSlot={
@@ -902,26 +949,26 @@ export function Alerts() {
                   type="button"
                   onClick={handleReactivateAll}
                   disabled={reactivating}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-zinc-400 transition hover:border-white/20 hover:text-zinc-200 disabled:opacity-50"
+                  className="btn-ghost h-8 px-3 text-xs"
                 >
-                  {reactivating ? <Loader2 className="size-3 animate-spin" /> : <RotateCcw className="size-3" />}
+                  {reactivating ? <Loader2 className="size-3 animate-spin" aria-hidden /> : <RotateCcw className="size-3" aria-hidden />}
                   Re-enable all
                 </button>
               )
             }
           >
-            <table className="min-w-full text-left text-sm">
-              <thead className="sticky top-0 bg-surface-1/80 text-[11px] uppercase tracking-wide text-zinc-500 backdrop-blur">
-                <tr className="border-b border-border-subtle">
-                  <th className="px-4 py-2.5 font-medium">Symbol</th>
-                  <th className="px-4 py-2.5 font-medium">Condition</th>
-                  <th className="px-4 py-2.5 font-medium">Cooldown</th>
-                  <th className="px-4 py-2.5 font-medium">Status</th>
-                  <th className="px-4 py-2.5 font-medium">Created</th>
-                  <th className="px-4 py-2.5 text-right font-medium">Actions</th>
+            <table>
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Condition</th>
+                  <th>Cooldown</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th className="text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-subtle/70">
+              <tbody>
                 {[...activeAlerts, ...inactiveAlerts].map((alert) => {
                   const cooling = isCooling(alert, nowSec)
                   const remaining = cooling ? formatCooldownRemaining(alert, nowSec) : null
@@ -929,56 +976,60 @@ export function Alerts() {
                   const isStrategy = alert.alert_type === 'strategy'
                   const liveFuse = activeTab === 'intraday' && alert.is_active === 1 && !cooling
                   return (
-                    <tr
-                      key={alert.id}
-                      data-alert-state={liveFuse ? 'active' : undefined}
-                      className="alert-row hover:bg-white/5"
-                    >
-                      <td className="px-4 py-3">
-                        <div className="font-semibold text-zinc-100">{alert.symbol}</div>
+                    <tr key={alert.id}>
+                      <td>
+                        <div className="flex items-center gap-1.5">
+                          <span className="num font-semibold text-ink">{alert.symbol}</span>
+                          {liveFuse && (
+                            <span
+                              className="size-1.5 shrink-0 rounded-full bg-ember shadow-[0_0_8px_rgba(255,107,44,0.6)]"
+                              title="Watching live"
+                              aria-hidden
+                            />
+                          )}
+                        </div>
                         {alert.alert_type === 'swing' && (
-                          <span className="mt-0.5 inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-violet-500/15 text-violet-300 ring-1 ring-violet-500/20">
-                            Long-term
-                          </span>
+                          <span className="chip mt-1">Long-term</span>
                         )}
                         {isEarnings && (
-                          <span className="mt-0.5 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium bg-teal-500/15 text-teal-300 ring-1 ring-teal-500/20">
-                            <CalendarClock className="size-3" />
+                          <span className="chip mt-1">
+                            <CalendarClock className="size-3" aria-hidden />
                             Earnings
                           </span>
                         )}
                         {isStrategy && (
-                          <span className="mt-0.5 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium bg-orange-500/15 text-orange-300 ring-1 ring-orange-500/20">
+                          <span className="chip chip-ember mt-1">
                             {alert.strategy_params?.scope === 'screen' ? 'Screen' : 'Strategy'}
                           </span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-zinc-300">
+                      <td>
                         {isEarnings ? (
                           <div className="flex flex-col gap-1">
                             <span className="flex flex-wrap items-center gap-1.5">
                               <span>
-                                Earnings on <span className="font-medium text-zinc-100">{fmtEarningsDate(alert.earnings_date)}</span>
+                                Earnings on <span className="font-medium text-ink">{fmtEarningsDate(alert.earnings_date)}</span>
                                 {sessionLabel(alert.earnings_session) && (
-                                  <> · <span className="text-zinc-400">{sessionLabel(alert.earnings_session)}</span></>
+                                  <> · <span className="text-ink-3">{sessionLabel(alert.earnings_session)}</span></>
                                 )}
                               </span>
                               <EarningsCountdownBadge iso={alert.earnings_date} />
                             </span>
                             {alert.earnings_eps_est != null && (
-                              <span className="text-[11px] text-zinc-500">
+                              <span className="num text-[11px] text-ink-3">
                                 EPS est. ${Number(alert.earnings_eps_est).toFixed(2)}
                               </span>
                             )}
                             {alert.earnings_prev_date && (
-                              <span className="inline-flex items-center gap-1.5 self-start rounded-md bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-300 ring-1 ring-amber-500/25">
-                                <AlertCircle className="size-3" />
+                              <span className="chip chip-warn self-start">
+                                <AlertCircle className="size-3" aria-hidden />
                                 Date updated to {fmtEarningsDate(alert.earnings_date)}
                                 <button
                                   type="button"
                                   onClick={() => handleDismissEarningsBadge(alert.id)}
+                                  aria-label="Dismiss date-change notice"
                                   title="Dismiss"
-                                  className="ml-1 rounded p-0.5 text-amber-300/70 transition hover:bg-amber-500/15 hover:text-amber-200"
+                                  className="ml-0.5 rounded p-0.5 text-warn/70 outline-none transition-colors duration-150 hover:bg-warn/15 hover:text-warn focus-visible:ring-2 focus-visible:ring-ember/60"
                                 >
                                   <X className="size-3" />
                                 </button>
@@ -987,8 +1038,8 @@ export function Alerts() {
                           </div>
                         ) : isStrategy ? (
                           <div className="flex flex-col gap-0.5">
-                            <span className="text-zinc-200">{describeStrategyAlert(alert)}</span>
-                            <span className="text-[11px] text-zinc-500">
+                            <span className="text-ink">{describeStrategyAlert(alert)}</span>
+                            <span className="text-[11px] text-ink-3">
                               within {alert.strategy_params?.threshold ?? alert.threshold}
                               {alert.strategy_params?.intraday ? ' · intraday' : ''} · converging only
                             </span>
@@ -999,91 +1050,84 @@ export function Alerts() {
                         {!isEarnings && (alert.min_volume_mult != null || alert.time_window_minutes != null || alert.buffer_pct != null) && (
                           <div className="mt-1 flex flex-wrap gap-1">
                             {alert.min_volume_mult != null && (
-                              <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-zinc-800 text-zinc-400 ring-1 ring-white/5">
-                                ≥ {alert.min_volume_mult}× vol
-                              </span>
+                              <span className="chip num">≥ {alert.min_volume_mult}× vol</span>
                             )}
                             {alert.time_window_minutes != null && (
-                              <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-zinc-800 text-zinc-400 ring-1 ring-white/5">
-                                First {alert.time_window_minutes} min
-                              </span>
+                              <span className="chip num">First {alert.time_window_minutes} min</span>
                             )}
                             {alert.buffer_pct != null && (
-                              <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-zinc-800 text-zinc-400 ring-1 ring-white/5">
-                                {alert.buffer_pct}% buf
-                              </span>
+                              <span className="chip num">{alert.buffer_pct}% buf</span>
                             )}
                           </div>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-xs">
+                      <td className="text-xs">
                         {isEarnings ? (
-                          <span className="text-zinc-500">One-shot</span>
+                          <span className="text-ink-3">One-shot</span>
                         ) : editingCooldown === alert.id ? (
                           <select
                             autoFocus
                             value={alert.cooldown_minutes ?? 60}
                             onChange={(e) => handleCooldownChange(alert, Number(e.target.value))}
                             onBlur={() => setEditingCooldown(null)}
-                            className="rounded-lg border border-accent/40 bg-zinc-900 px-2 py-1 text-xs text-zinc-100 outline-none focus:border-accent/70"
+                            aria-label={`Cooldown for ${alert.symbol}`}
+                            className="select h-8 w-auto px-2 text-xs"
                           >
                             {(alert.alert_type === 'swing' ? SWING_COOLDOWN_OPTIONS : COOLDOWN_OPTIONS).map((o) => (
-                              <option key={o.value} value={o.value} className="bg-neutral-900">{o.label}</option>
+                              <option key={o.value} value={o.value}>{o.label}</option>
                             ))}
                           </select>
                         ) : (
                           <button
                             type="button"
                             onClick={() => setEditingCooldown(alert.id)}
+                            aria-label={`Edit cooldown for ${alert.symbol}`}
                             title="Click to edit cooldown"
-                            className="group flex flex-col items-start gap-0.5 text-left"
+                            className="group -mx-1 flex flex-col items-start gap-0.5 rounded-md px-1 py-1 text-left outline-none focus-visible:ring-2 focus-visible:ring-ember/60"
                           >
-                            <span className="flex items-center gap-1 text-zinc-400 group-hover:text-zinc-100">
+                            <span className="num flex items-center gap-1 text-ink-2 transition-colors duration-150 group-hover:text-ink">
                               {formatCooldownMinutes(alert)}
-                              <svg className="size-3 opacity-0 transition group-hover:opacity-60" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                <path d="M11 2l3 3-9 9H2v-3L11 2z" />
-                              </svg>
+                              <Pencil className="size-3 opacity-0 transition-opacity duration-150 group-hover:opacity-60" aria-hidden />
                             </span>
                             {remaining && (
-                              <span className="text-[10px] text-amber-400/80">resets in {remaining}</span>
+                              <span className="num text-[10px] text-warn">resets in {remaining}</span>
                             )}
                           </button>
                         )}
                       </td>
-                      <td className="px-4 py-3">
+                      <td>
                         {isEarnings
                           ? <EarningsStatusBadge active={alert.is_active === 1} />
                           : <StatusBadge active={alert.is_active === 1} cooling={cooling} />
                         }
                       </td>
-                      <td className="px-4 py-3 text-zinc-500">{fmtTs(alert.created_at)}</td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="inline-flex items-center gap-1">
+                      <td><span className="num text-xs text-ink-3">{fmtTs(alert.created_at)}</span></td>
+                      <td className="text-right">
+                        <div className="inline-flex items-center gap-1.5">
                           {(alert.condition === 'vwap_above' || alert.condition === 'vwap_below') && (
                             <button
                               type="button"
                               onClick={() => setChartSymbol(alert.symbol)}
+                              aria-label={`View price vs VWAP chart for ${alert.symbol}`}
                               title="View price vs VWAP chart"
-                              className="rounded-lg p-1.5 text-zinc-500 transition hover:bg-white/5 hover:text-accent"
+                              className="rounded-lg p-2 text-ink-3 outline-none transition-colors duration-150 hover:bg-surface-2 hover:text-ember focus-visible:ring-2 focus-visible:ring-ember/60"
                             >
-                              <Activity className="size-3.5" />
+                              <Activity className="size-4" />
                             </button>
                           )}
-                          <button
-                            type="button"
-                            onClick={() => handleToggle(alert)}
-                            title={alert.is_active ? 'Disable alert' : 'Re-enable alert'}
-                            className="rounded-lg p-1.5 text-zinc-500 transition hover:bg-white/5 hover:text-zinc-200"
-                          >
-                            {alert.is_active ? <BellOff className="size-3.5" /> : <Bell className="size-3.5" />}
-                          </button>
+                          <ToggleSwitch
+                            on={alert.is_active === 1}
+                            onToggle={() => handleToggle(alert)}
+                            label={alert.is_active ? `Disable alert for ${alert.symbol}` : `Re-enable alert for ${alert.symbol}`}
+                          />
                           <button
                             type="button"
                             onClick={() => handleDelete(alert.id)}
+                            aria-label={`Delete alert for ${alert.symbol}`}
                             title="Delete alert"
-                            className="rounded-lg p-1.5 text-zinc-600 transition hover:bg-rose-500/10 hover:text-rose-400"
+                            className="rounded-lg p-2 text-ink-3 outline-none transition-colors duration-150 hover:bg-down/10 hover:text-down focus-visible:ring-2 focus-visible:ring-ember/60"
                           >
-                            <Trash2 className="size-3.5" />
+                            <Trash2 className="size-4" />
                           </button>
                         </div>
                       </td>
@@ -1092,18 +1136,24 @@ export function Alerts() {
                 })}
                 {tabAlerts.length === 0 && (
                   <tr>
-                    <td className="px-4 py-10 text-center text-sm text-zinc-500" colSpan={6}>
-                      {activeTab === 'swing'
-                        ? 'No long-term alerts yet. Use the form above to create one.'
-                        : activeTab === 'earnings'
-                          ? 'No earnings alerts yet. Enter a symbol above and we\'ll notify you on its next earnings day.'
-                          : 'No intraday alerts yet. Use the form above to create your first alert.'}
+                    <td colSpan={6}>
+                      <div className="flex flex-col items-center gap-2 py-8 text-center">
+                        <Bell className="size-8 text-ink-3" aria-hidden />
+                        <p className="text-sm text-ink-3">
+                          {activeTab === 'swing'
+                            ? 'No long-term alerts yet. Use the form above to create one.'
+                            : activeTab === 'earnings'
+                              ? 'No earnings alerts yet. Enter a symbol above and we\'ll notify you on its next earnings day.'
+                              : 'No intraday alerts yet. Use the form above to create your first alert.'}
+                        </p>
+                      </div>
                     </td>
                   </tr>
                 )}
               </tbody>
             </table>
           </TableShell>
+          </div>
 
           {history.length > 0 && (() => {
             const HISTORY_FILTERS = [
@@ -1123,21 +1173,23 @@ export function Alerts() {
               ? history
               : history.filter((h) => h.condition === historyFilter)
             return (
+            <div className="rise rise-4">
             <TableShell
               title="Alert history"
               subtitle={`Recently triggered alerts (last 50)${filteredHistory.length !== history.length ? ` · ${filteredHistory.length} shown` : ''}`}
               rightSlot={
-                <div className="flex flex-wrap items-center gap-1">
+                <div className="flex flex-wrap items-center gap-1.5">
                   {HISTORY_FILTERS.map((f) => (
                     <button
                       key={f.id}
                       type="button"
                       onClick={() => setHistoryFilter(f.id)}
+                      aria-pressed={historyFilter === f.id}
                       className={[
-                        'rounded-md px-2.5 py-1 text-[11px] font-medium transition',
+                        'rounded-full border px-2.5 py-1 text-[11px] font-medium outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-ember/60',
                         historyFilter === f.id
-                          ? 'bg-accent-muted text-accent accent-inset'
-                          : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300',
+                          ? 'border-ember/30 bg-ember/10 text-flame'
+                          : 'border-line bg-surface-2 text-ink-3 hover:text-ink',
                       ].join(' ')}
                     >
                       {f.label}
@@ -1146,22 +1198,24 @@ export function Alerts() {
                 </div>
               }
             >
-              <table className="min-w-full text-left text-sm">
-                <thead className="sticky top-0 bg-surface-1/80 text-[11px] uppercase tracking-wide text-zinc-500 backdrop-blur">
-                  <tr className="border-b border-border-subtle">
-                    <th className="px-4 py-2.5 font-medium">Symbol</th>
-                    <th className="px-4 py-2.5 font-medium">Condition</th>
-                    <th className="px-4 py-2.5 text-right font-medium">Price</th>
-                    <th className="px-4 py-2.5 text-right font-medium">VWAP</th>
-                    <th className="px-4 py-2.5 font-medium">Triggered</th>
-                    <th className="px-4 py-2.5 text-right font-medium">Chart</th>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Symbol</th>
+                    <th>Condition</th>
+                    <th className="num">Price</th>
+                    <th className="num">VWAP</th>
+                    <th>Triggered</th>
+                    <th className="text-right">Chart</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border-subtle/70">
+                <tbody>
                   {filteredHistory.length === 0 && (
                     <tr>
-                      <td className="px-4 py-8 text-center text-sm text-zinc-500" colSpan={6}>
-                        No history for this condition type yet.
+                      <td colSpan={6}>
+                        <div className="py-6 text-center text-sm text-ink-3">
+                          No history for this condition type yet.
+                        </div>
                       </td>
                     </tr>
                   )}
@@ -1169,31 +1223,32 @@ export function Alerts() {
                     const isEarningsRow = h.condition === 'earnings_report'
                     const earningsSession = earningsSessionByAlertId.get(h.alert_id)
                     return (
-                    <tr key={h.id} className="hover:bg-white/5">
-                      <td className="px-4 py-3 font-semibold text-zinc-100">{h.symbol}</td>
-                      <td className="px-4 py-3 text-zinc-300">
+                    <tr key={h.id}>
+                      <td><span className="num font-semibold text-ink">{h.symbol}</span></td>
+                      <td>
                         {isEarningsRow
                           ? (sessionLabel(earningsSession) ? `Earnings Report (${sessionLabel(earningsSession)})` : 'Earnings Report')
                           : conditionLabel(h.condition, h.threshold)}
                       </td>
-                      <td className="px-4 py-3 text-right tabular-nums text-zinc-300">
+                      <td className="num text-ink">
                         {h.triggered_price != null ? `$${Number(h.triggered_price).toFixed(2)}` : '—'}
                       </td>
-                      <td className="px-4 py-3 text-right tabular-nums text-zinc-500">
+                      <td className="num text-ink-3">
                         {h.vwap_at_trigger != null ? `$${Number(h.vwap_at_trigger).toFixed(2)}` : '—'}
                       </td>
-                      <td className="px-4 py-3 text-zinc-500">{fmtTs(h.triggered_at)}</td>
-                      <td className="px-4 py-3 text-right">
+                      <td><span className="num text-xs text-ink-3">{fmtTs(h.triggered_at)}</span></td>
+                      <td className="text-right">
                         {isEarningsRow ? (
-                          <span className="text-zinc-700">—</span>
+                          <span className="text-ink-3">—</span>
                         ) : (
                           <button
                             type="button"
                             onClick={() => setHistoryChart({ symbol: h.symbol, triggeredAt: h.triggered_at })}
+                            aria-label={`View trigger context chart for ${h.symbol}`}
                             title="View trigger context chart"
-                            className="rounded-lg p-1.5 text-zinc-600 transition hover:bg-white/5 hover:text-accent"
+                            className="rounded-lg p-2 text-ink-3 outline-none transition-colors duration-150 hover:bg-surface-2 hover:text-ember focus-visible:ring-2 focus-visible:ring-ember/60"
                           >
-                            <BarChart2 className="size-3.5" />
+                            <BarChart2 className="size-4" />
                           </button>
                         )}
                       </td>
@@ -1203,6 +1258,7 @@ export function Alerts() {
                 </tbody>
               </table>
             </TableShell>
+            </div>
           )
           })()}
         </>

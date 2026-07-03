@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { TrendingDown, TrendingUp } from 'lucide-react'
 import { AnimatedNumber } from './AnimatedNumber'
 import { GlobalAssetsSkeleton } from './DataSkeleton'
 
@@ -27,14 +28,9 @@ function formatChgStatic(pct) {
 function AssetCard({ asset }) {
   const chg = asset?.changePercent
   const chgPositive = chg != null && chg > 0
+  const chgNegative = chg != null && !Number.isNaN(chg) && chg < 0
   const chgClass =
-    chg == null || Number.isNaN(chg)
-      ? 'text-zinc-500'
-      : chgPositive
-        ? 'text-[color:var(--color-success)]'
-        : chg < 0
-          ? 'text-rose-400'
-          : 'text-zinc-400'
+    chg == null || Number.isNaN(chg) ? 'text-ink-3' : chgPositive ? 'text-up' : chgNegative ? 'text-down' : 'text-ink-2'
 
   const prev = useRef(null)
   const [flash, setFlash] = useState(false)
@@ -48,32 +44,32 @@ function AssetCard({ asset }) {
     if (p === null || p === undefined) return
     if (priceNow === null || priceNow === undefined) return
     if (Number(p) !== Number(priceNow)) {
+      // Price changed between polls — trigger a one-shot flash then clear it.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFlash(true)
       const id = window.setTimeout(() => setFlash(false), 700)
       return () => window.clearTimeout(id)
     }
   }, [priceNow])
 
+  const DirIcon = chgPositive ? TrendingUp : chgNegative ? TrendingDown : null
+
   return (
-    <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-neutral-900/50 p-4 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.55)] transition hover:bg-white/[0.035]">
-      <div className="pointer-events-none absolute left-0 top-0 h-full w-px bg-white/10 opacity-0 transition group-hover:opacity-100" />
-      <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-400">{asset.label}</p>
-      <p
-        className={[
-          'mt-2 text-2xl font-semibold tabular-nums tracking-tight text-zinc-100',
-          flash ? 'price-shimmer' : '',
-        ].join(' ')}
-      >
+    <div className="panel panel-hover group relative overflow-hidden p-4">
+      <div className="pointer-events-none absolute left-0 top-0 h-full w-px bg-ember/40 opacity-0 transition group-hover:opacity-100" />
+      <p className="eyebrow">{asset.label}</p>
+      <p className={['num mt-2 text-2xl font-semibold text-ink', flash ? 'ignite' : ''].join(' ')}>
         {priceNum == null ? (
           formatValueStatic(asset)
         ) : (
           <AnimatedNumber value={priceNum} format={(n) => formatValueDisplay(asset, n)} duration={560} />
         )}
       </p>
-      <p className={`mt-1 text-sm font-medium tabular-nums ${chgClass}`}>
+      <p className={`num mt-1 flex items-center gap-1 text-sm font-medium ${chgClass}`}>
+        {DirIcon ? <DirIcon className="size-3.5" aria-hidden /> : null}
         {chgNum == null ? formatChgStatic(chg) : <AnimatedNumber value={chgNum} format={formatChgDisplay} duration={560} />}
       </p>
-      {asset.hint ? <p className="mt-2 line-clamp-2 text-[11px] leading-snug text-zinc-600">{asset.hint}</p> : null}
+      {asset.hint ? <p className="mt-2 line-clamp-2 text-[11px] leading-snug text-ink-3">{asset.hint}</p> : null}
     </div>
   )
 }
@@ -83,9 +79,9 @@ export function GlobalAssetMarquee({ data, loading, error }) {
 
   if (error) {
     return (
-      <section className="rounded-2xl border border-rose-500/20 bg-rose-500/5 p-5 text-sm text-rose-200">
-        <p className="font-medium">Global assets</p>
-        <p className="mt-1 text-rose-200/80">{error}</p>
+      <section className="panel panel-pad text-sm">
+        <p className="font-medium text-ink">Global assets failed to load</p>
+        <p className="mt-1 text-down">{error}</p>
       </section>
     )
   }

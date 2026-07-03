@@ -17,6 +17,22 @@
 /** @type {Release[]} */
 export const VERSION_HISTORY = [
   {
+    version: '2.0.0',
+    date: 'Jul 2026',
+    type: 'major',
+    title: 'Ember Terminal — full UI rebuild',
+    summary: 'A ground-up redesign into a warm dark trading terminal, with a new brand mark, type system, and elegant motion.',
+    changes: [
+      'New "Ember Terminal" look: a warm near-black canvas where ember orange is scarce and heat signals what matters.',
+      'New brand mark — the "ember tick": a rising trend line that ignites into a glowing ember at its apex.',
+      'New type system — Archivo for expanded display headings, Instrument Sans for text, IBM Plex Mono for every number.',
+      'Rebuilt every page and component on one shared design system: panels, tables, forms, chips, and buttons.',
+      'Refined motion — staggered fade-up reveals, a breathing molten divider, and smooth number counters, all respecting reduced-motion.',
+      'Single dark theme: the light/system theme picker was retired; table density stays adjustable.',
+      'Green and red are now reserved strictly for market direction and always paired with an up/down arrow.',
+    ],
+  },
+  {
     version: '1.4.0',
     date: 'Jul 2026',
     type: 'minor',

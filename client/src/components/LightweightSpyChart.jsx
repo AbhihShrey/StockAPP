@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { apiUrl } from '../lib/apiBase'
 import { getChartStyle } from '../lib/prefs'
 import { useChartTheme } from '../lib/theme'
+import { FlameSpinner } from './FlameSpinner'
 
 function isoDate(d) {
   return d.toISOString().slice(0, 10)
@@ -18,10 +19,11 @@ function downsample(points, maxPoints) {
   return out
 }
 
+/* Chart colors are hex-in-JS by design-system exception. */
 function chartColors(isLight) {
   return {
-    textColor: isLight ? 'rgba(63,63,70,0.85)' : 'rgba(228,228,231,0.85)',
-    gridColor: isLight ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.04)',
+    textColor: isLight ? 'rgba(63,63,70,0.85)' : '#837A6F',
+    gridColor: isLight ? 'rgba(0,0,0,0.07)' : 'rgba(244,232,216,0.06)',
   }
 }
 
@@ -108,8 +110,7 @@ export function LightweightSpyChart({ symbol = 'SPY' }) {
       layout: {
         background: { type: 'solid', color: 'transparent' },
         textColor,
-        fontFamily:
-          'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        fontFamily: '"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
       },
       grid: {
         vertLines: { color: gridColor },
@@ -129,9 +130,10 @@ export function LightweightSpyChart({ symbol = 'SPY' }) {
       handleScale: { mouseWheel: true, pinch: true },
     })
 
+    // Ember is reserved for the primary series — this is it.
     const seriesOpts = chartStyle === 'line'
-      ? { color: 'rgba(52,211,153,0.95)', lineWidth: 3 }
-      : { topColor: 'rgba(34,197,94,0.32)', bottomColor: 'rgba(34,197,94,0.02)', lineColor: 'rgba(52,211,153,0.9)', lineWidth: 2 }
+      ? { color: '#FF6B2C', lineWidth: 3 }
+      : { topColor: 'rgba(255,107,44,0.26)', bottomColor: 'rgba(255,107,44,0.02)', lineColor: '#FF6B2C', lineWidth: 2 }
     const area = chart.addSeries(chartStyle === 'line' ? LineSeries : AreaSeries, seriesOpts)
 
     chartRef.current = chart
@@ -177,16 +179,16 @@ export function LightweightSpyChart({ symbol = 'SPY' }) {
     <div className="relative h-[26rem] w-full">
       <div ref={containerRef} className="absolute inset-0 min-h-0 w-full" />
       {loading ? (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-surface-1/20 backdrop-blur-[1px]">
-          <p className="text-sm text-zinc-500">Loading {symbol}…</p>
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center gap-2.5 bg-surface-1/30 backdrop-blur-[1px]">
+          <FlameSpinner size={18} />
+          <p className="num text-sm text-ink-3">Loading {symbol}…</p>
         </div>
       ) : null}
       {err ? (
-        <div className="absolute inset-0 flex items-center justify-center bg-surface-1/30 backdrop-blur-[1px]">
-          <p className="px-4 text-center text-sm text-amber-200/90">{err}</p>
+        <div className="absolute inset-0 flex items-center justify-center bg-surface-1/40 backdrop-blur-[1px]">
+          <p className="px-4 text-center text-sm text-warn">{err}</p>
         </div>
       ) : null}
     </div>
   )
 }
-

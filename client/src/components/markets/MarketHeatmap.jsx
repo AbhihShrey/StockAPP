@@ -5,22 +5,23 @@ import { apiUrl } from '../../lib/apiBase'
 
 const POLL_MS = 60_000
 
+// Chart-layer colors (JS chart config is the one allowed place for hex/rgba).
+const UP_RGB = '61, 220, 151' // #3DDC97
+const DOWN_RGB = '255, 97, 97' // #FF6161
+const NEUTRAL_FILL = 'rgba(244, 232, 216, 0.05)'
+const TILE_STROKE = 'rgba(244, 232, 216, 0.06)'
+const TILE_INK = 'rgba(244, 239, 233, 0.95)' // warm white, ≥4.5:1 on every tile intensity
+const TILE_INK_SOFT = 'rgba(244, 232, 216, 0.8)'
+
 function colorFor(pct) {
-  // Flat / unknown → neutral zinc, blends with site chrome
-  if (pct == null || !Number.isFinite(pct)) return 'oklch(0.28 0.005 250)'
+  // Flat / unknown → faint warm neutral that blends with the surface panels
+  if (pct == null || !Number.isFinite(pct)) return NEUTRAL_FILL
   const clamped = Math.max(-5, Math.min(5, pct))
+  if (Math.abs(clamped) < 0.05) return NEUTRAL_FILL
   const intensity = Math.min(1, Math.abs(clamped) / 4) // 0..1
-  if (Math.abs(clamped) < 0.05) return 'oklch(0.28 0.005 250)'
-  if (clamped >= 0) {
-    // muted emerald — low chroma so it harmonizes with zinc panels
-    const l = 0.30 + intensity * 0.14
-    const c = 0.025 + intensity * 0.075
-    return `oklch(${l.toFixed(3)} ${c.toFixed(3)} 165)`
-  }
-  // muted rose
-  const l = 0.30 + intensity * 0.13
-  const c = 0.030 + intensity * 0.090
-  return `oklch(${l.toFixed(3)} ${c.toFixed(3)} 22)`
+  // Graded opacity over the dark surface — never a pure saturated fill.
+  const alpha = 0.1 + intensity * 0.38
+  return `rgba(${clamped >= 0 ? UP_RGB : DOWN_RGB}, ${alpha.toFixed(3)})`
 }
 
 function HeatmapTooltip({ active, payload }) {
@@ -30,12 +31,12 @@ function HeatmapTooltip({ active, payload }) {
   const pct = d.changePercent
   const sign = pct >= 0 ? '+' : ''
   return (
-    <div className="glass-bar rounded-xl border border-white/10 px-3 py-2 text-xs shadow-[0_8px_24px_rgba(0,0,0,0.35)]">
-      <p className="text-sm font-semibold tracking-tight text-zinc-100">{d.symbol}</p>
-      <p className={`tabular-nums ${pct >= 0 ? 'text-emerald-300/90' : 'text-rose-300/90'}`}>
-        {sign}{pct.toFixed(2)}%
+    <div className="glass rounded-xl border border-line-strong px-3 py-2 text-xs shadow-2xl shadow-black/50">
+      <p className="num text-sm font-semibold text-ink">{d.symbol}</p>
+      <p className={`num ${pct >= 0 ? 'text-up' : 'text-down'}`}>
+        <span aria-hidden>{pct >= 0 ? '▲' : '▼'}</span> {sign}{pct.toFixed(2)}%
       </p>
-      {d.price != null ? <p className="tabular-nums text-zinc-400">${d.price.toFixed(2)}</p> : null}
+      {d.price != null ? <p className="num text-ink-3">${d.price.toFixed(2)}</p> : null}
     </div>
   )
 }
@@ -65,7 +66,7 @@ function HeatmapTile(props) {
         height={Math.max(0, height - 2)}
         rx={radius}
         ry={radius}
-        style={{ fill, stroke: 'rgba(255,255,255,0.06)', strokeWidth: 1 }}
+        style={{ fill, stroke: TILE_STROKE, strokeWidth: 1 }}
       />
       {showLabel && symbol ? (
         <foreignObject x={x} y={y} width={width} height={height} style={{ pointerEvents: 'none' }}>
@@ -80,8 +81,7 @@ function HeatmapTile(props) {
               justifyContent: 'center',
               gap: '2px',
               padding: '2px',
-              fontFamily:
-                'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, sans-serif',
+              fontFamily: '"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
               WebkitFontSmoothing: 'antialiased',
               MozOsxFontSmoothing: 'grayscale',
               userSelect: 'none',
@@ -89,7 +89,7 @@ function HeatmapTile(props) {
           >
             <div
               style={{
-                color: 'rgba(244,244,245,0.95)',
+                color: TILE_INK,
                 fontSize: `${symFs}px`,
                 fontWeight: 600,
                 letterSpacing: '0.01em',
@@ -101,7 +101,7 @@ function HeatmapTile(props) {
             {showPct && pct != null ? (
               <div
                 style={{
-                  color: 'rgba(228,228,231,0.78)',
+                  color: TILE_INK_SOFT,
                   fontSize: `${pctFs}px`,
                   fontWeight: 500,
                   fontVariantNumeric: 'tabular-nums',
@@ -158,19 +158,19 @@ export function MarketHeatmap() {
   }, [rows])
 
   if (loading) {
-    return <div className="glass-bar h-[440px] animate-pulse rounded-2xl border border-white/[0.08]" />
+    return <div className="skeleton h-[440px] rounded-xl" aria-busy aria-label="Loading heatmap" />
   }
   if (error) {
     return (
-      <div className="rounded-2xl border border-rose-500/20 bg-rose-500/5 p-4 text-sm text-rose-300">
+      <div className="rounded-xl border border-down/25 bg-down/5 p-4 text-sm text-down">
         {error}
       </div>
     )
   }
   if (!data.length) {
     return (
-      <div className="glass-bar rounded-2xl border border-white/[0.08] py-10 text-center text-sm text-zinc-500">
-        No heatmap data.
+      <div className="rounded-xl border border-line bg-surface-2 py-10 text-center text-sm text-ink-3">
+        No heatmap data yet.
       </div>
     )
   }
@@ -180,31 +180,31 @@ export function MarketHeatmap() {
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-[11px] text-zinc-500">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-[11px] text-ink-3">
         <div className="flex items-center gap-3">
           <span>S&amp;P 500 — top {data.length} by |% change|</span>
-          <span className="hidden h-3 w-px bg-white/10 sm:inline-block" />
-          <span className="hidden tabular-nums text-emerald-300/80 sm:inline">▲ {advancers}</span>
-          <span className="hidden tabular-nums text-rose-300/80 sm:inline">▼ {decliners}</span>
+          <span className="hidden h-3 w-px bg-line-strong sm:inline-block" aria-hidden />
+          <span className="num hidden text-up sm:inline">▲ {advancers}</span>
+          <span className="num hidden text-down sm:inline">▼ {decliners}</span>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <span className="tabular-nums">−4%</span>
-            <span className="flex h-2 overflow-hidden rounded-full ring-1 ring-white/10">
+            <span className="num">−4%</span>
+            <span className="flex h-2 overflow-hidden rounded-full border border-line" aria-hidden>
               {[-4, -2.5, -1, -0.25, 0.25, 1, 2.5, 4].map((p) => (
                 <span key={p} className="block w-3.5" style={{ background: colorFor(p) }} />
               ))}
             </span>
-            <span className="tabular-nums">+4%</span>
+            <span className="num">+4%</span>
           </div>
           {asOf ? (
-            <span className="tabular-nums">
+            <span className="num">
               as of {new Date(asOf).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </span>
           ) : null}
         </div>
       </div>
-      <div className="glass-bar h-[440px] w-full overflow-hidden rounded-2xl border border-white/[0.08] p-1.5">
+      <div className="h-[440px] w-full overflow-hidden rounded-xl border border-line bg-surface-2 p-1.5">
         <ResponsiveContainer width="100%" height="100%">
           <Treemap
             data={data}
@@ -214,7 +214,7 @@ export function MarketHeatmap() {
             content={<HeatmapTile onClick={(sym) => navigate(`/analysis/${sym}`)} />}
             isAnimationActive={false}
           >
-            <Tooltip content={<HeatmapTooltip />} cursor={{ fill: 'rgba(255,255,255,0.04)' }} />
+            <Tooltip content={<HeatmapTooltip />} cursor={{ fill: 'rgba(244, 232, 216, 0.04)' }} />
           </Treemap>
         </ResponsiveContainer>
       </div>

@@ -1,4 +1,4 @@
-import { ArrowUpRight, Loader2, Search, SlidersHorizontal } from 'lucide-react'
+import { ArrowUpRight, Loader2, RotateCcw, Search, SearchX, SlidersHorizontal } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { TableShell } from '../TableShell'
@@ -61,23 +61,33 @@ function fmtMktCap(n) {
   return `$${n.toLocaleString()}`
 }
 function PctCell({ value }) {
-  if (value == null) return <span className="text-zinc-500">—</span>
-  const color = value > 0 ? 'text-emerald-400' : value < 0 ? 'text-rose-400' : 'text-zinc-300'
-  return <span className={color}>{fmtPct(value)}</span>
+  if (value == null) return <span className="text-ink-3">—</span>
+  const color = value > 0 ? 'text-up' : value < 0 ? 'text-down' : 'text-ink-2'
+  const glyph = value > 0 ? '▲' : value < 0 ? '▼' : null
+  return (
+    <span className={color}>
+      {glyph ? (
+        <span aria-hidden className="mr-0.5 text-[9px] align-middle">
+          {glyph}
+        </span>
+      ) : null}
+      {fmtPct(value)}
+    </span>
+  )
 }
 
 function FilterInput({ label, value, onChange, placeholder }) {
   return (
-    <div className="flex flex-col gap-1">
-      <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">{label}</span>
+    <label className="block">
+      <span className="field-label">{label}</span>
       <input
         type="number"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder ?? '—'}
-        className="glass-input rounded-xl px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600"
+        className="input"
       />
-    </div>
+    </label>
   )
 }
 
@@ -103,7 +113,9 @@ export function ClassicScreener({ token }) {
         if (res.ok && json.filters && Object.keys(json.filters).length > 0) {
           setFilters((prev) => ({ ...prev, ...json.filters }))
         }
-      } catch {}
+      } catch {
+        // ignore — fall back to default filters
+      }
       setFiltersLoaded(true)
     }
     loadFilters()
@@ -144,7 +156,9 @@ export function ClassicScreener({ token }) {
         setSavedMsg('Filters saved.')
         setTimeout(() => setSavedMsg(null), 2500)
       }
-    } catch {}
+    } catch {
+      // ignore — save is best-effort
+    }
     setSaving(false)
   }, [filters, token])
 
@@ -152,8 +166,8 @@ export function ClassicScreener({ token }) {
 
   if (!filtersLoaded) {
     return (
-      <div className="flex items-center justify-center py-16 text-sm text-zinc-500">
-        <Loader2 className="mr-2 size-4 animate-spin" />
+      <div className="flex items-center justify-center py-16 text-sm text-ink-3">
+        <Loader2 className="mr-2 size-4 animate-spin" aria-hidden />
         Loading saved filters…
       </div>
     )
@@ -161,36 +175,38 @@ export function ClassicScreener({ token }) {
 
   return (
     <div className="space-y-4">
-      <section className="rounded-2xl border border-border-subtle bg-gradient-to-b from-surface-1/80 to-surface-1/55 shadow-xl shadow-black/20">
-        <div className="flex items-center justify-between gap-3 border-b border-border-subtle px-5 py-3.5">
+      <section className="panel">
+        <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3 sm:px-5">
           <div className="flex items-center gap-2">
-            <SlidersHorizontal className="size-4 text-zinc-400" />
-            <h2 className="text-sm font-semibold tracking-tight text-zinc-100">Filter criteria</h2>
+            <SlidersHorizontal className="size-4 text-ink-3" aria-hidden />
+            <h2 className="eyebrow">Filter criteria</h2>
           </div>
           <button
             type="button"
             onClick={handleReset}
-            className="text-xs text-zinc-500 hover:text-zinc-300 transition"
+            className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium text-ink-3 transition-colors duration-150 hover:text-ink outline-none focus-visible:ring-2 focus-visible:ring-ember/60"
           >
+            <RotateCcw className="size-3.5" aria-hidden />
             Reset
           </button>
         </div>
 
-        <div className="space-y-5 p-5">
+        <div className="space-y-5 panel-pad">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Exchange</span>
-              <div className="flex flex-wrap gap-1.5">
+            <div>
+              <span className="field-label" id="classic-exchange-label">Exchange</span>
+              <div className="flex flex-wrap gap-1.5" role="group" aria-labelledby="classic-exchange-label">
                 {EXCHANGES.map((ex) => (
                   <button
                     key={ex.id}
                     type="button"
                     onClick={() => setField('exchange')(ex.id)}
+                    aria-pressed={filters.exchange === ex.id}
                     className={[
-                      'rounded-lg px-3 py-1.5 text-xs font-medium transition',
+                      'rounded-lg border px-3 py-2 text-xs font-medium transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ember/60',
                       filters.exchange === ex.id
-                        ? 'bg-accent-muted text-accent ring-1 ring-accent/30'
-                        : 'border border-white/10 bg-white/[0.04] text-zinc-400 hover:bg-white/[0.08] hover:text-zinc-200',
+                        ? 'border-ember/30 bg-ember/10 text-flame'
+                        : 'border-line bg-surface-2 text-ink-2 hover:bg-surface-3 hover:text-ink',
                     ].join(' ')}
                   >
                     {ex.label}
@@ -198,20 +214,20 @@ export function ClassicScreener({ token }) {
                 ))}
               </div>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Sector</span>
+            <label className="block">
+              <span className="field-label">Sector</span>
               <select
                 value={filters.sector}
                 onChange={(e) => setField('sector')(e.target.value)}
-                className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-zinc-100 outline-none ring-accent/25 focus:border-accent/35 focus:ring-2"
+                className="select"
               >
                 {SECTORS.map((s) => (
-                  <option key={s.id} value={s.id} className="bg-neutral-900">
+                  <option key={s.id} value={s.id} className="bg-surface-2 text-ink">
                     {s.label}
                   </option>
                 ))}
               </select>
-            </div>
+            </label>
           </div>
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
@@ -229,83 +245,88 @@ export function ClassicScreener({ token }) {
               type="button"
               onClick={handleRun}
               disabled={running}
-              className="glass-btn--accent inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold disabled:opacity-60"
+              className="btn-primary"
             >
-              {running ? <Loader2 className="size-4 animate-spin" /> : <Search className="size-4" />}
+              {running ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Search className="size-4" aria-hidden />}
               {running ? 'Running…' : 'Run screener'}
             </button>
             <button
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-white/[0.08] hover:text-zinc-100 disabled:opacity-50"
+              className="btn-ghost"
             >
-              {saving ? <Loader2 className="size-4 animate-spin" /> : null}
+              {saving ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
               Save filters
             </button>
-            {savedMsg ? <span className="text-xs text-emerald-400">{savedMsg}</span> : null}
+            {savedMsg ? (
+              <span className="chip chip-up" role="status">{savedMsg}</span>
+            ) : null}
           </div>
         </div>
       </section>
 
       {runError ? (
-        <div className="rounded-2xl border border-rose-500/20 bg-rose-500/5 p-4 text-sm text-rose-300">
-          {runError}
+        <div className="rounded-[14px] border border-down/30 bg-down/10 p-4 text-sm text-down" role="alert">
+          {runError} — adjust the filters and run again.
         </div>
       ) : null}
 
       {results !== null ? (
         results.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-white/10 py-16 text-center">
-            <p className="text-sm font-medium text-zinc-400">No results matched your filters</p>
-            <p className="text-xs text-zinc-600">Try relaxing the criteria and running again.</p>
+          <div className="panel flex flex-col items-center gap-3 py-16 text-center">
+            <SearchX className="size-8 text-ink-3" aria-hidden />
+            <p className="text-sm text-ink-2">No results matched your filters — relax the criteria and run again.</p>
+            <button type="button" onClick={handleReset} className="btn-ghost">
+              Reset filters
+            </button>
           </div>
         ) : (
-          <TableShell
-            title={`Screener results (${results.length})`}
-            subtitle="Filtered from US-listed stocks via FMP"
-          >
-            <table className="min-w-full text-left text-sm">
-              <thead className="sticky top-0 bg-surface-1/80 text-[11px] uppercase tracking-wide text-zinc-500 backdrop-blur">
-                <tr className="border-b border-border-subtle">
-                  <th className="px-4 py-2.5 font-medium">Symbol</th>
-                  <th className="px-4 py-2.5 font-medium">Name</th>
-                  <th className="px-4 py-2.5 text-right font-medium">Price</th>
-                  <th className="px-4 py-2.5 text-right font-medium">Chg%</th>
-                  <th className="px-4 py-2.5 text-right font-medium">Volume</th>
-                  <th className="px-4 py-2.5 text-right font-medium">Mkt cap</th>
-                  <th className="px-4 py-2.5 font-medium">Exchange</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border-subtle/70">
-                {results.map((r) => (
-                  <tr
-                    key={r.symbol}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => navigate(`/analysis/${r.symbol}`)}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/analysis/${r.symbol}`) }}
-                    className="group cursor-pointer outline-none transition-colors hover:bg-white/5 focus-visible:bg-white/[0.04]"
-                  >
-                    <td className="px-4 py-2.5">
-                      <span className="inline-flex items-center gap-2 font-semibold text-zinc-100">
-                        {r.symbol}
-                        <ArrowUpRight className="size-3.5 opacity-0 transition group-hover:opacity-60" aria-hidden />
-                      </span>
-                    </td>
-                    <td className="max-w-[12rem] truncate px-4 py-2.5 text-zinc-400">{r.name || '—'}</td>
-                    <td className="px-4 py-2.5 text-right tabular-nums text-zinc-300">{fmtPrice(r.price)}</td>
-                    <td className="px-4 py-2.5 text-right tabular-nums">
-                      <PctCell value={r.changePercent} />
-                    </td>
-                    <td className="px-4 py-2.5 text-right tabular-nums text-zinc-400">{fmtVol(r.volume)}</td>
-                    <td className="px-4 py-2.5 text-right tabular-nums text-zinc-400">{fmtMktCap(r.marketCap)}</td>
-                    <td className="px-4 py-2.5 text-xs text-zinc-500">{r.exchange}</td>
+          <div className="rise">
+            <TableShell
+              title={`Screener results (${results.length})`}
+              subtitle="Filtered from US-listed stocks via FMP"
+            >
+              <table>
+                <thead>
+                  <tr>
+                    <th>Symbol</th>
+                    <th>Name</th>
+                    <th className="num">Price</th>
+                    <th className="num">Chg%</th>
+                    <th className="num">Volume</th>
+                    <th className="num">Mkt cap</th>
+                    <th>Exchange</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </TableShell>
+                </thead>
+                <tbody>
+                  {results.map((r) => (
+                    <tr
+                      key={r.symbol}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => navigate(`/analysis/${r.symbol}`)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/analysis/${r.symbol}`) }}
+                      className="group cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ember/60 focus-visible:ring-inset"
+                    >
+                      <td>
+                        <span className="num inline-flex items-center gap-2 font-semibold text-ink">
+                          {r.symbol}
+                          <ArrowUpRight className="size-3.5 text-ink-3 opacity-0 transition-opacity duration-150 group-hover:opacity-100" aria-hidden />
+                        </span>
+                      </td>
+                      <td className="max-w-[12rem] truncate">{r.name || '—'}</td>
+                      <td className="num text-ink">{fmtPrice(r.price)}</td>
+                      <td className="num"><PctCell value={r.changePercent} /></td>
+                      <td className="num">{fmtVol(r.volume)}</td>
+                      <td className="num">{fmtMktCap(r.marketCap)}</td>
+                      <td className="text-xs text-ink-3">{r.exchange}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </TableShell>
+          </div>
         )
       ) : null}
     </div>

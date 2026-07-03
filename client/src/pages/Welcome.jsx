@@ -1,50 +1,56 @@
-import { ArrowRight, BarChart3, FlaskConical, Grid3x3, HelpCircle, Layers, LineChart, Mail, Package, Sparkles } from 'lucide-react'
+import {
+  ArrowRight,
+  Bell,
+  HelpCircle,
+  Layers,
+  LineChart,
+  Mail,
+  Package,
+  PieChart,
+  Radar,
+} from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { RevealOnScroll } from '../components/RevealOnScroll'
 import { WelcomeAuthModal } from '../components/WelcomeAuthModal'
 import { WelcomeMarketingNav } from '../components/WelcomeMarketingNav'
-import { EmberParticles } from '../components/EmberParticles'
-import { WelcomeFireSpiritQA } from '../components/WelcomeFireSpiritQA'
+import { EmberMark } from '../components/EmberLogo'
 import { useAuth } from '../context/AuthContext'
-import { useEmberBurst } from '../lib/useEmberBurst'
 import { getDefaultLanding } from '../lib/prefs'
 
-const OFFERINGS = [
+const CAPABILITIES = [
   {
-    metric: '3+',
-    label: 'Backtest engines',
-    detail: 'SMA, VWAP regime, and intraday opening-range logic—benchmarked vs buy & hold.',
-    icon: FlaskConical,
+    icon: Radar,
+    title: 'Screener',
+    detail:
+      'Ranks the S&P 500 by momentum, trend, and liquidity with tunable factor weights. Earnings-week flags and a local cache keep re-runs instant.',
   },
   {
-    metric: '500',
-    label: 'S&P breadth pulse',
-    detail: 'Live % above the 200-day and regime context so you know when risk is stretched.',
-    icon: BarChart3,
+    icon: Bell,
+    title: 'Alerts',
+    detail:
+      'Price levels, VWAP crosses, opening-range breakouts, and earnings days. Conditions are checked server-side, so alerts fire even with the tab closed.',
   },
   {
-    metric: '11',
-    label: 'Sector lenses',
-    detail: 'SPDR strength, related movers, and predictive widgets for rotation.',
-    icon: Grid3x3,
+    icon: PieChart,
+    title: 'Portfolio',
+    detail:
+      'Enter shares and average cost — no brokerage link. Live market value, gain/loss, daily move, and an allocation breakdown update as prices tick.',
   },
   {
-    metric: '∞',
-    label: 'Chart workspace',
-    detail: 'TradingView-grade charts, VWAP studies, and a command bar to jump anywhere fast.',
     icon: LineChart,
+    title: 'Live markets',
+    detail:
+      'Streaming quotes, market breadth (% above the 200-day), sector rotation, and full charting with VWAP studies. ⌘K jumps anywhere.',
   },
 ]
 
-function PersistentEmberBackdrop() {
-  return (
-    <div className="welcome-persistent-backdrop pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden>
-      <div className="welcome-persistent-backdrop__glow" />
-      <EmberParticles density={18} />
-    </div>
-  )
-}
+const STATS = [
+  { value: '500', label: 'S&P constituents screened' },
+  { value: '15s', label: 'Quote refresh interval' },
+  { value: '11', label: 'Sector lenses' },
+  { value: '3', label: 'Backtest engines' },
+]
 
 /**
  * @param {{ redirectIfAuthenticated?: boolean }} props
@@ -58,19 +64,16 @@ export function Welcome({ redirectIfAuthenticated = true }) {
   const [searchParams, setSearchParams] = useSearchParams()
   const [authOpen, setAuthOpen] = useState(false)
   const [authMode, setAuthMode] = useState('signup')
-  const triggerBurst = useEmberBurst()
 
-  const openSignup = useCallback((event) => {
-    if (event) triggerBurst(event)
+  const openSignup = useCallback(() => {
     setAuthMode('signup')
     setAuthOpen(true)
-  }, [triggerBurst])
+  }, [])
 
-  const openSignin = useCallback((event) => {
-    if (event) triggerBurst(event)
+  const openSignin = useCallback(() => {
     setAuthMode('signin')
     setAuthOpen(true)
-  }, [triggerBurst])
+  }, [])
 
   useEffect(() => {
     if (searchParams.get('signin') === '1') {
@@ -96,8 +99,17 @@ export function Welcome({ redirectIfAuthenticated = true }) {
   }
 
   return (
-    <div className="relative min-h-dvh bg-surface-0 text-zinc-200 antialiased">
-      <PersistentEmberBackdrop />
+    <div className="relative min-h-dvh overflow-x-clip bg-bg text-ink antialiased">
+      {/* One ambient ember glow — fixed, cheap to render, no JS */}
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 z-0"
+        style={{
+          background:
+            'radial-gradient(56rem 38rem at 50% -12%, rgba(255,107,44,0.07), transparent 70%)',
+        }}
+      />
+
       <WelcomeMarketingNav onSignIn={openSignin} onGetStarted={openSignup} />
 
       <WelcomeAuthModal
@@ -107,157 +119,145 @@ export function Welcome({ redirectIfAuthenticated = true }) {
         onSwitchMode={(m) => setAuthMode(m)}
       />
 
-      {/* Hero — centered, flows directly into details below */}
-      <section className="relative flex min-h-[calc(100dvh-7.5rem)] flex-col">
-        <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 pb-16 pt-10 sm:px-6 sm:pb-20 sm:pt-14">
-          <div className="welcome-hero-fade flex max-w-lg flex-col items-center text-center">
-            <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-zinc-500">
-              <Sparkles className="size-3.5 text-accent" aria-hidden />
-              Markets workspace
-            </p>
-            <h1 className="text-balance text-3xl font-semibold leading-tight tracking-tight text-zinc-50 sm:text-4xl md:text-5xl">
-              The market, made clear.
-            </h1>
-            <p className="mt-5 max-w-md text-pretty text-sm leading-relaxed text-zinc-500 sm:text-base">
-              Charts, alerts, and backtests in one calm workspace.
-            </p>
-            <button
-              type="button"
-              onClick={openSignup}
-              className="glass-btn--accent ember-cta mt-10 inline-flex items-center justify-center gap-2 rounded-full px-8 py-3 text-sm font-semibold"
-            >
-              Create account
-              <ArrowRight className="size-4 opacity-80" aria-hidden />
+      {/* Hero */}
+      <section className="relative z-10 flex min-h-[calc(100dvh-4rem)] flex-col">
+        <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center px-4 pb-20 pt-14 text-center sm:px-6">
+          <p className="eyebrow rise">Ember Finance · Market terminal</p>
+          <h1
+            className="display rise rise-1 mt-4 max-w-3xl text-balance text-4xl sm:text-6xl"
+            style={{ fontStretch: '118%' }}
+          >
+            The market, read in one dark terminal.
+          </h1>
+          <div className="ember-rule rise rise-2 mt-7 w-40" aria-hidden />
+          <p className="rise rise-3 mt-6 max-w-prose text-pretty text-base leading-relaxed text-ink-2 sm:text-lg">
+            Live quotes, a factor screener, server-side alerts, and portfolio tracking —
+            in one place, without a dozen tabs.
+          </p>
+          <div className="rise rise-4 mt-9 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row">
+            <button type="button" onClick={openSignup} className="btn-primary h-12 w-full px-7 text-base sm:w-auto">
+              Open the terminal
+              <ArrowRight className="size-4" aria-hidden />
             </button>
-            <p className="mt-3 text-center text-xs text-zinc-600">No card required · Free to sign up</p>
+            <button type="button" onClick={openSignin} className="btn-ghost h-12 w-full px-7 text-base sm:w-auto">
+              Sign in
+            </button>
           </div>
+          <p className="rise rise-5 mt-4 text-xs text-ink-3">Free account · No card, no brokerage link</p>
+
+          <dl className="rise rise-6 mt-16 grid w-full max-w-3xl grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-4">
+            {STATS.map((s) => (
+              <div key={s.label} className="flex flex-col items-center gap-1.5">
+                <dd className="num order-1 text-2xl font-semibold text-ink sm:text-3xl">{s.value}</dd>
+                <dt className="eyebrow order-2 text-center normal-case tracking-normal text-[11px]">{s.label}</dt>
+              </div>
+            ))}
+          </dl>
         </div>
       </section>
 
+      {/* What the platform actually does */}
       <section id="details" className="relative z-10 scroll-mt-16 py-20 sm:py-28">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6">
-          <RevealOnScroll repeat>
-            <div className="mx-auto max-w-2xl text-center">
-              <h2 className="text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">
-                Everything you need to decide
-              </h2>
-              <p className="mt-4 text-sm leading-relaxed text-zinc-500 sm:text-base">
-                A focused workspace for reading the market, tracking positions, and stress-testing ideas.
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <RevealOnScroll>
+            <header className="max-w-2xl">
+              <p className="eyebrow">Platform · What it does</p>
+              <h2 className="display mt-3 text-2xl sm:text-3xl">Four tools, one screen</h2>
+              <p className="mt-4 max-w-prose text-base leading-relaxed text-ink-2">
+                Everything runs on live U.S. market data. Nothing to install, nothing to link.
               </p>
-            </div>
+              <div className="ember-rule mt-6" aria-hidden />
+            </header>
           </RevealOnScroll>
 
-          <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {OFFERINGS.map((item, i) => {
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {CAPABILITIES.map((item, i) => {
               const Icon = item.icon
               return (
-                <RevealOnScroll key={item.label} delayMs={i * 90} repeat>
-                  <article
-                    className="heat-card group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-neutral-950/50 p-5 shadow-[0_4px_28px_-10px_rgba(0,0,0,0.6)] transition duration-300 hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_12px_40px_-16px_rgba(0,0,0,0.65)]"
-                    onMouseMove={(e) => {
-                      const rect = e.currentTarget.getBoundingClientRect()
-                      e.currentTarget.style.setProperty('--cursor-x', `${e.clientX - rect.left}px`)
-                      e.currentTarget.style.setProperty('--cursor-y', `${e.clientY - rect.top}px`)
-                    }}
-                  >
-                    <div className="pointer-events-none absolute -right-10 -top-10 size-36 rounded-full bg-accent/10 blur-2xl transition duration-500 group-hover:bg-accent/18" />
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="flex size-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-accent">
-                        <Icon className="size-5" strokeWidth={2} aria-hidden />
-                      </span>
-                      <span className="font-mono text-2xl font-semibold tabular-nums tracking-tight text-zinc-100 sm:text-3xl">
-                        {item.metric}
-                      </span>
-                    </div>
-                    <h3 className="mt-5 text-sm font-semibold tracking-tight text-zinc-100">{item.label}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-zinc-500">{item.detail}</p>
+                <RevealOnScroll key={item.title} delayMs={i * 80}>
+                  <article className="panel panel-hover panel-pad h-full">
+                    <span className="flex size-10 items-center justify-center rounded-xl border border-ember/25 bg-ember/10 text-flame">
+                      <Icon className="size-5" strokeWidth={2} aria-hidden />
+                    </span>
+                    <h3 className="font-display mt-4 text-base font-semibold text-ink">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-ink-2">{item.detail}</p>
                   </article>
                 </RevealOnScroll>
               )
             })}
           </div>
 
-          <RevealOnScroll delayMs={120} repeat>
-            <div className="mt-16 flex flex-col items-center justify-between gap-5 rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-9 sm:flex-row sm:px-10">
-              <div className="text-center sm:text-left">
-                <p className="text-sm font-medium text-zinc-200">Ready to open the workspace?</p>
-                <p className="mt-1 text-sm text-zinc-500">Sign in or create an account—then the full app unlocks.</p>
-              </div>
-              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
-                <button
-                  type="button"
-                  onClick={openSignin}
-                  className="glass-btn ember-cta inline-flex flex-1 items-center justify-center rounded-xl px-5 py-2.5 text-sm font-medium text-zinc-200 sm:flex-initial"
-                >
-                  Sign in
-                </button>
-                <button
-                  type="button"
-                  onClick={openSignup}
-                  className="glass-btn--accent ember-cta inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold sm:flex-initial"
-                >
-                  Get started
-                  <ArrowRight className="size-4" aria-hidden />
-                </button>
+          <RevealOnScroll delayMs={120}>
+            <div className="panel mt-14 overflow-hidden">
+              <div className="ember-rule" aria-hidden />
+              <div className="flex flex-col items-center justify-between gap-5 px-6 py-8 sm:flex-row sm:px-10">
+                <div className="text-center sm:text-left">
+                  <p className="font-display text-base font-semibold text-ink">Ready to open the terminal?</p>
+                  <p className="mt-1 text-sm text-ink-2">Sign in or create an account — the full app unlocks immediately.</p>
+                </div>
+                <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                  <button type="button" onClick={openSignin} className="btn-ghost h-11 flex-1 px-5 sm:flex-initial">
+                    Sign in
+                  </button>
+                  <button type="button" onClick={openSignup} className="btn-primary h-11 flex-1 px-5 sm:flex-initial">
+                    Get started
+                    <ArrowRight className="size-4" aria-hidden />
+                  </button>
+                </div>
               </div>
             </div>
           </RevealOnScroll>
 
-          <RevealOnScroll repeat className="mt-12 text-center">
+          <RevealOnScroll className="mt-10 text-center">
             <Link
               to="/products"
-              className="text-sm font-medium text-accent/90 underline-offset-4 hover:text-accent hover:underline"
+              className="text-sm font-medium text-flame underline-offset-4 hover:underline"
             >
-              Explore product overview →
+              See the full product overview →
             </Link>
           </RevealOnScroll>
         </div>
       </section>
 
-      <WelcomeFireSpiritQA />
-
-      <footer className="relative z-10 overflow-hidden border-t border-white/[0.06]">
-        <div className="pointer-events-none absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" aria-hidden />
+      {/* Footer */}
+      <footer className="relative z-10 border-t border-line">
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <div className="lg:col-span-2">
               <div className="flex items-center gap-2.5">
-                <span className="flex size-9 items-center justify-center rounded-xl border border-accent/20 bg-accent/[0.06] text-accent shadow-[inset_0_0_18px_-4px_oklch(0.55_0.20_35_/0.45)]">
-                  <Sparkles className="size-4" aria-hidden />
+                <EmberMark size={36} />
+                <span className="font-display text-base font-bold text-ink" style={{ fontStretch: '112%' }}>
+                  Ember Finance
                 </span>
-                <span className="text-base font-semibold tracking-tight text-zinc-100">Ember Finances</span>
               </div>
-              <p className="mt-4 max-w-md text-sm leading-relaxed text-zinc-500">
-                A focused workspace for reading the market, tracking positions, and stress-testing trading
+              <p className="mt-4 max-w-md text-sm leading-relaxed text-ink-2">
+                A terminal for reading the market, tracking positions, and testing trading
                 ideas. Built for clarity, not clutter.
               </p>
-              <a
-                href="mailto:support@emberfinances.com"
-                className="mt-5 inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3.5 py-2 text-[13px] font-medium text-zinc-200 transition hover:border-accent/30 hover:bg-white/[0.06] hover:text-accent"
-              >
+              <a href="mailto:support@emberfinances.com" className="btn-ghost mt-5 h-11 px-4 text-[13px]">
                 <Mail className="size-3.5 opacity-80" aria-hidden />
                 support@emberfinances.com
               </a>
             </div>
 
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Explore</p>
+              <p className="eyebrow">Explore</p>
               <ul className="mt-4 space-y-2.5 text-sm">
                 <li>
-                  <Link to="/products" className="group inline-flex items-center gap-2 text-zinc-400 transition hover:text-accent">
-                    <Package className="size-3.5 opacity-60 transition group-hover:opacity-100" aria-hidden />
+                  <Link to="/products" className="group inline-flex items-center gap-2 py-1 text-ink-2 transition-colors duration-150 hover:text-flame">
+                    <Package className="size-3.5 opacity-60 transition-opacity duration-150 group-hover:opacity-100" aria-hidden />
                     Products
                   </Link>
                 </li>
                 <li>
-                  <Link to="/solutions" className="group inline-flex items-center gap-2 text-zinc-400 transition hover:text-accent">
-                    <Layers className="size-3.5 opacity-60 transition group-hover:opacity-100" aria-hidden />
+                  <Link to="/solutions" className="group inline-flex items-center gap-2 py-1 text-ink-2 transition-colors duration-150 hover:text-flame">
+                    <Layers className="size-3.5 opacity-60 transition-opacity duration-150 group-hover:opacity-100" aria-hidden />
                     Solutions
                   </Link>
                 </li>
                 <li>
-                  <Link to="/faq" className="group inline-flex items-center gap-2 text-zinc-400 transition hover:text-accent">
-                    <HelpCircle className="size-3.5 opacity-60 transition group-hover:opacity-100" aria-hidden />
+                  <Link to="/faq" className="group inline-flex items-center gap-2 py-1 text-ink-2 transition-colors duration-150 hover:text-flame">
+                    <HelpCircle className="size-3.5 opacity-60 transition-opacity duration-150 group-hover:opacity-100" aria-hidden />
                     FAQ
                   </Link>
                 </li>
@@ -265,21 +265,21 @@ export function Welcome({ redirectIfAuthenticated = true }) {
             </div>
 
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Legal</p>
+              <p className="eyebrow">Legal</p>
               <ul className="mt-4 space-y-2.5 text-sm">
-                <li><Link to="/privacy" className="text-zinc-400 transition hover:text-accent">Privacy Policy</Link></li>
-                <li><Link to="/terms" className="text-zinc-400 transition hover:text-accent">Terms of Service</Link></li>
-                <li><Link to="/disclaimer" className="text-zinc-400 transition hover:text-accent">Disclaimer</Link></li>
-                <li><Link to="/cookies" className="text-zinc-400 transition hover:text-accent">Cookie Policy</Link></li>
+                <li><Link to="/privacy" className="inline-block py-1 text-ink-2 transition-colors duration-150 hover:text-flame">Privacy Policy</Link></li>
+                <li><Link to="/terms" className="inline-block py-1 text-ink-2 transition-colors duration-150 hover:text-flame">Terms of Service</Link></li>
+                <li><Link to="/disclaimer" className="inline-block py-1 text-ink-2 transition-colors duration-150 hover:text-flame">Disclaimer</Link></li>
+                <li><Link to="/cookies" className="inline-block py-1 text-ink-2 transition-colors duration-150 hover:text-flame">Cookie Policy</Link></li>
               </ul>
             </div>
           </div>
 
-          <div className="mt-12 flex flex-col items-center gap-2 border-t border-white/[0.05] pt-6 text-center sm:flex-row sm:justify-between sm:text-left">
-            <p className="text-xs text-zinc-600">
-              © {new Date().getFullYear()} Ember Finances · For informational purposes only — not investment advice.
+          <div className="mt-12 flex flex-col items-center gap-2 border-t border-line pt-6 text-center sm:flex-row sm:justify-between sm:text-left">
+            <p className="text-xs text-ink-3">
+              © {new Date().getFullYear()} Ember Finance · For informational purposes only — not investment advice.
             </p>
-            <p className="text-[11px] text-zinc-700">Market data by Financial Modeling Prep</p>
+            <p className="text-[11px] text-ink-3">Market data by Financial Modeling Prep</p>
           </div>
         </div>
       </footer>

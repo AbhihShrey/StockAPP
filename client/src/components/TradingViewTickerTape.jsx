@@ -9,7 +9,7 @@ export function TradingViewTickerTape() {
   const ref = useRef(null)
   const theme = useChartTheme()
   const isLight = theme === 'light'
-  const bg = isLight ? '#ffffff' : '#131722'
+  const bg = isLight ? '#ffffff' : 'rgba(0, 0, 0, 0)'
 
   useEffect(() => {
     const root = ref.current
@@ -41,7 +41,7 @@ export function TradingViewTickerTape() {
         ],
         colorTheme: isLight ? 'light' : 'dark',
         displayMode: 'regular',
-        isTransparent: false,
+        isTransparent: true,
         backgroundColor: bg,
         showSymbolLogo: true,
         locale: 'en',
@@ -61,10 +61,7 @@ export function TradingViewTickerTape() {
   }, [uid, isLight, bg])
 
   return (
-    <div
-      className="overflow-hidden rounded-xl border border-white/[0.06]"
-      style={{ backgroundColor: bg }}
-    >
+    <div className="panel overflow-hidden">
       <div
         ref={ref}
         id={`tv-ticker-tape-${uid}`}

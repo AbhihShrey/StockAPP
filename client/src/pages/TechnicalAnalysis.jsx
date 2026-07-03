@@ -4,7 +4,6 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { AnalystCoveragePanel } from '../components/AnalystCoveragePanel'
 import { ChartExpandModal } from '../components/ChartExpandModal'
 import { FundamentalsPanel } from '../components/FundamentalsPanel'
-import { MagneticButton } from '../components/MagneticButton'
 import { TradingViewAdvancedChart } from '../components/TradingViewAdvancedChart'
 import { TradingViewSymbolOverviewSimple } from '../components/TradingViewSymbolOverviewSimple'
 import { TradingViewTickerTape } from '../components/TradingViewTickerTape'
@@ -45,7 +44,7 @@ function loadStoredCompareSymbols() {
 }
 
 function saveStoredCompareSymbols(symbols) {
-  try { window.localStorage.setItem(COMPARE_SYMBOLS_KEY, JSON.stringify(symbols)) } catch {}
+  try { window.localStorage.setItem(COMPARE_SYMBOLS_KEY, JSON.stringify(symbols)) } catch { /* ignore */ }
 }
 
 function MiniChartCard({ ticker, score, onExpand, refreshKey }) {
@@ -66,15 +65,15 @@ function MiniChartCard({ ticker, score, onExpand, refreshKey }) {
       tabIndex={0}
       onClick={() => onExpand(ticker)}
       onKeyDown={onKey}
-      className="glass-bar card-hover group cursor-pointer rounded-xl border border-white/[0.08] p-3 shadow-lg shadow-black/40 outline-none transition hover:border-sky-500/55 hover:shadow-sky-500/10 focus-visible:ring-2 focus-visible:ring-sky-500/50"
+      className="panel panel-hover group cursor-pointer p-3 outline-none focus-visible:ring-2 focus-visible:ring-ember/60"
     >
       <div className="mb-1.5 flex items-start justify-between gap-2">
-        <p className="text-sm font-semibold tracking-tight text-zinc-100">{ticker}</p>
+        <p className="num text-sm font-semibold text-ink">{ticker}</p>
         {showScore ? (
           <div className="text-right">
-            <p className="text-[11px] text-zinc-500">
+            <p className="text-[11px] text-ink-3">
               Score{' '}
-              <span className="font-mono text-sm font-semibold tabular-nums text-zinc-200">
+              <span className="num text-sm font-semibold text-ink-2">
                 {score != null && Number.isFinite(score) ? score : '—'}
               </span>
             </p>
@@ -187,19 +186,19 @@ function QuickComparePanel({ symbols, routeTicker, onExpand, refreshKey, token, 
     return (
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-zinc-200">Quick compare</h2>
+          <h2 className="text-sm font-semibold text-ink">Quick compare</h2>
           <button
             type="button"
             onClick={enterEdit}
             title="Configure quick compare"
             aria-label="Configure quick compare"
-            className="rounded-lg p-1.5 text-zinc-500 transition hover:bg-white/5 hover:text-zinc-200"
+            className="rounded-lg p-1.5 text-ink-3 transition-colors duration-200 hover:bg-surface-3 hover:text-ink outline-none focus-visible:ring-2 focus-visible:ring-ember/60"
           >
             <Settings className="size-4" />
           </button>
         </div>
         {visible.length === 0 ? (
-          <p className="rounded-xl border border-border-subtle bg-surface-1/40 px-4 py-6 text-center text-xs text-zinc-500">
+          <p className="panel px-4 py-6 text-center text-xs text-ink-3">
             No symbols configured. Click the gear icon to add some.
           </p>
         ) : (
@@ -216,16 +215,16 @@ function QuickComparePanel({ symbols, routeTicker, onExpand, refreshKey, token, 
   return (
     <section className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-zinc-200">Quick compare — edit</h2>
+        <h2 className="text-sm font-semibold text-ink">Quick compare — edit</h2>
         <button
           type="button"
           onClick={resetToDefaults}
-          className="text-xs text-zinc-400 underline-offset-4 transition hover:text-zinc-200 hover:underline"
+          className="text-xs text-ink-2 underline-offset-4 transition-colors duration-150 hover:text-ink hover:underline outline-none focus-visible:ring-2 focus-visible:ring-ember/60 rounded"
         >
           <RotateCcw className="mr-1 inline size-3" /> Reset to defaults
         </button>
       </div>
-      <div className="rounded-2xl border border-border-subtle bg-surface-1/40 p-4">
+      <div className="panel panel-pad">
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {draft.map((sym, i) => {
             const upper = sym.trim().toUpperCase()
@@ -234,20 +233,20 @@ function QuickComparePanel({ symbols, routeTicker, onExpand, refreshKey, token, 
               <div
                 key={i}
                 className={[
-                  'flex items-center gap-1.5 rounded-lg border bg-surface-0/40 px-2 py-1.5 transition',
-                  isInvalid ? 'border-rose-500/40' : 'border-white/10 focus-within:border-accent/40',
+                  'flex items-center gap-1.5 rounded-lg border bg-surface-2 px-2 py-1.5 transition-colors duration-150',
+                  isInvalid ? 'border-down/40' : 'border-line focus-within:border-ember/40',
                 ].join(' ')}
               >
-                <span className="w-5 shrink-0 text-center text-[10px] font-medium text-zinc-600">{i + 1}</span>
+                <span className="num w-5 shrink-0 text-center text-[10px] font-medium text-ink-3">{i + 1}</span>
                 <input
                   value={sym}
                   onChange={(e) => updateSlot(i, e.target.value)}
                   placeholder="SYMBOL"
                   maxLength={12}
-                  className="min-w-0 flex-1 bg-transparent font-mono text-sm uppercase text-zinc-100 outline-none placeholder:text-zinc-600"
+                  className="num min-w-0 flex-1 bg-transparent text-sm uppercase text-ink outline-none placeholder:text-ink-3"
                 />
                 {isInvalid && (
-                  <AlertTriangle className="size-3.5 shrink-0 text-rose-400" aria-label={`${upper} not found`} />
+                  <AlertTriangle className="size-3.5 shrink-0 text-down" aria-label={`${upper} not found`} />
                 )}
                 {sym && (
                   <button
@@ -255,7 +254,7 @@ function QuickComparePanel({ symbols, routeTicker, onExpand, refreshKey, token, 
                     onClick={() => clearSlot(i)}
                     title="Clear slot"
                     aria-label="Clear slot"
-                    className="rounded p-0.5 text-zinc-500 transition hover:bg-white/5 hover:text-zinc-200"
+                    className="rounded p-0.5 text-ink-3 transition-colors duration-150 hover:bg-surface-3 hover:text-ink outline-none focus-visible:ring-2 focus-visible:ring-ember/60"
                   >
                     <X className="size-3.5" />
                   </button>
@@ -268,7 +267,7 @@ function QuickComparePanel({ symbols, routeTicker, onExpand, refreshKey, token, 
           <button
             type="button"
             onClick={cancel}
-            className="text-xs text-zinc-400 transition hover:text-zinc-200"
+            className="btn-ghost"
           >
             Cancel
           </button>
@@ -276,7 +275,7 @@ function QuickComparePanel({ symbols, routeTicker, onExpand, refreshKey, token, 
             type="button"
             onClick={save}
             disabled={validating}
-            className="glass-btn--accent rounded-lg px-4 py-2 text-xs font-semibold disabled:opacity-60"
+            className="btn-primary"
           >
             {validating ? 'Saving…' : 'Save'}
           </button>
@@ -362,52 +361,70 @@ export function TechnicalAnalysis() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <header className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-100 sm:text-3xl">Charts</h1>
-        </header>
+      <header className="rise flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="eyebrow">{routeTicker ? `Charts · ${routeTicker}` : 'Charts'}</p>
+          <h1 className="display mt-1 text-2xl sm:text-3xl">
+            {routeTicker ? (
+              <>
+                <span className="num">{routeTicker}</span>
+                {currentPrice != null ? (
+                  <span className="num ml-3 text-ink-2">
+                    ${currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                ) : null}
+              </>
+            ) : (
+              'Charts'
+            )}
+          </h1>
+        </div>
         <button
           type="button"
           onClick={() => {
             loadChartsUniverse()
             setRefreshKey((k) => k + 1)
           }}
-          className="inline-flex shrink-0 items-center justify-center gap-2 self-start rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-white/10 hover:text-white"
+          className="btn-ghost shrink-0 self-start"
         >
           <RefreshCw className="size-4" aria-hidden />
           Refresh
         </button>
-      </div>
+      </header>
 
-      <TradingViewTickerTape />
+      <div className="ember-rule" aria-hidden />
+
+      <div className="rise rise-2">
+        <TradingViewTickerTape />
+      </div>
 
       <form
         onSubmit={onSubmit}
-        className="flex flex-col gap-3 rounded-2xl border border-border-subtle bg-surface-1/60 p-4 shadow-xl shadow-black/20 backdrop-blur-sm sm:flex-row sm:items-center"
+        className="rise rise-3 panel panel-pad flex flex-col gap-3 sm:flex-row sm:items-center"
       >
         <div className="relative min-w-0 flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-500" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-3" />
           <input
             value={input}
             onChange={(e) => setInput(e.target.value.toUpperCase())}
             placeholder="Enter ticker (e.g. AAPL)"
-            className="w-full rounded-xl border border-border-subtle bg-surface-0/40 py-2.5 pl-10 pr-4 font-mono text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:border-white/15"
+            className="input num pl-10 uppercase"
             maxLength={12}
             aria-label="Stock ticker symbol"
           />
         </div>
         <div className="flex shrink-0 gap-2">
-          <MagneticButton
+          <button
             type="submit"
-            className="glass-btn--accent rounded-xl px-4 py-2.5 text-sm font-semibold"
+            className="btn-primary"
           >
             Load chart
-          </MagneticButton>
+          </button>
           {showMainChart ? (
             <button
               type="button"
               onClick={() => navigate('/charts')}
-              className="glass-btn rounded-xl px-4 py-2.5 text-sm font-medium"
+              className="btn-ghost"
             >
               Overview
             </button>
@@ -416,13 +433,13 @@ export function TechnicalAnalysis() {
       </form>
 
       {showMainChart ? (
-        <section className="space-y-3">
+        <section className="rise rise-4 space-y-3">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <h2 className="sr-only">Primary chart — {routeTicker}</h2>
-            <label className="flex cursor-pointer items-center gap-2 text-xs text-zinc-400">
+            <label className="flex cursor-pointer items-center gap-2 text-xs text-ink-2">
               <input
                 type="checkbox"
-                className="rounded border-border-subtle bg-surface-0/40"
+                className="rounded border-line bg-surface-2 accent-ember"
                 checked={showVwapStudy}
                 onChange={(e) => setShowVwapStudy(e.target.checked)}
               />
@@ -441,18 +458,22 @@ export function TechnicalAnalysis() {
       ) : null}
 
       {showMainChart ? (
-        <FundamentalsPanel symbol={routeTicker} />
+        <div className="rise rise-5">
+          <FundamentalsPanel symbol={routeTicker} />
+        </div>
       ) : null}
 
       {showMainChart ? (
-        <AnalystCoveragePanel symbol={routeTicker} currentPrice={currentPrice} />
+        <div className="rise rise-6">
+          <AnalystCoveragePanel symbol={routeTicker} currentPrice={currentPrice} />
+        </div>
       ) : null}
 
       {!showMainChart ? (
-        <section className="space-y-3">
+        <section className="rise rise-4 space-y-3">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {gridRows.length === 0 ? (
-              <p className="col-span-full py-8 text-center text-sm text-zinc-500">
+              <p className="col-span-full py-8 text-center text-sm text-ink-3">
                 No screener tickers yet — check the API or try refresh.
               </p>
             ) : (
@@ -469,14 +490,16 @@ export function TechnicalAnalysis() {
           </div>
         </section>
       ) : (
-        <QuickComparePanel
-          symbols={compareSymbols}
-          routeTicker={routeTicker}
-          onExpand={setExpandTicker}
-          refreshKey={refreshKey}
-          token={token}
-          onSave={setCompareSymbols}
-        />
+        <div className="rise rise-7">
+          <QuickComparePanel
+            symbols={compareSymbols}
+            routeTicker={routeTicker}
+            onExpand={setExpandTicker}
+            refreshKey={refreshKey}
+            token={token}
+            onSave={setCompareSymbols}
+          />
+        </div>
       )}
 
       <ChartExpandModal

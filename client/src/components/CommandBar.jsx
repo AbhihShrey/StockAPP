@@ -43,9 +43,7 @@ export function CommandBar({ items }) {
     const query = normalize(q).toLowerCase()
     const base = Array.isArray(items) ? items : []
     if (!query) return base.slice(0, 8)
-    return base
-      .filter((it) => it.label.toLowerCase().includes(query))
-      .slice(0, 8)
+    return base.filter((it) => it.label.toLowerCase().includes(query)).slice(0, 8)
   }, [items, q])
 
   const tickerAction = useMemo(() => {
@@ -60,11 +58,12 @@ export function CommandBar({ items }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="hidden w-full max-w-[38rem] items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-left text-sm text-zinc-400 hover:bg-white/10 lg:flex"
+        className="hidden w-full max-w-[38rem] items-center gap-2 rounded-lg border border-line bg-surface-2 px-3 py-2 text-left text-sm text-ink-3 transition-colors duration-200 hover:border-line-strong hover:text-ink-2 focus-visible:ring-2 focus-visible:ring-ember/60 outline-none lg:flex"
         aria-label="Open command bar"
       >
         <Search className="size-4 opacity-70" aria-hidden />
         <span className="flex-1">Jump to page…</span>
+        <span className="kbd">⌘K</span>
       </button>
     )
   }
@@ -77,17 +76,17 @@ export function CommandBar({ items }) {
         onClick={() => setOpen(false)}
         aria-label="Close command bar"
       />
-      <div className="glass-bar absolute left-1/2 top-20 w-[min(46rem,92vw)] -translate-x-1/2 overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
-        <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
-          <Search className="size-4 text-zinc-500" aria-hidden />
+      <div className="glass absolute left-1/2 top-20 w-[min(46rem,92vw)] -translate-x-1/2 overflow-hidden rounded-[14px] border border-line-strong shadow-2xl shadow-black/60">
+        <div className="flex items-center gap-2 border-b border-line px-4 py-3">
+          <Search className="size-4 text-ink-3" aria-hidden />
           <input
             ref={inputRef}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Jump to a page or ticker (AAPL)…"
-            className="w-full bg-transparent text-sm text-zinc-200 outline-none placeholder:text-zinc-600"
+            className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-ink-3"
           />
-          <span className="text-[11px] text-zinc-600">Esc</span>
+          <span className="kbd">Esc</span>
         </div>
 
         <div className="p-2">
@@ -95,10 +94,10 @@ export function CommandBar({ items }) {
             <button
               type="button"
               onClick={() => navigate(tickerAction.to)}
-              className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-zinc-200 hover:bg-white/5"
+              className="flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-ink transition-colors duration-150 hover:bg-surface-3"
             >
               <span className="font-medium">{tickerAction.label}</span>
-              <span className="text-[11px] text-zinc-600">Enter</span>
+              <span className="kbd">Enter</span>
             </button>
           ) : null}
 
@@ -107,10 +106,10 @@ export function CommandBar({ items }) {
               key={it.to}
               type="button"
               onClick={() => navigate(it.to)}
-              className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-zinc-200 hover:bg-white/5"
+              className="flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-ink-2 transition-colors duration-150 hover:bg-surface-3 hover:text-ink"
             >
               <span className="font-medium">{it.label}</span>
-              <span className="text-[11px] text-zinc-600">{it.shortcut ?? ''}</span>
+              <span className="num text-[11px] text-ink-3">{it.shortcut ?? ''}</span>
             </button>
           ))}
         </div>
@@ -118,4 +117,3 @@ export function CommandBar({ items }) {
     </div>
   )
 }
-

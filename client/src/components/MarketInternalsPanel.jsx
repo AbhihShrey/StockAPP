@@ -11,19 +11,23 @@ import {
   YAxis,
 } from 'recharts'
 import { AnimatedNumber } from './AnimatedNumber'
+import { SkeletonBlock } from './DataSkeleton'
+
+/* Chart colors are hex-in-JS by design-system exception. */
+const GRID = 'rgba(244,232,216,0.06)'
+const AXIS = '#837A6F'
+const UP_FILL = 'rgba(61,220,151,0.55)'
+const DOWN_FILL = 'rgba(255,97,97,0.55)'
+const EMBER = '#FF6B2C'
 
 const TOOLTIP_STYLE = {
-  background: 'rgba(20, 20, 24, 0.55)',
-  border: '1px solid rgba(255, 255, 255, 0.10)',
-  borderRadius: '0.75rem',
-  backdropFilter: 'blur(18px) saturate(170%)',
-  WebkitBackdropFilter: 'blur(18px) saturate(170%)',
-  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.35)',
-  color: 'oklch(0.92 0 0)',
+  background: 'rgba(27, 23, 19, 0.94)',
+  border: '1px solid rgba(244, 232, 216, 0.16)',
+  borderRadius: '10px',
+  color: '#F4EFE9',
   fontSize: '12px',
   padding: '8px 10px',
-  fontFamily:
-    'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  fontFamily: '"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
 }
 
 function PctAboveMaRow({ label, pct }) {
@@ -31,18 +35,13 @@ function PctAboveMaRow({ label, pct }) {
   const widthPct = pctNum == null ? 0 : Math.min(100, Math.max(0, pctNum))
   const zone =
     pctNum == null ? 'neutral' : pctNum >= 60 ? 'strong' : pctNum <= 40 ? 'weak' : 'neutral'
-  const barColor =
-    zone === 'strong'
-      ? 'bg-[color:var(--color-success)]'
-      : zone === 'weak'
-        ? 'bg-rose-500'
-        : 'bg-zinc-500'
+  const barColor = zone === 'strong' ? 'bg-up' : zone === 'weak' ? 'bg-down' : 'bg-ink-3'
 
   return (
     <div className="space-y-2">
       <div className="flex items-baseline justify-between gap-2">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">{label}</p>
-        <p className="text-lg font-semibold tabular-nums text-zinc-100">
+        <p className="eyebrow">{label}</p>
+        <p className="num text-lg font-semibold text-ink">
           {pctNum == null ? (
             '—'
           ) : (
@@ -50,13 +49,13 @@ function PctAboveMaRow({ label, pct }) {
           )}
         </p>
       </div>
-      <div className="h-2.5 overflow-hidden rounded-full bg-white/5">
+      <div className="h-2.5 overflow-hidden rounded-full bg-surface-3">
         <div
-          className={['metric-bar-fill-inner metric-bar-fill-spring h-full rounded-full', barColor].join(' ')}
+          className={['h-full rounded-full transition-[width] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]', barColor].join(' ')}
           style={{ width: `${widthPct}%` }}
         />
       </div>
-      <div className="flex justify-between text-[10px] text-zinc-600">
+      <div className="num flex justify-between text-[10px] text-ink-3">
         <span>0%</span>
         <span>100%</span>
       </div>
@@ -71,19 +70,19 @@ function NewHighsLowsBar52w({ highs, lows }) {
   ]
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-      <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">New 52-week highs / lows</p>
-      <p className="mt-1 text-[11px] text-zinc-600">S&P 500 — session vs trailing 52-week range.</p>
+    <div className="rounded-xl border border-line bg-surface-2 p-4">
+      <p className="eyebrow">New 52-week highs / lows</p>
+      <p className="mt-1 text-[11px] text-ink-3">S&P 500 — session vs trailing 52-week range.</p>
       <div className="mt-3 h-36">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
-            <XAxis dataKey="name" tick={{ fill: '#a1a1aa', fontSize: 11 }} tickLine={false} axisLine={false} />
-            <YAxis tick={{ fill: '#71717a', fontSize: 11 }} tickLine={false} axisLine={false} />
-            <Tooltip contentStyle={TOOLTIP_STYLE} />
+            <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
+            <XAxis dataKey="name" tick={{ fill: AXIS, fontSize: 11 }} tickLine={false} axisLine={false} />
+            <YAxis tick={{ fill: AXIS, fontSize: 11 }} tickLine={false} axisLine={false} />
+            <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: 'rgba(244,232,216,0.04)' }} />
             <Bar dataKey="v" radius={[8, 8, 8, 8]}>
-              <Cell fill="rgba(52,211,153,0.55)" />
-              <Cell fill="rgba(251,113,133,0.55)" />
+              <Cell fill={UP_FILL} />
+              <Cell fill={DOWN_FILL} />
             </Bar>
           </BarChart>
         </ResponsiveContainer>
@@ -102,25 +101,25 @@ function AdvanceDeclineLine({ history }) {
 
   if (data.length < 2) {
     return (
-      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Advance / Decline (S&P 500)</p>
-        <p className="mt-3 text-sm text-zinc-500">Collecting participation history…</p>
+      <div className="rounded-xl border border-line bg-surface-2 p-4">
+        <p className="eyebrow">Advance / Decline (S&P 500)</p>
+        <p className="mt-3 text-sm text-ink-3">Collecting participation history…</p>
       </div>
     )
   }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-      <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Advance / Decline line</p>
-      <p className="mt-1 text-[11px] text-zinc-600">Net advancers minus decliners (recent samples).</p>
+    <div className="rounded-xl border border-line bg-surface-2 p-4">
+      <p className="eyebrow">Advance / Decline line</p>
+      <p className="mt-1 text-[11px] text-ink-3">Net advancers minus decliners (recent samples).</p>
       <div className="mt-3 h-36">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-            <XAxis dataKey="t" tick={{ fill: '#71717a', fontSize: 10 }} tickLine={false} axisLine={false} />
-            <YAxis tick={{ fill: '#71717a', fontSize: 11 }} tickLine={false} axisLine={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke={GRID} />
+            <XAxis dataKey="t" tick={{ fill: AXIS, fontSize: 10 }} tickLine={false} axisLine={false} />
+            <YAxis tick={{ fill: AXIS, fontSize: 11 }} tickLine={false} axisLine={false} />
             <Tooltip contentStyle={TOOLTIP_STYLE} />
-            <Line type="monotone" dataKey="net" stroke="rgba(96,165,250,0.9)" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="net" stroke={EMBER} strokeWidth={2} dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -137,18 +136,19 @@ export function MarketInternalsPanel({ breadth, breadthLoading, breadthError, hi
 
   if (breadthError) {
     return (
-      <div className="rounded-xl border border-rose-500/20 bg-rose-500/5 p-4 text-sm text-rose-200">
-        <p className="font-medium">Market breadth</p>
-        <p className="mt-1 text-rose-200/80">{breadthError}</p>
+      <div className="rounded-xl border border-down/25 bg-down/10 p-4 text-sm">
+        <p className="font-medium text-ink">Market breadth failed to load</p>
+        <p className="mt-1 text-down">{breadthError}</p>
+        <p className="mt-1 text-ink-3">It retries on the next refresh.</p>
       </div>
     )
   }
 
   if (breadthLoading && !breadth) {
     return (
-      <div className="space-y-4">
-        <div className="h-32 animate-pulse rounded-xl bg-white/5" />
-        <div className="h-40 animate-pulse rounded-xl bg-white/5" />
+      <div className="space-y-4" aria-busy aria-label="Loading market internals">
+        <SkeletonBlock className="h-32 rounded-xl" />
+        <SkeletonBlock className="h-40 rounded-xl" />
       </div>
     )
   }
@@ -157,16 +157,16 @@ export function MarketInternalsPanel({ breadth, breadthLoading, breadthError, hi
     <div className="space-y-4">
       <AdvanceDeclineLine history={adHist} />
       <NewHighsLowsBar52w highs={h52} lows={l52} />
-      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">% above moving averages</p>
-        <p className="mt-1 text-[11px] text-zinc-600">S&P 500 constituents (quotes + derived breadth).</p>
+      <div className="rounded-xl border border-line bg-surface-2 p-4">
+        <p className="eyebrow">% above moving averages</p>
+        <p className="mt-1 text-[11px] text-ink-3">S&P 500 constituents (quotes + derived breadth).</p>
         <div className="mt-4 space-y-6">
           <PctAboveMaRow label="50-day MA" pct={breadth?.pctAbove50sma} />
           <PctAboveMaRow label="200-day MA" pct={pct200} />
         </div>
       </div>
       {highs != null || lows != null ? (
-        <p className="text-[11px] text-zinc-600">
+        <p className="num text-[11px] text-ink-3">
           Momentum proxy (±5% day): {typeof highs === 'number' ? highs : '—'} highs /{' '}
           {typeof lows === 'number' ? lows : '—'} lows
         </p>

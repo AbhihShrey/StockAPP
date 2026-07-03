@@ -1,4 +1,4 @@
-import { CheckCircle2, XCircle } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, XCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { EmberLogo } from '../components/EmberLogo'
@@ -8,15 +8,11 @@ import { apiUrl } from '../lib/apiBase'
 export function VerifyEmail() {
   const [params] = useSearchParams()
   const token = params.get('token') ?? ''
-  const [status, setStatus] = useState('loading') // 'loading' | 'ok' | 'error'
-  const [message, setMessage] = useState('')
+  const [status, setStatus] = useState(token ? 'loading' : 'error') // 'loading' | 'ok' | 'error'
+  const [message, setMessage] = useState(token ? '' : 'This link is missing its verification token.')
 
   useEffect(() => {
-    if (!token) {
-      setStatus('error')
-      setMessage('This link is missing its verification token.')
-      return
-    }
+    if (!token) return
     let cancelled = false
     ;(async () => {
       try {
@@ -40,50 +36,69 @@ export function VerifyEmail() {
   }, [token])
 
   return (
-    <div className="min-h-dvh bg-surface-0 text-zinc-200 antialiased">
-      <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-surface-0/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4 sm:px-6">
-          <Link to="/welcome">
+    <div className="relative min-h-dvh overflow-x-clip bg-bg text-ink antialiased">
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 z-0"
+        style={{
+          background:
+            'radial-gradient(56rem 38rem at 50% -12%, rgba(255,107,44,0.07), transparent 70%)',
+        }}
+      />
+      <header className="glass sticky top-0 z-30 border-b border-line">
+        <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-4 sm:px-6">
+          <Link
+            to="/welcome"
+            className="flex min-w-0 shrink-0 items-center rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ember/60"
+          >
             <EmberLogo size="xs" layout="horizontal" showTagline={false} />
           </Link>
-          <Link to="/welcome" className="text-sm font-medium text-zinc-500 underline-offset-4 transition hover:text-zinc-200 hover:underline">
-            ← Back
+          <Link to="/welcome" className="btn-ghost h-9 px-3.5">
+            <ArrowLeft className="size-3.5 opacity-80" aria-hidden />
+            Back
           </Link>
         </div>
       </header>
 
-      <main className="mx-auto flex min-h-[calc(100dvh-3.5rem)] max-w-md flex-col justify-center px-4 py-12 sm:px-6">
-        <div className="rounded-2xl border border-white/10 bg-neutral-950/80 p-6 text-center shadow-2xl shadow-black/40">
-          {status === 'loading' ? (
-            <>
-              <FlameSpinner size={40} className="mx-auto" />
-              <h1 className="mt-4 text-xl font-semibold tracking-tight text-zinc-50">Verifying email…</h1>
-            </>
-          ) : status === 'ok' ? (
-            <>
-              <CheckCircle2 className="mx-auto size-12 text-emerald-400" />
-              <h1 className="mt-4 text-xl font-semibold tracking-tight text-zinc-50">Email verified</h1>
-              <p className="mt-2 text-sm text-zinc-500">Thanks — your account is fully verified.</p>
-              <Link
-                to="/dashboard"
-                className="glass-btn--accent mt-6 inline-flex w-full items-center justify-center rounded-xl py-2.5 text-sm font-semibold"
-              >
-                Continue to Ember Finances
-              </Link>
-            </>
-          ) : (
-            <>
-              <XCircle className="mx-auto size-12 text-rose-400" />
-              <h1 className="mt-4 text-xl font-semibold tracking-tight text-zinc-50">Verification failed</h1>
-              <p className="mt-2 text-sm text-zinc-500">{message}</p>
-              <Link
-                to="/welcome?signin=1"
-                className="glass-btn mt-6 inline-flex w-full items-center justify-center rounded-xl py-2.5 text-sm font-medium"
-              >
-                Sign in to request a new link
-              </Link>
-            </>
-          )}
+      <main className="relative z-10 mx-auto flex min-h-[calc(100dvh-4rem)] max-w-md flex-col justify-center px-4 py-12 sm:px-6">
+        <div className="panel rise overflow-hidden text-center shadow-2xl shadow-black/40">
+          <div className="ember-rule" aria-hidden />
+          <div className="p-6 sm:p-7">
+            {status === 'loading' ? (
+              <>
+                <FlameSpinner size={40} className="mx-auto" />
+                <h1 className="display mt-4 text-xl">Verifying email…</h1>
+              </>
+            ) : status === 'ok' ? (
+              <>
+                <span className="mx-auto flex size-12 items-center justify-center rounded-full border border-up/25 bg-up/10 text-up">
+                  <CheckCircle2 className="size-6" aria-hidden />
+                </span>
+                <h1 className="display mt-4 text-xl">Email verified</h1>
+                <p className="mt-2 text-sm text-ink-2">Thanks — your account is fully verified.</p>
+                <Link
+                  to="/dashboard"
+                  className="btn-primary mt-6 w-full"
+                >
+                  Continue to Ember Finance
+                </Link>
+              </>
+            ) : (
+              <>
+                <span className="mx-auto flex size-12 items-center justify-center rounded-full border border-down/25 bg-down/10 text-down">
+                  <XCircle className="size-6" aria-hidden />
+                </span>
+                <h1 className="display mt-4 text-xl">Verification failed</h1>
+                <p className="mt-2 text-sm text-ink-2">{message}</p>
+                <Link
+                  to="/welcome?signin=1"
+                  className="btn-ghost mt-6 w-full"
+                >
+                  Sign in to request a new link
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </main>
     </div>

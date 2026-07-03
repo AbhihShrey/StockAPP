@@ -13,25 +13,33 @@ export function Screener() {
   const [tab, setTab] = useState('strategy')
 
   return (
-    <div className="app-page-enter space-y-6">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">Screener</h1>
-        <p className="text-sm text-zinc-500">
+    <div className="space-y-6">
+      <header className="rise">
+        <p className="eyebrow">Screener · US equities</p>
+        <h1 className="display mt-1 text-2xl sm:text-3xl">Screener</h1>
+        <p className="mt-2 max-w-2xl text-sm text-ink-2">
           Find stocks approaching a strategy target — and converging on it — or filter the market by the classics.
         </p>
+        <div className="ember-rule mt-4" aria-hidden />
       </header>
 
-      <div className="flex flex-wrap gap-2 rounded-xl border border-border-subtle bg-surface-1/40 p-2">
+      <div
+        className="rise rise-1 inline-flex flex-wrap gap-1 rounded-xl border border-line bg-surface-1 p-1"
+        role="tablist"
+        aria-label="Screener mode"
+      >
         {TABS.map((t) => (
           <button
             key={t.id}
             type="button"
+            role="tab"
+            aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
             className={[
-              'rounded-lg px-4 py-2 text-xs font-medium transition',
+              'rounded-lg px-4 py-2.5 text-xs font-medium transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ember/60',
               tab === t.id
-                ? 'bg-accent-muted text-accent accent-inset'
-                : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300',
+                ? 'bg-ember/10 text-flame'
+                : 'text-ink-3 hover:bg-surface-2 hover:text-ink-2',
             ].join(' ')}
           >
             {t.label}
@@ -39,7 +47,9 @@ export function Screener() {
         ))}
       </div>
 
-      {tab === 'strategy' ? <StrategyScreener token={token} /> : <ClassicScreener token={token} />}
+      <section className="rise rise-2">
+        {tab === 'strategy' ? <StrategyScreener token={token} /> : <ClassicScreener token={token} />}
+      </section>
     </div>
   )
 }

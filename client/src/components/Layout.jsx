@@ -34,7 +34,6 @@ import { useAlerts } from '../context/AlertContext'
 import { apiUrl, authHeaders } from '../lib/apiBase'
 import { getDefaultLanding } from '../lib/prefs'
 import { EmberLogo } from './EmberLogo'
-import { ClickSparkProvider } from './ClickSparkProvider'
 
 const MAIN_MAX_W = 'max-w-[88rem]'
 
@@ -57,10 +56,10 @@ const nav = [
 
 const linkClass = ({ isActive }) =>
   [
-    'group/nav relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200',
+    'group/nav relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ember/60',
     isActive
-      ? 'nav-active bg-accent-muted text-accent'
-      : 'text-zinc-400 hover:bg-white/5 hover:text-zinc-100',
+      ? 'bg-surface-3 text-flame'
+      : 'text-ink-2 hover:bg-surface-2 hover:text-ink',
   ].join(' ')
 
 function marketSessionNow() {
@@ -95,16 +94,16 @@ function MarketStatusPill({ collapsed }) {
   const s = marketSessionNow()
   const dot =
     s.state === 'open'
-      ? 'bg-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.7)]'
+      ? 'bg-up shadow-[0_0_12px_rgba(61,220,151,0.6)]'
       : s.state === 'after' || s.state === 'pre'
-        ? 'bg-amber-300 shadow-[0_0_10px_rgba(251,191,36,0.55)]'
-        : 'bg-zinc-500'
+        ? 'bg-warn shadow-[0_0_10px_rgba(255,194,75,0.5)]'
+        : 'bg-ink-3'
   const Icon = s.state === 'after' ? Moon : s.state === 'pre' ? Sun : null
 
   return (
     <div
       className={[
-        'flex w-full items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-2 text-xs text-zinc-300',
+        'flex w-full items-center gap-2 rounded-lg border border-line bg-surface-2 px-2.5 py-2 text-xs text-ink-2',
         collapsed ? 'justify-center px-1' : '',
       ].join(' ')}
       title={s.label}
@@ -127,7 +126,7 @@ function SidebarBody({ collapsed, onNavigate, onToggleCollapse, location, user, 
     <div className="flex h-full min-h-0 flex-col">
       <div
         className={[
-          'flex shrink-0 flex-col gap-2 border-b border-border-subtle',
+          'flex shrink-0 flex-col gap-2 border-b border-line',
           collapsed ? 'items-center px-2 py-3' : 'px-3 py-3',
         ].join(' ')}
       >
@@ -136,7 +135,7 @@ function SidebarBody({ collapsed, onNavigate, onToggleCollapse, location, user, 
             to={getDefaultLanding()}
             onClick={onNavigate}
             className={[
-              'flex min-w-0 rounded-lg outline-none ring-accent/30 focus-visible:ring-2',
+              'flex min-w-0 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ember/60',
               collapsed ? 'flex-col items-center justify-center gap-0' : 'min-w-0 flex-1 items-center gap-2.5',
             ].join(' ')}
             title="Home"
@@ -151,7 +150,7 @@ function SidebarBody({ collapsed, onNavigate, onToggleCollapse, location, user, 
               type="button"
               onClick={onToggleCollapse}
               className={[
-                'hidden rounded-lg p-2 text-zinc-400 transition-colors hover:bg-white/5 hover:text-zinc-200 lg:inline-flex',
+                'hidden rounded-lg p-2 text-ink-3 transition-colors duration-200 hover:bg-surface-2 hover:text-ink lg:inline-flex',
                 collapsed ? '' : 'shrink-0',
               ].join(' ')}
               aria-label="Toggle sidebar"
@@ -165,7 +164,7 @@ function SidebarBody({ collapsed, onNavigate, onToggleCollapse, location, user, 
           type="button"
           onClick={() => { openCommandPalette(); onNavigate?.() }}
           className={[
-            'glass-btn flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs text-zinc-400 hover:text-zinc-200',
+            'flex w-full items-center gap-2 rounded-lg border border-line bg-surface-2 px-2.5 py-2 text-xs text-ink-3 transition-colors duration-200 hover:border-line-strong hover:text-ink-2 outline-none focus-visible:ring-2 focus-visible:ring-ember/60',
             collapsed ? 'justify-center px-1' : '',
           ].join(' ')}
           aria-label="Search stocks (⌘K)"
@@ -175,18 +174,24 @@ function SidebarBody({ collapsed, onNavigate, onToggleCollapse, location, user, 
           {collapsed ? null : (
             <>
               <span className="min-w-0 flex-1 truncate text-left">Search…</span>
-              <span className="shrink-0 rounded border border-white/10 px-1 py-0.5 text-[9px] font-medium text-zinc-500">⌘K</span>
+              <span className="kbd shrink-0">⌘K</span>
             </>
           )}
         </button>
         <MarketStatusPill collapsed={collapsed} />
       </div>
       <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto p-3" aria-label="Primary">
-        {nav.map(({ to, label, icon: Icon }) => {
+        {nav.map((item) => {
+          const { to, label } = item
+          const Icon = item.icon
           const chartsActive =
             to === '/charts' &&
             (location.pathname === '/charts' || location.pathname.startsWith('/analysis/'))
-          const isStrategies = to === '/strategies' && location.pathname.startsWith('/strategies')
+          const active =
+            chartsActive ||
+            (to === '/dashboard'
+              ? location.pathname === '/dashboard'
+              : location.pathname === to || location.pathname.startsWith(`${to}/`))
           return (
             <NavLink
               key={to}
@@ -196,11 +201,15 @@ function SidebarBody({ collapsed, onNavigate, onToggleCollapse, location, user, 
               onClick={onNavigate}
               title={collapsed ? label : undefined}
             >
-              <Icon
+              <span
                 className={[
-                  'size-[1.125rem] shrink-0 opacity-70 group-aria-[current=page]/nav:opacity-100',
-                  isStrategies ? 'motion-safe:transition-transform motion-safe:duration-300 group-hover/nav:rotate-12' : '',
+                  'absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full bg-ember-grad transition-opacity duration-200',
+                  active ? 'opacity-100' : 'opacity-0',
                 ].join(' ')}
+                aria-hidden
+              />
+              <Icon
+                className="size-[1.125rem] shrink-0 opacity-70 group-aria-[current=page]/nav:opacity-100"
                 strokeWidth={2}
                 aria-hidden
               />
@@ -209,7 +218,7 @@ function SidebarBody({ collapsed, onNavigate, onToggleCollapse, location, user, 
           )
         })}
       </nav>
-      <div className={['shrink-0 border-t border-border-subtle p-3', collapsed ? 'flex justify-center' : ''].join(' ')}>
+      <div className={['shrink-0 border-t border-line p-3', collapsed ? 'flex justify-center' : ''].join(' ')}>
         <WelcomeHomeNav
           collapsed={collapsed}
           user={user}
@@ -218,12 +227,12 @@ function SidebarBody({ collapsed, onNavigate, onToggleCollapse, location, user, 
         />
       </div>
       {!collapsed ? (
-        <div className="shrink-0 border-t border-border-subtle px-3 pb-3 pt-2.5">
-          <nav className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-zinc-600" aria-label="Legal">
-            <Link to="/privacy" onClick={onNavigate} className="transition hover:text-zinc-300">Privacy</Link>
-            <Link to="/terms" onClick={onNavigate} className="transition hover:text-zinc-300">Terms</Link>
-            <Link to="/disclaimer" onClick={onNavigate} className="transition hover:text-zinc-300">Disclaimer</Link>
-            <Link to="/cookies" onClick={onNavigate} className="transition hover:text-zinc-300">Cookies</Link>
+        <div className="shrink-0 border-t border-line px-3 pb-3 pt-2.5">
+          <nav className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-ink-3" aria-label="Legal">
+            <Link to="/privacy" onClick={onNavigate} className="transition-colors duration-150 hover:text-ink-2">Privacy</Link>
+            <Link to="/terms" onClick={onNavigate} className="transition-colors duration-150 hover:text-ink-2">Terms</Link>
+            <Link to="/disclaimer" onClick={onNavigate} className="transition-colors duration-150 hover:text-ink-2">Disclaimer</Link>
+            <Link to="/cookies" onClick={onNavigate} className="transition-colors duration-150 hover:text-ink-2">Cookies</Link>
           </nav>
         </div>
       ) : null}
@@ -283,29 +292,29 @@ function NotificationBell() {
       <button
         type="button"
         onClick={toggle}
-        className="relative inline-flex items-center justify-center rounded-lg p-2 text-zinc-400 transition hover:bg-white/5 hover:text-zinc-200"
+        className="relative inline-flex items-center justify-center rounded-lg p-2 text-ink-2 transition-colors duration-200 hover:bg-surface-2 hover:text-ink outline-none focus-visible:ring-2 focus-visible:ring-ember/60"
         aria-label="Notifications"
       >
         {unreadCount > 0
-          ? <BellRing className="size-5 text-accent" data-bell-state={firing ? 'firing' : ''} />
-          : <Bell className="size-5" data-bell-state={firing ? 'firing' : ''} />}
+          ? <BellRing className={['size-5 text-flame', firing ? 'ignite' : ''].join(' ')} />
+          : <Bell className="size-5" />}
         {unreadCount > 0 && (
-          <span className="absolute right-1 top-1 flex size-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-zinc-950">
+          <span className="bg-ember-grad absolute right-1 top-1 flex size-4 items-center justify-center rounded-full text-[10px] font-bold text-[#1a0c04]">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="glass-bar absolute right-0 top-full z-50 mt-2 w-80 rounded-2xl border border-white/10 shadow-2xl shadow-black/50">
-          <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-            <p className="text-sm font-semibold text-zinc-100">Alerts</p>
+        <div className="glass absolute right-0 top-full z-50 mt-2 w-80 rounded-[14px] border border-line-strong shadow-2xl shadow-black/50">
+          <div className="flex items-center justify-between border-b border-line px-4 py-3">
+            <p className="eyebrow">Alerts</p>
             {notifications.length > 0 && (
               <div className="flex items-center gap-3">
-                <button type="button" onClick={markAllRead} className="text-xs text-zinc-500 hover:text-zinc-300 transition">
+                <button type="button" onClick={markAllRead} className="text-xs text-ink-3 transition-colors duration-150 hover:text-ink-2">
                   Mark all read
                 </button>
-                <button type="button" onClick={clearAll} className="text-xs text-zinc-500 hover:text-rose-400 transition">
+                <button type="button" onClick={clearAll} className="text-xs text-ink-3 transition-colors duration-150 hover:text-down">
                   Clear all
                 </button>
               </div>
@@ -313,17 +322,17 @@ function NotificationBell() {
           </div>
           <div className="max-h-72 overflow-y-auto">
             {notifications.length === 0 ? (
-              <p className="px-4 py-6 text-center text-sm text-zinc-600">No notifications yet.</p>
+              <p className="px-4 py-6 text-center text-sm text-ink-3">No notifications yet.</p>
             ) : (
               notifications.slice(0, 20).map((n) => {
                 const isEarnings = n.condition === 'earnings_report'
                 const time = new Date(n.triggeredAt * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'America/New_York' })
                 return (
-                  <div key={n.id} className={['border-b border-white/[0.06] px-4 py-3', !n.read ? 'bg-accent/5' : ''].join(' ')}>
-                    <p className="text-sm font-medium text-zinc-100">
-                      <span className="text-accent">{n.symbol}</span> {conditionLabel(n.condition, n.threshold)}
+                  <div key={n.id} className={['border-b border-line px-4 py-3', !n.read ? 'bg-ember/5' : ''].join(' ')}>
+                    <p className="text-sm font-medium text-ink">
+                      <span className="num font-semibold text-flame">{n.symbol}</span> {conditionLabel(n.condition, n.threshold)}
                     </p>
-                    <p className="mt-0.5 text-xs text-zinc-500">
+                    <p className="num mt-0.5 text-xs text-ink-3">
                       {isEarnings
                         ? n.message || 'Earnings report today'
                         : <>
@@ -339,8 +348,8 @@ function NotificationBell() {
               })
             )}
           </div>
-          <div className="border-t border-white/10 px-4 py-2.5">
-            <Link to="/alerts" onClick={() => setOpen(false)} className="text-xs text-zinc-500 hover:text-zinc-300 transition">
+          <div className="border-t border-line px-4 py-2.5">
+            <Link to="/alerts" onClick={() => setOpen(false)} className="text-xs text-ink-3 transition-colors duration-150 hover:text-ink-2">
               Manage alerts →
             </Link>
           </div>
@@ -398,8 +407,8 @@ function EmailVerificationBanner({ token }) {
   if (verified || dismissed) return null
 
   return (
-    <div className="border-b border-amber-500/20 bg-amber-500/[0.07]">
-      <div className="mx-auto flex max-w-[88rem] flex-col gap-2 px-4 py-2 text-xs text-amber-200 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div className="border-b border-warn/20 bg-warn/[0.07]">
+      <div className="mx-auto flex max-w-[88rem] flex-col gap-2 px-4 py-2 text-xs text-warn sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div className="flex items-center gap-2">
           <Mail className="size-3.5 shrink-0" aria-hidden />
           <span>
@@ -408,22 +417,22 @@ function EmailVerificationBanner({ token }) {
         </div>
         <div className="flex items-center gap-2">
           {resendStatus === 'sent' ? (
-            <span className="text-emerald-300">Sent — check your inbox.</span>
+            <span className="text-up">Sent — check your inbox.</span>
           ) : resendStatus === 'error' ? (
-            <span className="text-rose-300">Could not send. Try again later.</span>
+            <span className="text-down">Could not send. Try again later.</span>
           ) : null}
           <button
             type="button"
             disabled={resendBusy}
             onClick={handleResend}
-            className="rounded-md border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 font-medium text-amber-100 transition hover:bg-amber-500/20 disabled:opacity-60"
+            className="rounded-md border border-warn/30 bg-warn/10 px-2.5 py-1 font-medium text-warn transition-colors duration-150 hover:bg-warn/20 disabled:opacity-60"
           >
             {resendBusy ? 'Sending…' : 'Resend'}
           </button>
           <button
             type="button"
             onClick={() => setDismissed(true)}
-            className="rounded-md p-1 text-amber-300/80 transition hover:text-amber-100"
+            className="rounded-md p-1 text-warn/80 transition-colors duration-150 hover:text-warn"
             aria-label="Dismiss"
           >
             <X className="size-3.5" />
@@ -456,34 +465,30 @@ function AlertToasts() {
       {visible.map((n) => {
         const isEarnings = n.condition === 'earnings_report'
         return (
-        <div
-          key={n.id}
-          className="glass-bar ember-toast pointer-events-auto relative flex items-start gap-3 rounded-2xl border border-accent/20 px-4 py-3 shadow-2xl shadow-black/50"
-        >
-          <span className="ember-toast-ignition" aria-hidden="true">
-            {Array.from({ length: 10 }).map((_, i) => (
-              <span key={i} className="ember-toast-spark" style={{ '--spark-x': `${(i + 1) * 9}%`, '--spark-delay': `${i * 30}ms` }} />
-            ))}
-          </span>
-          <BellRing className="mt-0.5 size-4 shrink-0 text-accent" />
-          <div>
-            <p className="text-sm font-semibold text-zinc-100">
-              <span className="text-accent">{n.symbol}</span> {isEarnings ? 'earnings today' : 'alert fired'}
-            </p>
-            <p className="mt-0.5 text-xs text-zinc-400">
-              {isEarnings
-                ? (n.message || conditionLabel(n.condition, n.threshold))
-                : `${conditionLabel(n.condition, n.threshold)} · $${n.triggeredPrice?.toFixed(2)}`}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setVisible((prev) => prev.filter((t) => t.id !== n.id))}
-            className="ml-auto rounded-md p-0.5 text-zinc-600 hover:text-zinc-300"
+          <div
+            key={n.id}
+            className="glass rise pointer-events-auto relative flex items-start gap-3 overflow-hidden rounded-[14px] border border-ember/25 px-4 py-3 shadow-2xl shadow-black/50"
           >
-            <X className="size-3.5" />
-          </button>
-        </div>
+            <span className="ember-rule absolute inset-x-0 top-0" aria-hidden />
+            <BellRing className="mt-0.5 size-4 shrink-0 text-flame" />
+            <div>
+              <p className="text-sm font-semibold text-ink">
+                <span className="num text-flame">{n.symbol}</span> {isEarnings ? 'earnings today' : 'alert fired'}
+              </p>
+              <p className="num mt-0.5 text-xs text-ink-2">
+                {isEarnings
+                  ? (n.message || conditionLabel(n.condition, n.threshold))
+                  : `${conditionLabel(n.condition, n.threshold)} · $${n.triggeredPrice?.toFixed(2)}`}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setVisible((prev) => prev.filter((t) => t.id !== n.id))}
+              className="ml-auto rounded-md p-0.5 text-ink-3 hover:text-ink"
+            >
+              <X className="size-3.5" />
+            </button>
+          </div>
         )
       })}
     </div>
@@ -541,7 +546,7 @@ export function Layout() {
 
   return (
     <CommandPaletteProvider>
-    <div className="h-dvh overflow-hidden font-sans text-zinc-200 antialiased">
+    <div className="h-dvh overflow-hidden font-sans text-ink antialiased">
       {mobileOpen ? (
         <button
           type="button"
@@ -555,7 +560,7 @@ export function Layout() {
         {/* Desktop sidebar — width animates */}
         <aside
           className={[
-            'z-20 hidden h-dvh shrink-0 overflow-x-hidden border-r border-border-subtle bg-surface-0/70 backdrop-blur-xl transition-[width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:flex lg:flex-col',
+            'glass z-20 hidden h-dvh shrink-0 overflow-x-hidden border-r border-line transition-[width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:flex lg:flex-col',
             collapsed ? 'w-[5.5rem]' : 'w-64',
           ].join(' ')}
         >
@@ -571,15 +576,15 @@ export function Layout() {
         {/* Mobile drawer — slides from left */}
         <aside
           className={[
-            'fixed left-0 top-0 z-50 flex h-dvh w-[min(17.5rem,90vw)] flex-col border-r border-border-subtle bg-surface-0/95 shadow-2xl shadow-black/40 backdrop-blur-xl transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:hidden',
+            'glass fixed left-0 top-0 z-50 flex h-dvh w-[min(17.5rem,90vw)] flex-col border-r border-line shadow-2xl shadow-black/40 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:hidden',
             mobileOpen ? 'translate-x-0' : 'pointer-events-none -translate-x-full',
           ].join(' ')}
           aria-hidden={!mobileOpen}
         >
-          <div className="flex h-14 shrink-0 items-center justify-end border-b border-border-subtle px-2">
+          <div className="flex h-14 shrink-0 items-center justify-end border-b border-line px-2">
             <button
               type="button"
-              className="rounded-lg p-2 text-zinc-400 hover:bg-white/5 hover:text-zinc-200"
+              className="rounded-lg p-2 text-ink-2 hover:bg-surface-2 hover:text-ink"
               onClick={() => setMobileOpen(false)}
               aria-label="Close menu"
             >
@@ -598,11 +603,11 @@ export function Layout() {
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-          <header className="sticky top-0 z-30 border-b border-border-subtle bg-surface-0/80 backdrop-blur-xl">
+          <header className="glass sticky top-0 z-30">
             <div className={`mx-auto flex h-14 w-full items-center gap-3 px-4 sm:px-6 lg:px-8 ${MAIN_MAX_W}`}>
               <button
                 type="button"
-                className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-white/5 hover:text-zinc-200 lg:hidden"
+                className="rounded-lg p-2 text-ink-2 transition-colors duration-200 hover:bg-surface-2 hover:text-ink lg:hidden"
                 onClick={() => setMobileOpen(true)}
                 aria-label="Open menu"
               >
@@ -616,11 +621,8 @@ export function Layout() {
                 <NotificationBell />
                 <button
                   type="button"
-                  className="glass-btn inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-zinc-300 hover:text-zinc-100"
-                  onClick={() => {
-                    logout()
-                    navigate('/welcome', { replace: true })
-                  }}
+                  className="btn-ghost h-8 px-2 text-xs"
+                  onClick={signOutToWelcome}
                 >
                   <LogOut className="size-3.5 opacity-80" aria-hidden />
                   Out
@@ -631,24 +633,25 @@ export function Layout() {
               </div>
               <div className="hidden shrink-0 items-center gap-1.5 lg:flex">
                 <NotificationBell />
-                <span className="hidden max-w-[8rem] truncate text-xs text-zinc-500 xl:block" title={user?.email}>
+                <span className="hidden max-w-[8rem] truncate text-xs text-ink-3 xl:block" title={user?.email}>
                   {user?.email}
                 </span>
                 <button
                   type="button"
                   onClick={signOutToWelcome}
-                  className="glass-btn inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-zinc-300 hover:text-zinc-100"
+                  className="btn-ghost h-8 px-2.5 text-xs"
                 >
                   <LogOut className="size-3.5 opacity-80" aria-hidden />
                   Sign out
                 </button>
               </div>
             </div>
+            <div className="ember-rule" aria-hidden />
           </header>
 
           <EmailVerificationBanner token={token} />
           <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-5 lg:px-6 lg:py-8">
-            <div key={location.pathname} className={`app-page-enter mx-auto w-full ${MAIN_MAX_W}`}>
+            <div key={location.pathname} className={`mx-auto w-full ${MAIN_MAX_W}`}>
               <Outlet />
             </div>
           </main>
@@ -656,7 +659,6 @@ export function Layout() {
       </div>
 
       <MarketingHomeFab />
-      <ClickSparkProvider />
       <AlertToasts />
     </div>
     </CommandPaletteProvider>

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, ChevronDown, Flame, HelpCircle, Mail, Sparkles } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ChevronDown, Mail } from 'lucide-react'
 import { EmberLogo } from '../components/EmberLogo'
 
 const FAQ_GROUPS = [
@@ -8,7 +8,7 @@ const FAQ_GROUPS = [
     title: 'Getting started',
     items: [
       {
-        q: 'What is Ember Finances?',
+        q: 'What is Ember Finance?',
         a: 'A focused workspace for reading the market, tracking positions, and stress-testing trading ideas — built for clarity, not clutter. The dashboard, charts, watchlist, alerts, sectors, and backtests all live in one place.',
       },
       {
@@ -17,7 +17,7 @@ const FAQ_GROUPS = [
       },
       {
         q: 'Do I need a brokerage account?',
-        a: 'No. Ember Finances is a research and planning tool — there is nothing to link. Sign up, add symbols to a watchlist, set alerts, and you are running.',
+        a: 'No. Ember Finance is a research and planning tool — there is nothing to link. Sign up, add symbols to a watchlist, set alerts, and you are running.',
       },
       {
         q: 'Can I use it on mobile?',
@@ -77,15 +77,15 @@ const FAQ_GROUPS = [
     ],
   },
   {
-    title: 'The fire spirit',
+    title: 'Appearance & motion',
     items: [
       {
-        q: 'What is the little flame in the corner?',
-        a: 'That\'s the Ember mascot — a quick way to open this FAQ from anywhere on the welcome page. Click it and a panel slides up with the most-common questions. It\'s purely decorative and doesn\'t collect any data.',
+        q: 'Can I reduce animation across the app?',
+        a: 'Yes. Ember Finance honors your system\'s reduced-motion setting — page transitions, shimmer, and pulses all switch off automatically. You can also fine-tune appearance from Settings after you sign in.',
       },
       {
-        q: 'Can I turn the mascot off?',
-        a: 'Yes. After you sign in, go to Settings → Appearance and toggle "Ember mascot" off. The same panel also lets you disable click sparks, fire crackle sound, and reduce motion.',
+        q: 'Is there a light theme?',
+        a: 'No. Ember Terminal is a dark trading workspace by design — warm near-black surfaces keep price colors and data easy to read for long sessions.',
       },
     ],
   },
@@ -94,19 +94,22 @@ const FAQ_GROUPS = [
 function AccordionItem({ q, a }) {
   const [open, setOpen] = useState(false)
   return (
-    <li className={`overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.02] transition ${open ? 'shadow-[0_0_24px_-12px_rgba(255,106,44,0.45)]' : ''}`}>
+    <li className="panel panel-hover overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition hover:bg-white/[0.04]"
+        className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left outline-none transition-colors duration-150 hover:bg-surface-3 focus-visible:ring-2 focus-visible:ring-ember/60"
         aria-expanded={open}
       >
-        <span className="text-sm font-medium text-zinc-100">{q}</span>
-        <ChevronDown className={`size-4 shrink-0 text-zinc-500 transition-transform ${open ? 'rotate-180 text-accent' : ''}`} aria-hidden />
+        <span className="text-base font-medium text-ink">{q}</span>
+        <ChevronDown
+          className={`size-4 shrink-0 transition-transform duration-200 ${open ? 'rotate-180 text-flame' : 'text-ink-3'}`}
+          aria-hidden
+        />
       </button>
       {open && (
-        <div className="border-t border-white/[0.06] px-5 py-4">
-          <p className="text-sm leading-relaxed text-zinc-400">{a}</p>
+        <div className="border-t border-line px-5 py-4">
+          <p className="text-base leading-relaxed text-ink-2">{a}</p>
         </div>
       )}
     </li>
@@ -115,43 +118,45 @@ function AccordionItem({ q, a }) {
 
 export function FAQ() {
   return (
-    <div className="min-h-dvh bg-surface-0 text-zinc-200 antialiased">
-      <header className="glass-bar sticky top-0 z-30 border-b border-white/[0.05]">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
-          <Link to="/welcome">
-            <EmberLogo size="xs" layout="horizontal" showTagline={false} />
-          </Link>
+    <div className="relative min-h-dvh overflow-x-clip bg-bg text-ink antialiased">
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 z-0"
+        style={{
+          background:
+            'radial-gradient(56rem 38rem at 50% -12%, rgba(255,107,44,0.07), transparent 70%)',
+        }}
+      />
+      <header className="glass sticky top-0 z-30 border-b border-line">
+        <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-4 sm:px-6">
           <Link
             to="/welcome"
-            className="glass-btn inline-flex items-center rounded-lg px-3 py-1.5 text-[13px] font-medium text-zinc-300 hover:text-zinc-100"
+            className="flex min-w-0 shrink-0 items-center rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ember/60"
           >
-            ← Back
+            <EmberLogo size="xs" layout="horizontal" showTagline={false} />
+          </Link>
+          <Link to="/welcome" className="btn-ghost h-9 px-3.5">
+            <ArrowLeft className="size-3.5 opacity-80" aria-hidden />
+            Back
           </Link>
         </div>
       </header>
 
-      <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24">
-        <div className="mb-14 text-center">
-          <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-zinc-500">
-            <HelpCircle className="size-3.5 text-accent" />
-            Frequently asked questions
+      <div className="relative z-10 mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24">
+        <header className="rise mb-14 text-center">
+          <p className="eyebrow">Support · Frequently asked questions</p>
+          <h1 className="display mt-3 text-3xl sm:text-4xl">Things people ask</h1>
+          <div className="ember-rule mx-auto mt-5 w-40" aria-hidden />
+          <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-ink-2">
+            Quick answers to the most common questions about Ember Finance. Don't see yours? Drop us a line at{' '}
+            <a className="text-flame underline-offset-4 hover:underline" href="mailto:support@emberfinances.com">support@emberfinances.com</a>.
           </p>
-          <h1 className="text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">Things people ask</h1>
-          <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-zinc-500 sm:text-base">
-            Quick answers to the most common questions about Ember Finances. Don't see yours? Drop us a line at{' '}
-            <a className="text-accent hover:underline" href="mailto:support@emberfinances.com">support@emberfinances.com</a>.
-          </p>
-          <p className="mx-auto mt-3 inline-flex items-center gap-1.5 rounded-full border border-accent/20 bg-accent/[0.06] px-3 py-1 text-[11px] font-medium text-accent">
-            <Flame className="size-3" /> Tip — the flame mascot in the corner of the welcome page opens these too.
-          </p>
-        </div>
+        </header>
 
         <div className="space-y-10">
-          {FAQ_GROUPS.map((group) => (
-            <section key={group.title}>
-              <h2 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                <Sparkles className="size-3 text-accent" /> {group.title}
-              </h2>
+          {FAQ_GROUPS.map((group, gi) => (
+            <section key={group.title} className={`rise rise-${gi + 2}`}>
+              <h2 className="eyebrow mb-3">{group.title}</h2>
               <ul className="space-y-2">
                 {group.items.map((item) => (
                   <AccordionItem key={item.q} q={item.q} a={item.a} />
@@ -161,28 +166,27 @@ export function FAQ() {
           ))}
         </div>
 
-        <div className="mt-16 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-6 py-8 text-center">
-          <p className="text-base font-medium text-zinc-100">Still curious?</p>
-          <p className="mt-1 text-sm text-zinc-500">Sign up free and explore the workspace yourself — most questions answer themselves once you're in.</p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              to="/welcome"
-              className="glass-btn--accent ember-cta inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold"
-            >
-              Get started <ArrowRight className="size-4" />
-            </Link>
-            <a
-              href="mailto:support@emberfinances.com"
-              className="glass-btn inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium text-zinc-200"
-            >
-              <Mail className="size-4 opacity-80" /> Email support
-            </a>
+        <div className="panel mt-16 overflow-hidden">
+          <div className="ember-rule" aria-hidden />
+          <div className="px-6 py-8 text-center">
+            <p className="font-display text-base font-semibold text-ink">Still curious?</p>
+            <p className="mt-1 text-sm text-ink-2">Sign up free and explore the workspace yourself — most questions answer themselves once you're in.</p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              <Link to="/welcome" className="btn-primary h-11 px-5">
+                Get started
+                <ArrowRight className="size-4" aria-hidden />
+              </Link>
+              <a href="mailto:support@emberfinances.com" className="btn-ghost h-11 px-5">
+                <Mail className="size-4 opacity-80" aria-hidden />
+                Email support
+              </a>
+            </div>
           </div>
         </div>
       </div>
 
-      <footer className="border-t border-white/[0.06] py-8 text-center">
-        <p className="text-xs text-zinc-600">© {new Date().getFullYear()} Ember Finances · For informational purposes only.</p>
+      <footer className="relative z-10 border-t border-line py-10 text-center">
+        <p className="text-xs text-ink-3">© {new Date().getFullYear()} Ember Finance · For informational purposes only.</p>
       </footer>
     </div>
   )

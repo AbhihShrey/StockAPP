@@ -4,15 +4,15 @@ export function TermsOfService() {
   return (
     <LegalShell title="Terms of Service" lastUpdated="April 26, 2026">
       <p>
-        These Terms of Service (&ldquo;Terms&rdquo;) govern your access to and use of Ember Finances
-        (&ldquo;Ember Finances&rdquo;, the &ldquo;Service&rdquo;). By creating an account or using the Service,
+        These Terms of Service (&ldquo;Terms&rdquo;) govern your access to and use of Ember Finance
+        (&ldquo;Ember Finance&rdquo;, the &ldquo;Service&rdquo;). By creating an account or using the Service,
         you agree to these Terms. If you do not agree, do not use the Service.
       </p>
 
       <h2>1. Eligibility</h2>
       <p>
         You must be at least 13 years old (16 in the EEA) and able to form a binding contract under
-        applicable law. You may not use Ember Finances if you are barred from doing so under any applicable law.
+        applicable law. You may not use Ember Finance if you are barred from doing so under any applicable law.
       </p>
 
       <h2>2. Your account</h2>
@@ -33,7 +33,7 @@ export function TermsOfService() {
 
       <h2>4. Intellectual property</h2>
       <p>
-        Ember Finances and its underlying software, design, and content are owned by Abhih Kodavanty and
+        Ember Finance and its underlying software, design, and content are owned by Abhih Kodavanty and
         are protected by intellectual property laws. We grant you a limited, revocable, non-exclusive,
         non-transferable license to access and use the Service for personal, non-commercial use.
       </p>
@@ -44,14 +44,14 @@ export function TermsOfService() {
 
       <h2>5. No investment advice</h2>
       <p>
-        Ember Finances is provided strictly for informational and educational purposes. <strong>Nothing on the
+        Ember Finance is provided strictly for informational and educational purposes. <strong>Nothing on the
         Service constitutes investment, financial, tax, or legal advice.</strong> See our
         {' '}<a href="/disclaimer">Disclaimer</a> for the full scope of this provision.
       </p>
 
       <h2>6. Service availability and changes</h2>
       <p>
-        We strive to keep Ember Finances available, but we may modify, suspend, or discontinue any feature at
+        We strive to keep Ember Finance available, but we may modify, suspend, or discontinue any feature at
         any time without notice. We are not liable for any unavailability, delay in data, or loss
         resulting from such changes.
       </p>
@@ -84,7 +84,7 @@ export function TermsOfService() {
 
       <h2>10. Indemnification</h2>
       <p>
-        You agree to indemnify and hold harmless Ember Finances and its operators from any claims, damages, or
+        You agree to indemnify and hold harmless Ember Finance and its operators from any claims, damages, or
         expenses arising from your violation of these Terms or your misuse of the Service.
       </p>
 

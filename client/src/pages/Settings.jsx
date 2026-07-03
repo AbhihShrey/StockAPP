@@ -6,15 +6,12 @@ import {
   Database,
   Eye,
   EyeOff,
-  Flame,
   History,
   KeyRound,
   LayoutDashboard,
   Loader2,
-  Moon,
   Settings as SettingsIcon,
   ShieldCheck,
-  Sun,
   Trash2,
   User,
 } from 'lucide-react'
@@ -23,7 +20,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { apiUrl, authHeaders } from '../lib/apiBase'
 import { getChartStyle, getDefaultLanding, getLocale, getQuietHours, saveChartStyle, saveDefaultLanding, saveLocale, saveQuietHours } from '../lib/prefs'
-import { getDensity, getTheme, saveDensity, saveTheme } from '../lib/theme'
+import { getDensity, saveDensity } from '../lib/theme'
 import { CURRENT_VERSION, VERSION_HISTORY } from '../lib/versionHistory'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -45,15 +42,16 @@ const LANDING_PAGES = [
 
 // ── Section shell ─────────────────────────────────────────────────────────────
 
-function Section({ icon: Icon, title, description, children }) {
+function Section({ icon, title, description, danger = false, className = '', children }) {
+  const Icon = icon
   return (
-    <section className="rounded-2xl border border-border-subtle bg-gradient-to-b from-surface-1/80 to-surface-1/55 shadow-xl shadow-black/20">
-      <div className="flex items-center gap-2.5 border-b border-border-subtle px-5 py-3.5">
-        <Icon className="size-4 text-zinc-400" />
-        <h2 className="text-sm font-semibold tracking-tight text-zinc-100">{title}</h2>
-        {description && <span className="ml-auto text-xs text-zinc-600">{description}</span>}
+    <section className={['panel', danger ? 'border-down/25' : '', className].join(' ')}>
+      <div className="flex items-center gap-2.5 border-b border-line px-4 py-3 sm:px-5">
+        <Icon className={['size-4', danger ? 'text-down' : 'text-ink-3'].join(' ')} aria-hidden />
+        <h2 className={['eyebrow', danger ? 'text-down' : ''].join(' ')}>{title}</h2>
+        {description && <span className="ml-auto text-xs text-ink-3">{description}</span>}
       </div>
-      <div className="divide-y divide-border-subtle/50 p-5">{children}</div>
+      <div className="divide-y divide-line px-4 sm:px-5">{children}</div>
     </section>
   )
 }
@@ -62,10 +60,58 @@ function Row({ label, hint, children }) {
   return (
     <div className="flex flex-col gap-2 py-3.5 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
-        <p className="text-sm text-zinc-200">{label}</p>
-        {hint && <p className="mt-0.5 text-xs text-zinc-500">{hint}</p>}
+        <p className="text-sm text-ink">{label}</p>
+        {hint && <p className="mt-0.5 text-xs text-ink-3">{hint}</p>}
       </div>
       <div className="shrink-0">{children}</div>
+    </div>
+  )
+}
+
+// Toggle switch — bg-ember-grad when on, surface-3 when off.
+function Switch({ on, onClick, disabled = false, label }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-pressed={on}
+      aria-label={label}
+      className={[
+        'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full outline-none transition-colors duration-200',
+        'focus-visible:ring-2 focus-visible:ring-ember/60 disabled:cursor-not-allowed disabled:opacity-50',
+        on ? 'bg-ember-grad' : 'border border-line-strong bg-surface-3',
+      ].join(' ')}
+    >
+      <span
+        className={[
+          'inline-block size-4 rounded-full bg-ink shadow-sm transition-transform duration-200',
+          on ? 'translate-x-6' : 'translate-x-1',
+        ].join(' ')}
+        aria-hidden
+      />
+    </button>
+  )
+}
+
+// Segmented control — one active segment gets the ember gradient.
+function Segmented({ options, value, onChange, label }) {
+  return (
+    <div role="group" aria-label={label} className="flex items-center gap-1 rounded-lg border border-line bg-surface-2 p-1">
+      {options.map(({ value: v, label: l }) => (
+        <button
+          key={v}
+          type="button"
+          onClick={() => onChange(v)}
+          aria-pressed={value === v}
+          className={[
+            'rounded-md px-3 py-1.5 text-xs font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ember/60',
+            value === v ? 'bg-ember-grad text-bg' : 'text-ink-2 hover:bg-surface-3 hover:text-ink',
+          ].join(' ')}
+        >
+          {l}
+        </button>
+      ))}
     </div>
   )
 }
@@ -74,12 +120,12 @@ function Row({ label, hint, children }) {
 // full list of changes when clicked.
 function VersionEntry({ release, defaultOpen = false }) {
   const [open, setOpen] = useState(defaultOpen)
-  const badgeClass =
+  const chipClass =
     release.type === 'major'
-      ? 'bg-accent-muted text-accent ring-accent/30'
+      ? 'chip chip-ember'
       : release.type === 'minor'
-        ? 'bg-sky-500/15 text-sky-300 ring-sky-500/25'
-        : 'bg-zinc-800 text-zinc-400 ring-white/5'
+        ? 'chip border-line-strong text-ink-2'
+        : 'chip text-ink-3'
 
   return (
     <div className="py-3.5">
@@ -87,26 +133,24 @@ function VersionEntry({ release, defaultOpen = false }) {
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="flex w-full items-center gap-2 text-left"
+        className="flex w-full items-center gap-2 rounded-lg py-1 text-left outline-none focus-visible:ring-2 focus-visible:ring-ember/60"
       >
-        <span className="text-sm font-semibold tabular-nums text-zinc-100">v{release.version}</span>
-        <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ring-1 ${badgeClass}`}>
-          {release.type}
-        </span>
-        <span className="hidden text-xs text-zinc-500 sm:inline">{release.title}</span>
+        <span className="num text-sm font-semibold text-ink">v{release.version}</span>
+        <span className={[chipClass, 'uppercase'].join(' ')}>{release.type}</span>
+        <span className="hidden text-xs text-ink-3 sm:inline">{release.title}</span>
         <span className="ml-auto flex items-center gap-2">
-          <span className="text-xs text-zinc-600">{release.date}</span>
-          <ChevronDown className={`size-4 text-zinc-500 transition-transform ${open ? 'rotate-180' : ''}`} />
+          <span className="num text-xs text-ink-3">{release.date}</span>
+          <ChevronDown className={['size-4 text-ink-3 transition-transform', open ? 'rotate-180' : ''].join(' ')} aria-hidden />
         </span>
       </button>
 
-      {release.summary && <p className="mt-1 pr-6 text-xs text-zinc-400">{release.summary}</p>}
+      {release.summary && <p className="mt-1 pr-6 text-xs text-ink-2">{release.summary}</p>}
 
       {open && (
         <ul className="mt-2 space-y-1">
           {release.changes.map((c, i) => (
-            <li key={i} className="flex gap-2 text-xs text-zinc-400">
-              <span className="mt-1 size-1 shrink-0 rounded-full bg-accent/60" />
+            <li key={i} className="flex gap-2 text-xs text-ink-2">
+              <span className="mt-1.5 size-1 shrink-0 rounded-full bg-ember/60" aria-hidden />
               <span>{c}</span>
             </li>
           ))}
@@ -118,16 +162,16 @@ function VersionEntry({ release, defaultOpen = false }) {
 
 function SavedBadge() {
   return (
-    <span className="ember-saved-badge flex items-center gap-1 text-xs text-emerald-400">
-      <Check className="size-3.5" /> Saved
+    <span className="flex items-center gap-1 text-xs text-up">
+      <Check className="size-3.5" aria-hidden /> Saved
     </span>
   )
 }
 
 function ErrorBadge({ message = 'Save failed' }) {
   return (
-    <span className="flex items-center gap-1 text-xs text-rose-400" title={message}>
-      <AlertCircle className="size-3.5" /> {message}
+    <span className="flex items-center gap-1 text-xs text-down" title={message}>
+      <AlertCircle className="size-3.5" aria-hidden /> {message}
     </span>
   )
 }
@@ -176,61 +220,51 @@ function ChangePasswordForm({ token }) {
 
   if (!open) {
     return (
-      <button
-        type="button"
-        onClick={() => { reset(); setOpen(true) }}
-        className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-white/15 hover:bg-white/[0.07] hover:text-zinc-100"
-      >
+      <button type="button" onClick={() => { reset(); setOpen(true) }} className="btn-ghost mt-3">
         Change password
       </button>
     )
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-3 w-full space-y-3">
+    <form onSubmit={handleSubmit} className="mt-3 w-full max-w-md space-y-3">
       {[
         { label: 'Current password', value: current, set: setCurrent, show: showCurrent, toggle: () => setShowCurrent((v) => !v) },
         { label: 'New password', value: next, set: setNext, show: showNext, toggle: () => setShowNext((v) => !v) },
         { label: 'Confirm new password', value: confirm, set: setConfirm, show: showNext, toggle: null },
       ].map(({ label, value, set, show, toggle }) => (
-        <div key={label} className="flex flex-col gap-1">
-          <label className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">{label}</label>
+        <div key={label}>
+          <label className="field-label" htmlFor={`pw-${label}`}>{label}</label>
           <div className="relative">
             <input
+              id={`pw-${label}`}
               type={show ? 'text' : 'password'}
               value={value}
               onChange={(e) => set(e.target.value)}
               required
-              className="glass-input w-full rounded-xl px-3 py-2 pr-9 text-sm text-zinc-100"
+              className="input pr-10"
             />
             {toggle && (
               <button
                 type="button"
                 onClick={toggle}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-300"
+                aria-label={show ? 'Hide password' : 'Show password'}
+                className="absolute top-1/2 right-1 -translate-y-1/2 rounded-md p-2 text-ink-3 outline-none transition-colors hover:text-ink focus-visible:ring-2 focus-visible:ring-ember/60"
               >
-                {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                {show ? <EyeOff className="size-4" aria-hidden /> : <Eye className="size-4" aria-hidden />}
               </button>
             )}
           </div>
         </div>
       ))}
-      {error && <p className="text-xs text-rose-400">{error}</p>}
-      {success && <p className="flex items-center gap-1 text-xs text-emerald-400"><Check className="size-3.5" /> Password updated successfully.</p>}
+      {error && <p className="text-xs text-down">{error}</p>}
+      {success && <p className="flex items-center gap-1 text-xs text-up"><Check className="size-3.5" aria-hidden /> Password updated successfully.</p>}
       <div className="flex items-center gap-2 pt-1">
-        <button
-          type="submit"
-          disabled={busy}
-          className="glass-btn--accent inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-semibold disabled:opacity-60"
-        >
-          {busy ? <Loader2 className="size-3.5 animate-spin" /> : <KeyRound className="size-3.5" />}
+        <button type="submit" disabled={busy} className="btn-primary">
+          {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <KeyRound className="size-4" aria-hidden />}
           {busy ? 'Saving…' : 'Update password'}
         </button>
-        <button
-          type="button"
-          onClick={() => { setOpen(false); reset() }}
-          className="rounded-xl border border-white/[0.08] px-4 py-2 text-xs text-zinc-500 transition hover:border-white/15 hover:text-zinc-300"
-        >
+        <button type="button" onClick={() => { setOpen(false); reset() }} className="btn-ghost">
           Cancel
         </button>
       </div>
@@ -253,60 +287,11 @@ function LandingPagePicker() {
 
   return (
     <div className="flex items-center gap-3">
-      <select
-        value={value}
-        onChange={handleChange}
-        className="glass-input rounded-xl px-3 py-2 text-sm text-zinc-200"
-      >
+      <select value={value} onChange={handleChange} aria-label="Default landing page" className="select w-44">
         {LANDING_PAGES.map((p) => (
-          <option key={p.value} value={p.value} className="bg-neutral-900">{p.label}</option>
+          <option key={p.value} value={p.value}>{p.label}</option>
         ))}
       </select>
-      {saved && <SavedBadge />}
-    </div>
-  )
-}
-
-// ── Theme picker ──────────────────────────────────────────────────────────────
-
-const THEMES = [
-  { value: 'dark', label: 'Dark', icon: Moon },
-  { value: 'light', label: 'Light', icon: Sun },
-  { value: 'ember', label: 'Ember', icon: Flame },
-  { value: 'system', label: 'System', icon: null },
-]
-
-function ThemePicker() {
-  const [value, setValue] = useState(getTheme)
-  const [saved, setSaved] = useState(false)
-
-  const handleChange = (t) => {
-    setValue(t)
-    saveTheme(t)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 1500)
-  }
-
-  return (
-    <div className="flex items-center gap-3">
-      <div className="flex items-center rounded-xl border border-white/[0.08] bg-white/[0.03] p-1 gap-1">
-        {THEMES.map(({ value: t, label, icon: Icon }) => (
-          <button
-            key={t}
-            type="button"
-            onClick={() => handleChange(t)}
-            className={[
-              'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition',
-              value === t
-                ? 'bg-accent text-zinc-950 shadow-sm'
-                : 'text-zinc-400 hover:bg-white/5 hover:text-zinc-200',
-            ].join(' ')}
-          >
-            {Icon && <Icon className="size-3.5" />}
-            {label}
-          </button>
-        ))}
-      </div>
       {saved && <SavedBadge />}
     </div>
   )
@@ -333,23 +318,7 @@ function DensityPicker() {
 
   return (
     <div className="flex items-center gap-3">
-      <div className="flex items-center rounded-xl border border-white/[0.08] bg-white/[0.03] p-1 gap-1">
-        {DENSITIES.map(({ value: d, label }) => (
-          <button
-            key={d}
-            type="button"
-            onClick={() => handleChange(d)}
-            className={[
-              'rounded-lg px-3 py-1.5 text-xs font-medium transition',
-              value === d
-                ? 'bg-accent text-zinc-950 shadow-sm'
-                : 'text-zinc-400 hover:bg-white/5 hover:text-zinc-200',
-            ].join(' ')}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <Segmented options={DENSITIES} value={value} onChange={handleChange} label="Table density" />
       {saved && <SavedBadge />}
     </div>
   )
@@ -373,15 +342,7 @@ function LocalePicker() {
   }
   return (
     <div className="flex items-center gap-3">
-      <div className="flex items-center rounded-xl border border-white/[0.08] bg-white/[0.03] p-1 gap-1">
-        {LOCALES.map(({ value: l, label }) => (
-          <button key={l} type="button" onClick={() => handleChange(l)}
-            className={['rounded-lg px-3 py-1.5 text-xs font-medium transition',
-              value === l ? 'bg-accent text-zinc-950 shadow-sm' : 'text-zinc-400 hover:bg-white/5 hover:text-zinc-200'].join(' ')}>
-            {label}
-          </button>
-        ))}
-      </div>
+      <Segmented options={LOCALES} value={value} onChange={handleChange} label="Number formatting" />
       {saved && <SavedBadge />}
     </div>
   )
@@ -405,15 +366,7 @@ function ChartStylePicker() {
   }
   return (
     <div className="flex items-center gap-3">
-      <div className="flex items-center rounded-xl border border-white/[0.08] bg-white/[0.03] p-1 gap-1">
-        {CHART_STYLES.map(({ value: s, label }) => (
-          <button key={s} type="button" onClick={() => handleChange(s)}
-            className={['rounded-lg px-3 py-1.5 text-xs font-medium transition',
-              value === s ? 'bg-accent text-zinc-950 shadow-sm' : 'text-zinc-400 hover:bg-white/5 hover:text-zinc-200'].join(' ')}>
-            {label}
-          </button>
-        ))}
-      </div>
+      <Segmented options={CHART_STYLES} value={value} onChange={handleChange} label="Chart style" />
       {saved && <SavedBadge />}
     </div>
   )
@@ -434,25 +387,29 @@ function QuietHoursPicker() {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-3">
-        <button type="button" onClick={() => update({ enabled: !prefs.enabled })}
-          className={['relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none',
-            prefs.enabled ? 'bg-accent' : 'bg-zinc-700'].join(' ')}
-          role="switch" aria-checked={prefs.enabled}>
-          <span className={['inline-block size-4 rounded-full bg-white shadow-sm transition-transform duration-200',
-            prefs.enabled ? 'translate-x-5' : 'translate-x-0'].join(' ')} />
-        </button>
-        <span className="text-xs text-zinc-500">{prefs.enabled ? 'On' : 'Off'}</span>
+        <Switch on={prefs.enabled} onClick={() => update({ enabled: !prefs.enabled })} label="Quiet hours" />
+        <span className="text-xs text-ink-3">{prefs.enabled ? 'On' : 'Off'}</span>
         {saved && <SavedBadge />}
       </div>
       {prefs.enabled && (
-        <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-400">
+        <div className="flex flex-wrap items-center gap-2 text-xs text-ink-2">
           <span>From</span>
-          <input type="time" value={prefs.start} onChange={(e) => update({ start: e.target.value })}
-            className="glass-input rounded-lg px-2.5 py-1.5 text-sm text-zinc-200" />
+          <input
+            type="time"
+            value={prefs.start}
+            onChange={(e) => update({ start: e.target.value })}
+            aria-label="Quiet hours start"
+            className="input num w-auto"
+          />
           <span>to</span>
-          <input type="time" value={prefs.end} onChange={(e) => update({ end: e.target.value })}
-            className="glass-input rounded-lg px-2.5 py-1.5 text-sm text-zinc-200" />
-          <span className="text-zinc-600">ET</span>
+          <input
+            type="time"
+            value={prefs.end}
+            onChange={(e) => update({ end: e.target.value })}
+            aria-label="Quiet hours end"
+            className="input num w-auto"
+          />
+          <span className="text-ink-3">ET</span>
         </div>
       )}
     </div>
@@ -528,36 +485,29 @@ function EmailNotificationSettings({ token, userEmail }) {
 
   if (loadError) {
     return (
-      <p className="flex items-center gap-1.5 text-xs text-rose-400">
-        <AlertCircle className="size-3.5" /> Couldn't load email settings — try refreshing the page.
+      <p className="flex items-center gap-1.5 py-3.5 text-xs text-down">
+        <AlertCircle className="size-3.5" aria-hidden /> Couldn't load email settings — try refreshing the page.
       </p>
     )
   }
 
-  if (!settings) return <div className="h-8 animate-pulse rounded-lg bg-white/[0.04]" />
+  if (!settings) return <div className="skeleton my-3.5 h-8" />
 
   return (
-    <div className="space-y-4">
+    <>
       <div className="flex flex-col gap-2 py-3.5 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <p className="text-sm text-zinc-200">Alert fire emails</p>
-          <p className="mt-0.5 text-xs text-zinc-500">Receive an email each time a price alert triggers</p>
+          <p className="text-sm text-ink">Alert fire emails</p>
+          <p className="mt-0.5 text-xs text-ink-3">Receive an email each time a price alert triggers</p>
         </div>
         <div className="flex shrink-0 items-center gap-3">
-          <button
-            type="button"
+          <Switch
+            on={settings.email_alerts_enabled}
             onClick={() => patch({ email_alerts_enabled: !settings.email_alerts_enabled })}
             disabled={saving === 'email_alerts_enabled'}
-            className={[
-              'relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none disabled:opacity-60',
-              settings.email_alerts_enabled ? 'bg-accent' : 'bg-zinc-700',
-            ].join(' ')}
-            role="switch"
-            aria-checked={settings.email_alerts_enabled}
-          >
-            <span className={['inline-block size-4 rounded-full bg-white shadow-sm transition-transform duration-200', settings.email_alerts_enabled ? 'translate-x-5' : 'translate-x-0'].join(' ')} />
-          </button>
-          <span className="text-xs text-zinc-500">{settings.email_alerts_enabled ? 'On' : 'Off'}</span>
+            label="Alert fire emails"
+          />
+          <span className="text-xs text-ink-3">{settings.email_alerts_enabled ? 'On' : 'Off'}</span>
           {saved === 'email_alerts_enabled' && <SavedBadge />}
           {errorKey === 'email_alerts_enabled' && <ErrorBadge />}
         </div>
@@ -565,24 +515,17 @@ function EmailNotificationSettings({ token, userEmail }) {
 
       <div className="flex flex-col gap-2 py-3.5 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <p className="text-sm text-zinc-200">Daily close digest</p>
-          <p className="mt-0.5 text-xs text-zinc-500">End-of-day market summary with watchlist movers and alerts — sent at 4:30 PM ET</p>
+          <p className="text-sm text-ink">Daily close digest</p>
+          <p className="mt-0.5 text-xs text-ink-3">End-of-day market summary with watchlist movers and alerts — sent at 4:30 PM ET</p>
         </div>
         <div className="flex shrink-0 items-center gap-3">
-          <button
-            type="button"
+          <Switch
+            on={settings.email_digest_enabled}
             onClick={() => patch({ email_digest_enabled: !settings.email_digest_enabled })}
             disabled={saving === 'email_digest_enabled'}
-            className={[
-              'relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none disabled:opacity-60',
-              settings.email_digest_enabled ? 'bg-accent' : 'bg-zinc-700',
-            ].join(' ')}
-            role="switch"
-            aria-checked={settings.email_digest_enabled}
-          >
-            <span className={['inline-block size-4 rounded-full bg-white shadow-sm transition-transform duration-200', settings.email_digest_enabled ? 'translate-x-5' : 'translate-x-0'].join(' ')} />
-          </button>
-          <span className="text-xs text-zinc-500">{settings.email_digest_enabled ? 'On' : 'Off'}</span>
+            label="Daily close digest"
+          />
+          <span className="text-xs text-ink-3">{settings.email_digest_enabled ? 'On' : 'Off'}</span>
           {saved === 'email_digest_enabled' && <SavedBadge />}
           {errorKey === 'email_digest_enabled' && <ErrorBadge />}
         </div>
@@ -591,8 +534,8 @@ function EmailNotificationSettings({ token, userEmail }) {
       {(settings.email_alerts_enabled || settings.email_digest_enabled) && (
         <div className="flex flex-col gap-2 py-3.5 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <p className="text-sm text-zinc-200">Delivery email</p>
-            <p className="mt-0.5 text-xs text-zinc-500">Leave blank to use your account email ({userEmail})</p>
+            <p className="text-sm text-ink">Delivery email</p>
+            <p className="mt-0.5 text-xs text-ink-3">Leave blank to use your account email ({userEmail})</p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <input
@@ -600,14 +543,10 @@ function EmailNotificationSettings({ token, userEmail }) {
               value={alertEmail}
               onChange={(e) => setAlertEmail(e.target.value)}
               placeholder={userEmail}
-              className="glass-input w-52 rounded-xl px-3 py-2 text-sm text-zinc-200 placeholder:text-zinc-600"
+              aria-label="Delivery email"
+              className="input w-52"
             />
-            <button
-              type="button"
-              onClick={saveEmail}
-              disabled={saving === 'alert_email'}
-              className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-xs font-medium text-zinc-300 transition hover:border-white/15 hover:bg-white/[0.07] hover:text-zinc-100 disabled:opacity-50"
-            >
+            <button type="button" onClick={saveEmail} disabled={saving === 'alert_email'} className="btn-ghost">
               Save
             </button>
             {saved === 'alert_email' && <SavedBadge />}
@@ -615,8 +554,7 @@ function EmailNotificationSettings({ token, userEmail }) {
           </div>
         </div>
       )}
-
-    </div>
+    </>
   )
 }
 
@@ -626,7 +564,7 @@ const SOUND_KEY = 'ember_alert_sound'
 
 function FeedbackActions() {
   const email = 'support@emberfinances.com'
-  const subject = 'Ember Finances feedback'
+  const subject = 'Ember Finance feedback'
   const gmailHref = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=${encodeURIComponent(subject)}`
   const mailtoHref = `mailto:${email}?subject=${encodeURIComponent(subject)}`
   const [copied, setCopied] = useState(false)
@@ -648,26 +586,14 @@ function FeedbackActions() {
 
   return (
     <div className="flex flex-wrap items-center justify-end gap-2">
-      <span className="me-3 select-all font-mono text-xs text-zinc-400">{email}</span>
-      <button
-        type="button"
-        onClick={copy}
-        className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-white/15 hover:bg-white/[0.07] hover:text-zinc-100"
-      >
+      <span className="num me-2 text-xs text-ink-2 select-all">{email}</span>
+      <button type="button" onClick={copy} className="btn-ghost">
         {copied ? 'Copied!' : 'Copy'}
       </button>
-      <a
-        href={gmailHref}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-white/15 hover:bg-white/[0.07] hover:text-zinc-100"
-      >
+      <a href={gmailHref} target="_blank" rel="noopener noreferrer" className="btn-ghost">
         Gmail
       </a>
-      <a
-        href={mailtoHref}
-        className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-white/15 hover:bg-white/[0.07] hover:text-zinc-100"
-      >
+      <a href={mailtoHref} className="btn-ghost">
         Mail app
       </a>
     </div>
@@ -688,19 +614,8 @@ function AlertSoundToggle() {
 
   return (
     <div className="flex items-center gap-3">
-      <button
-        type="button"
-        onClick={toggle}
-        className={[
-          'relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none',
-          enabled ? 'bg-accent' : 'bg-zinc-700',
-        ].join(' ')}
-        role="switch"
-        aria-checked={enabled}
-      >
-        <span className={['inline-block size-4 rounded-full bg-white shadow-sm transition-transform duration-200', enabled ? 'translate-x-5' : 'translate-x-0'].join(' ')} />
-      </button>
-      <span className="text-xs text-zinc-500">{enabled ? 'On' : 'Muted'}</span>
+      <Switch on={enabled} onClick={toggle} label="Alert sound" />
+      <span className="text-xs text-ink-3">{enabled ? 'On' : 'Muted'}</span>
       {saved && <SavedBadge />}
     </div>
   )
@@ -724,97 +639,13 @@ function FireCrackleToggle() {
 
   return (
     <div className="flex items-center gap-3">
-      <button
-        type="button"
-        onClick={toggle}
-        className={[
-          'relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none',
-          enabled ? 'bg-accent' : 'bg-zinc-700',
-        ].join(' ')}
-        role="switch"
-        aria-checked={enabled}
-      >
-        <span className={['inline-block size-4 rounded-full bg-white shadow-sm transition-transform duration-200', enabled ? 'translate-x-5' : 'translate-x-0'].join(' ')} />
-      </button>
-      <span className="text-xs text-zinc-500">{enabled ? 'On' : 'Off'}</span>
+      <Switch on={enabled} onClick={toggle} label="Fire crackle" />
+      <span className="text-xs text-ink-3">{enabled ? 'On' : 'Off'}</span>
       {saved && <SavedBadge />}
     </div>
   )
 }
 
-// ── Ember mascot toggle ───────────────────────────────────────────────────────
-
-const MASCOT_KEY = 'ember_mascot_enabled'
-
-function MascotToggle() {
-  const [enabled, setEnabled] = useState(() => localStorage.getItem(MASCOT_KEY) !== 'false')
-  const [saved, setSaved] = useState(false)
-
-  const toggle = () => {
-    const next = !enabled
-    setEnabled(next)
-    localStorage.setItem(MASCOT_KEY, next ? 'true' : 'false')
-    setSaved(true)
-    setTimeout(() => setSaved(false), 1500)
-    window.dispatchEvent(new Event('ember-prefs-changed'))
-  }
-
-  return (
-    <div className="flex items-center gap-3">
-      <button
-        type="button"
-        onClick={toggle}
-        className={[
-          'relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none',
-          enabled ? 'bg-accent' : 'bg-zinc-700',
-        ].join(' ')}
-        role="switch"
-        aria-checked={enabled}
-      >
-        <span className={['inline-block size-4 rounded-full bg-white shadow-sm transition-transform duration-200', enabled ? 'translate-x-5' : 'translate-x-0'].join(' ')} />
-      </button>
-      <span className="text-xs text-zinc-500">{enabled ? 'Visible' : 'Hidden'}</span>
-      {saved && <SavedBadge />}
-    </div>
-  )
-}
-
-// ── Click sparks toggle ───────────────────────────────────────────────────────
-
-const CLICK_SPARK_KEY = 'ember_click_sparks'
-
-function ClickSparksToggle() {
-  const [enabled, setEnabled] = useState(() => localStorage.getItem(CLICK_SPARK_KEY) !== 'false')
-  const [saved, setSaved] = useState(false)
-
-  const toggle = () => {
-    const next = !enabled
-    setEnabled(next)
-    localStorage.setItem(CLICK_SPARK_KEY, next ? 'true' : 'false')
-    setSaved(true)
-    setTimeout(() => setSaved(false), 1500)
-    window.dispatchEvent(new Event('ember-prefs-changed'))
-  }
-
-  return (
-    <div className="flex items-center gap-3">
-      <button
-        type="button"
-        onClick={toggle}
-        className={[
-          'relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none',
-          enabled ? 'bg-accent' : 'bg-zinc-700',
-        ].join(' ')}
-        role="switch"
-        aria-checked={enabled}
-      >
-        <span className={['inline-block size-4 rounded-full bg-white shadow-sm transition-transform duration-200', enabled ? 'translate-x-5' : 'translate-x-0'].join(' ')} />
-      </button>
-      <span className="text-xs text-zinc-500">{enabled ? 'On' : 'Off'}</span>
-      {saved && <SavedBadge />}
-    </div>
-  )
-}
 
 // ── Two-factor authentication ─────────────────────────────────────────────────
 
@@ -930,67 +761,64 @@ function TwoFactorSection({ token }) {
   }, [token, password])
 
   if (loadError) return <ErrorBadge message="Couldn't load" />
-  if (enabled === null) return <div className="h-6 w-24 animate-pulse rounded-full bg-white/[0.04]" />
+  if (enabled === null) return <div className="skeleton h-6 w-24 rounded-full" />
 
   if (mode === 'setup') {
     return (
-      <form onSubmit={verifyAndEnable} className="mt-3 w-full space-y-4 rounded-xl border border-white/[0.08] bg-white/[0.02] p-4">
+      <form onSubmit={verifyAndEnable} className="mt-3 w-full space-y-4 rounded-xl border border-line bg-surface-2 p-4">
         <div className="flex flex-col items-start gap-4 sm:flex-row">
           {qrDataUrl ? (
-            <img src={qrDataUrl} alt="2FA QR code" className="size-[180px] shrink-0 rounded-lg bg-white p-2" />
+            <img src={qrDataUrl} alt="2FA QR code" className="size-[180px] shrink-0 rounded-lg bg-ink p-2" />
           ) : null}
-          <div className="min-w-0 space-y-2 text-xs text-zinc-400">
-            <p className="text-sm text-zinc-200">Scan with your authenticator</p>
+          <div className="min-w-0 space-y-2 text-xs text-ink-2">
+            <p className="text-sm text-ink">Scan with your authenticator</p>
             <p>Open Google Authenticator, Authy, or 1Password and scan this QR code. If you can't scan, enter this key manually:</p>
-            <code className="block break-all rounded-md bg-black/40 px-2 py-1.5 font-mono text-[11px] text-zinc-300">
+            <code className="num block rounded-md border border-line bg-bg px-2 py-1.5 text-[11px] break-all text-ink-2">
               {otpauthUri}
             </code>
           </div>
         </div>
 
         {backupCodes.length > 0 ? (
-          <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.04] p-3">
-            <div className="flex items-start gap-2 text-xs text-amber-300">
-              <AlertCircle className="mt-0.5 size-3.5 shrink-0" />
+          <div className="rounded-xl border border-warn/25 bg-warn/10 p-3">
+            <div className="flex items-start gap-2 text-xs text-warn">
+              <AlertCircle className="mt-0.5 size-3.5 shrink-0" aria-hidden />
               <span>Save these backup codes somewhere safe. Each can be used once if you lose access to your authenticator.</span>
             </div>
             <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
               {backupCodes.map((c) => (
-                <code key={c} className="rounded-md bg-black/40 px-2 py-1.5 text-center font-mono text-[12px] text-zinc-200">{c}</code>
+                <code key={c} className="num rounded-md border border-line bg-bg px-2 py-1.5 text-center text-[12px] text-ink">{c}</code>
               ))}
             </div>
           </div>
         ) : null}
 
-        <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Enter code from app</label>
+        <div>
+          <label className="field-label" htmlFor="twofa-code">Enter code from app</label>
           <input
+            id="twofa-code"
             type="text"
             inputMode="numeric"
             value={code}
             onChange={(e) => setCode(e.target.value)}
             required
             autoFocus
-            className="glass-input w-40 rounded-xl px-3 py-2 text-center font-mono text-base tracking-[0.3em] text-zinc-100"
+            className="input num w-40 text-center text-base tracking-[0.3em]"
             placeholder="123456"
           />
         </div>
 
-        {error ? <p className="text-xs text-rose-400">{error}</p> : null}
+        {error ? <p className="text-xs text-down">{error}</p> : null}
 
         <div className="flex items-center gap-2 pt-1">
-          <button
-            type="submit"
-            disabled={busy || !code}
-            className="glass-btn--accent inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-semibold disabled:opacity-60"
-          >
-            {busy ? <Loader2 className="size-3.5 animate-spin" /> : <ShieldCheck className="size-3.5" />}
+          <button type="submit" disabled={busy || !code} className="btn-primary">
+            {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <ShieldCheck className="size-4" aria-hidden />}
             {busy ? 'Verifying…' : 'Verify and enable'}
           </button>
           <button
             type="button"
             onClick={() => { setMode('idle'); setQrDataUrl(''); setOtpauthUri(''); setBackupCodes([]); setCode(''); setError(null) }}
-            className="rounded-xl border border-white/[0.08] px-4 py-2 text-xs text-zinc-500 transition hover:border-white/15 hover:text-zinc-300"
+            className="btn-ghost"
           >
             Cancel
           </button>
@@ -1001,37 +829,30 @@ function TwoFactorSection({ token }) {
 
   if (mode === 'disable') {
     return (
-      <form onSubmit={disable} className="mt-3 w-full space-y-3 rounded-xl border border-rose-500/20 bg-rose-500/[0.04] p-4">
-        <div className="flex items-start gap-2 text-xs text-rose-300">
-          <AlertCircle className="mt-0.5 size-3.5 shrink-0" />
+      <form onSubmit={disable} className="mt-3 w-full max-w-md space-y-3 rounded-xl border border-down/25 bg-down/10 p-4">
+        <div className="flex items-start gap-2 text-xs text-down">
+          <AlertCircle className="mt-0.5 size-3.5 shrink-0" aria-hidden />
           <span>Disabling 2FA removes a layer of protection. Re-enter your password to confirm.</span>
         </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Current password</label>
+        <div>
+          <label className="field-label" htmlFor="twofa-disable-pw">Current password</label>
           <input
+            id="twofa-disable-pw"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="current-password"
-            className="glass-input w-full rounded-xl px-3 py-2 text-sm text-zinc-100"
+            className="input"
           />
         </div>
-        {error ? <p className="text-xs text-rose-400">{error}</p> : null}
+        {error ? <p className="text-xs text-down">{error}</p> : null}
         <div className="flex items-center gap-2 pt-1">
-          <button
-            type="submit"
-            disabled={busy || !password}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-rose-500 px-4 py-2 text-xs font-semibold text-white transition hover:bg-rose-400 disabled:opacity-60"
-          >
-            {busy ? <Loader2 className="size-3.5 animate-spin" /> : null}
+          <button type="submit" disabled={busy || !password} className="btn-danger">
+            {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
             {busy ? 'Disabling…' : 'Disable 2FA'}
           </button>
-          <button
-            type="button"
-            onClick={() => { setMode('idle'); setPassword(''); setError(null) }}
-            className="rounded-xl border border-white/[0.08] px-4 py-2 text-xs text-zinc-500 transition hover:border-white/15 hover:text-zinc-300"
-          >
+          <button type="button" onClick={() => { setMode('idle'); setPassword(''); setError(null) }} className="btn-ghost">
             Cancel
           </button>
         </div>
@@ -1043,27 +864,16 @@ function TwoFactorSection({ token }) {
     <div className="flex items-center gap-2">
       {enabled ? (
         <>
-          <span className="rounded-full border border-emerald-500/20 bg-emerald-500/5 px-2.5 py-1 text-[10px] font-medium text-emerald-400">
-            Enabled
-          </span>
-          <button
-            type="button"
-            onClick={() => { setMode('disable'); setError(null) }}
-            className="rounded-lg border border-rose-500/25 bg-rose-500/5 px-3 py-1.5 text-xs font-medium text-rose-300 transition hover:border-rose-500/45 hover:bg-rose-500/10 hover:text-rose-200"
-          >
+          <span className="chip chip-up">Enabled</span>
+          <button type="button" onClick={() => { setMode('disable'); setError(null) }} className="btn-danger">
             Disable
           </button>
         </>
       ) : (
         <>
           {success && <SavedBadge />}
-          <button
-            type="button"
-            onClick={startSetup}
-            disabled={busy}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-white/15 hover:bg-white/[0.07] hover:text-zinc-100 disabled:opacity-60"
-          >
-            {busy ? <Loader2 className="size-3.5 animate-spin" /> : <ShieldCheck className="size-3.5" />}
+          <button type="button" onClick={startSetup} disabled={busy} className="btn-ghost">
+            {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <ShieldCheck className="size-4" aria-hidden />}
             {busy ? 'Starting…' : 'Set up 2FA'}
           </button>
         </>
@@ -1115,70 +925,61 @@ function DeleteAccountForm({ token }) {
 
   if (!open) {
     return (
-      <button
-        type="button"
-        onClick={() => { reset(); setOpen(true) }}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-rose-500/25 bg-rose-500/5 px-3 py-1.5 text-xs font-medium text-rose-300 transition hover:border-rose-500/45 hover:bg-rose-500/10 hover:text-rose-200"
-      >
-        <Trash2 className="size-3.5" />
+      <button type="button" onClick={() => { reset(); setOpen(true) }} className="btn-danger mt-3">
+        <Trash2 className="size-4" aria-hidden />
         Delete account
       </button>
     )
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-3 w-full space-y-3 rounded-xl border border-rose-500/20 bg-rose-500/[0.04] p-4">
-      <div className="flex items-start gap-2 text-xs text-rose-300">
-        <AlertCircle className="mt-0.5 size-3.5 shrink-0" />
+    <form onSubmit={handleSubmit} className="mt-3 w-full max-w-md space-y-3 rounded-xl border border-down/25 bg-down/10 p-4">
+      <div className="flex items-start gap-2 text-xs text-down">
+        <AlertCircle className="mt-0.5 size-3.5 shrink-0" aria-hidden />
         <span>This permanently removes your account, watchlists, alerts, and history. This cannot be undone.</span>
       </div>
-      <div className="flex flex-col gap-1">
-        <label className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Current password</label>
+      <div>
+        <label className="field-label" htmlFor="delete-pw">Current password</label>
         <div className="relative">
           <input
+            id="delete-pw"
             type={showPw ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="current-password"
-            className="glass-input w-full rounded-xl px-3 py-2 pr-9 text-sm text-zinc-100"
+            className="input pr-10"
           />
           <button
             type="button"
             onClick={() => setShowPw((v) => !v)}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-300"
+            aria-label={showPw ? 'Hide password' : 'Show password'}
+            className="absolute top-1/2 right-1 -translate-y-1/2 rounded-md p-2 text-ink-3 outline-none transition-colors hover:text-ink focus-visible:ring-2 focus-visible:ring-ember/60"
           >
-            {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            {showPw ? <EyeOff className="size-4" aria-hidden /> : <Eye className="size-4" aria-hidden />}
           </button>
         </div>
       </div>
-      <div className="flex flex-col gap-1">
-        <label className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Type DELETE to confirm</label>
+      <div>
+        <label className="field-label" htmlFor="delete-confirm">Type DELETE to confirm</label>
         <input
+          id="delete-confirm"
           type="text"
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
           autoCapitalize="characters"
           autoComplete="off"
           spellCheck={false}
-          className="glass-input w-full rounded-xl px-3 py-2 text-sm text-zinc-100"
+          className="input"
         />
       </div>
-      {error && <p className="text-xs text-rose-400">{error}</p>}
+      {error && <p className="text-xs text-down">{error}</p>}
       <div className="flex items-center gap-2 pt-1">
-        <button
-          type="submit"
-          disabled={busy || confirm !== 'DELETE' || !password}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-rose-500 px-4 py-2 text-xs font-semibold text-white transition hover:bg-rose-400 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {busy ? <Loader2 className="size-3.5 animate-spin" /> : <Trash2 className="size-3.5" />}
+        <button type="submit" disabled={busy || confirm !== 'DELETE' || !password} className="btn-danger">
+          {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Trash2 className="size-4" aria-hidden />}
           {busy ? 'Deleting…' : 'Delete my account'}
         </button>
-        <button
-          type="button"
-          onClick={() => { setOpen(false); reset() }}
-          className="rounded-xl border border-white/[0.08] px-4 py-2 text-xs text-zinc-500 transition hover:border-white/15 hover:text-zinc-300"
-        >
+        <button type="button" onClick={() => { setOpen(false); reset() }} className="btn-ghost">
           Cancel
         </button>
       </div>
@@ -1222,12 +1023,7 @@ function DownloadDataButton({ token }) {
 
   return (
     <div className="flex items-center gap-2">
-      <button
-        type="button"
-        onClick={handleClick}
-        disabled={busy}
-        className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-white/15 hover:bg-white/[0.07] hover:text-zinc-100 disabled:opacity-60"
-      >
+      <button type="button" onClick={handleClick} disabled={busy} className="btn-ghost">
         {busy ? 'Preparing…' : 'Download my data'}
       </button>
       {error && <ErrorBadge message={error} />}
@@ -1241,25 +1037,27 @@ export function Settings() {
   const { user, token } = useAuth()
 
   return (
-    <div className="app-page-enter space-y-6">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">Settings</h1>
-        <p className="text-sm text-zinc-500">Manage your account, display preferences, and data sources.</p>
+    <div className="space-y-6">
+      <header className="rise">
+        <p className="eyebrow">Account · Preferences</p>
+        <h1 className="display mt-1 text-2xl sm:text-3xl">Settings</h1>
+        <p className="mt-1.5 text-sm text-ink-2">Manage your account, display preferences, and notifications.</p>
+        <div className="ember-rule mt-4" />
       </header>
 
       {/* Account */}
-      <Section icon={User} title="Account">
+      <Section icon={User} title="Account" className="rise rise-1">
         <Row label="Email" hint="Your sign-in address">
-          <span className="text-sm text-zinc-400">{user?.email ?? '—'}</span>
+          <span className="text-sm text-ink-2">{user?.email ?? '—'}</span>
         </Row>
         <div className="py-3.5">
-          <p className="text-sm text-zinc-200">Password</p>
-          <p className="mt-0.5 text-xs text-zinc-500">Must be at least 8 characters</p>
+          <p className="text-sm text-ink">Password</p>
+          <p className="mt-0.5 text-xs text-ink-3">Must be at least 8 characters</p>
           <ChangePasswordForm token={token} />
         </div>
         <div className="py-3.5">
-          <p className="text-sm text-zinc-200">Two-factor authentication</p>
-          <p className="mt-0.5 text-xs text-zinc-500">Add an extra layer of security to your account using an authenticator app</p>
+          <p className="text-sm text-ink">Two-factor authentication</p>
+          <p className="mt-0.5 text-xs text-ink-3">Add an extra layer of security to your account using an authenticator app</p>
           <div className="mt-3">
             <TwoFactorSection token={token} />
           </div>
@@ -1267,20 +1065,12 @@ export function Settings() {
         <Row label="Download my data" hint="Export your account, watchlists, alerts, and settings as a JSON file">
           <DownloadDataButton token={token} />
         </Row>
-        <div className="py-3.5">
-          <p className="text-sm text-zinc-200">Delete account</p>
-          <p className="mt-0.5 text-xs text-zinc-500">Permanently remove all your data — this cannot be undone</p>
-          <DeleteAccountForm token={token} />
-        </div>
       </Section>
 
       {/* Display */}
-      <Section icon={LayoutDashboard} title="Display" description="UI & layout preferences">
+      <Section icon={LayoutDashboard} title="Display" description="UI & layout preferences" className="rise rise-2">
         <Row label="Default landing page" hint="Which page opens when you log in">
           <LandingPagePicker />
-        </Row>
-        <Row label="Theme" hint="Dark, light, or system default">
-          <ThemePicker />
         </Row>
         <Row label="Number formatting" hint="Affects prices, percentages, and large numbers across the app">
           <LocalePicker />
@@ -1294,25 +1084,17 @@ export function Settings() {
       </Section>
 
       {/* Notifications */}
-      <Section icon={Bell} title="Notifications" description="How and when you're notified">
+      <Section icon={Bell} title="Notifications" description="How and when you're notified" className="rise rise-3">
         <Row label="Alert sound" hint="Play a chime when a WebSocket alert fires in the browser tab">
           <AlertSoundToggle />
         </Row>
         <Row label="Fire crackle" hint="Add a brief crackling-fire sound after the chime when alerts fire">
           <FireCrackleToggle />
         </Row>
-        <Row label="Ember mascot" hint="Show the little fire spirit in the bottom-right corner">
-          <MascotToggle />
-        </Row>
-        <Row label="Click sparks" hint="Tiny ember puff at every click">
-          <ClickSparksToggle />
-        </Row>
+        <EmailNotificationSettings token={token} userEmail={user?.email} />
         <div className="py-3.5">
-          <EmailNotificationSettings token={token} userEmail={user?.email} />
-        </div>
-        <div className="py-3.5">
-          <p className="text-sm text-zinc-200">Quiet hours</p>
-          <p className="mt-0.5 text-xs text-zinc-500">Suppress in-app chimes and alert toasts during set times (ET)</p>
+          <p className="text-sm text-ink">Quiet hours</p>
+          <p className="mt-0.5 text-xs text-ink-3">Suppress in-app chimes and alert toasts during set times (ET)</p>
           <div className="mt-3">
             <QuietHoursPicker />
           </div>
@@ -1320,25 +1102,23 @@ export function Settings() {
       </Section>
 
       {/* Data & API */}
-      <Section icon={Database} title="Data & API" description="Market data source">
+      <Section icon={Database} title="Data & API" description="Market data source" className="rise rise-4">
         <Row label="Data provider" hint="All market data is sourced from Financial Modeling Prep (FMP)">
-          <span className="rounded-full border border-emerald-500/20 bg-emerald-500/5 px-2.5 py-1 text-[10px] font-medium text-emerald-400">
-            Connected
-          </span>
+          <span className="chip chip-up">Connected</span>
         </Row>
       </Section>
 
       {/* About */}
-      <Section icon={SettingsIcon} title="About">
+      <Section icon={SettingsIcon} title="About" className="rise rise-5">
         <Row label="Version">
-          <span className="text-sm tabular-nums text-zinc-300">v{CURRENT_VERSION}</span>
+          <span className="num text-sm text-ink-2">v{CURRENT_VERSION}</span>
         </Row>
         <Row label="Data provider">
           <a
             href="https://financialmodelingprep.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-accent/80 underline-offset-4 hover:text-accent hover:underline"
+            className="rounded text-sm text-flame underline-offset-4 outline-none transition-colors hover:text-ember hover:underline focus-visible:ring-2 focus-visible:ring-ember/60"
           >
             Financial Modeling Prep
           </a>
@@ -1348,10 +1128,20 @@ export function Settings() {
         </Row>
       </Section>
 
-      <Section icon={History} title="Version history" description="What's new">
+      {/* Version history */}
+      <Section icon={History} title="Version history" description="What's new" className="rise rise-6">
         {VERSION_HISTORY.map((rel, i) => (
           <VersionEntry key={rel.version} release={rel} defaultOpen={i === 0} />
         ))}
+      </Section>
+
+      {/* Danger zone */}
+      <Section icon={Trash2} title="Danger zone" description="Irreversible actions" danger className="rise rise-7">
+        <div className="py-3.5">
+          <p className="text-sm text-ink">Delete account</p>
+          <p className="mt-0.5 text-xs text-ink-3">Permanently remove all your data — this cannot be undone</p>
+          <DeleteAccountForm token={token} />
+        </div>
       </Section>
     </div>
   )

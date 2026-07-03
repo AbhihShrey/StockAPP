@@ -11,16 +11,18 @@ import {
 } from 'recharts'
 import { apiUrl } from '../lib/apiBase'
 
-const CLOSE_STROKE = 'oklch(0.72 0.17 165)'
-const VWAP_STROKE = '#c9a227'
+const CLOSE_STROKE = '#3DDC97'
+const VWAP_STROKE = '#FFA53D'
+const GRID_STROKE = 'rgba(244,232,216,0.06)'
+const AXIS_TEXT = '#837A6F'
 const TOOLTIP_STYLE = {
-  background: 'rgba(20, 20, 24, 0.55)',
-  border: '1px solid rgba(255, 255, 255, 0.10)',
+  background: 'rgba(20, 17, 14, 0.82)',
+  border: '1px solid rgba(244, 232, 216, 0.16)',
   borderRadius: '0.75rem',
-  backdropFilter: 'blur(18px) saturate(170%)',
-  WebkitBackdropFilter: 'blur(18px) saturate(170%)',
-  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.35)',
-  color: 'oklch(0.92 0 0)',
+  backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)',
+  boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
+  color: '#F4EFE9',
   fontSize: '12px',
   padding: '8px 10px',
   fontFamily:
@@ -97,14 +99,14 @@ export function PriceVwapChart({
     <div className={className}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          {title ? <h3 className="text-sm font-semibold text-zinc-200">{title}</h3> : null}
-          {subtitle ? <p className="mt-0.5 text-xs text-zinc-500">{subtitle}</p> : null}
-          {raw?.methodology ? <p className="mt-1 text-[11px] text-zinc-600">{raw.methodology}</p> : null}
+          {title ? <h3 className="text-sm font-semibold text-ink">{title}</h3> : null}
+          {subtitle ? <p className="mt-0.5 text-xs text-ink-3">{subtitle}</p> : null}
+          {raw?.methodology ? <p className="mt-1 text-[11px] text-ink-3">{raw.methodology}</p> : null}
         </div>
-        <label className="flex cursor-pointer items-center gap-2 text-xs text-zinc-400">
+        <label className="flex cursor-pointer items-center gap-2 text-xs text-ink-2">
           <input
             type="checkbox"
-            className="rounded border-border-subtle bg-surface-0/40"
+            className="rounded border-line bg-surface-2 accent-ember"
             checked={showVwapLine}
             onChange={(e) => setShowVwapLine(e.target.checked)}
           />
@@ -114,31 +116,31 @@ export function PriceVwapChart({
 
       <div className="mt-4 h-72 w-full">
         {loading ? (
-          <p className="flex h-full items-center justify-center text-sm text-zinc-500">Loading VWAP series…</p>
+          <p className="flex h-full items-center justify-center text-sm text-ink-3">Loading VWAP series…</p>
         ) : err ? (
-          <p className="flex h-full items-center justify-center text-sm text-amber-200/90">{err}</p>
+          <p className="flex h-full items-center justify-center text-sm text-warn">{err}</p>
         ) : chartData.length > 0 ? (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-              <CartesianGrid stroke="oklch(0.26 0.01 255 / 0.35)" vertical={false} />
-              <XAxis dataKey="t" tick={{ fill: '#71717a', fontSize: 11 }} tickLine={false} axisLine={false} />
+              <CartesianGrid stroke={GRID_STROKE} vertical={false} />
+              <XAxis dataKey="t" tick={{ fill: AXIS_TEXT, fontSize: 11 }} tickLine={false} axisLine={false} />
               <YAxis
                 domain={['auto', 'auto']}
-                tick={{ fill: '#71717a', fontSize: 11 }}
+                tick={{ fill: AXIS_TEXT, fontSize: 11 }}
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={(v) => (Math.abs(v) >= 1000 ? `$${(v / 1000).toFixed(1)}k` : `$${v.toFixed(0)}`)}
               />
               <Tooltip
                 contentStyle={TOOLTIP_STYLE}
-                labelStyle={{ color: '#a1a1aa' }}
+                labelStyle={{ color: AXIS_TEXT }}
                 formatter={(value, name) =>
                   typeof value === 'number' ? [`$${value.toFixed(2)}`, name] : [value, name]
                 }
               />
               <Legend
                 wrapperStyle={{ fontSize: '12px', paddingTop: '8px' }}
-                formatter={(value) => <span className="text-zinc-400">{value}</span>}
+                formatter={(value) => <span className="text-ink-2">{value}</span>}
               />
               <Line type="monotone" dataKey="close" name="Close" stroke={CLOSE_STROKE} strokeWidth={2} dot={false} />
               {showVwapLine ? (
@@ -156,7 +158,7 @@ export function PriceVwapChart({
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <p className="flex h-full items-center justify-center text-sm text-zinc-500">No OHLCV data.</p>
+          <p className="flex h-full items-center justify-center text-sm text-ink-3">No OHLCV data.</p>
         )}
       </div>
     </div>

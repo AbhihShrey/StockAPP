@@ -9,23 +9,25 @@ const UNIVERSES = [
   { id: 'sp500', label: 'S&P 500' },
 ]
 
+const EMBER_ACCENT = { accentColor: 'var(--color-ember)' }
+
 function fmtPrice(n) {
   if (n == null) return '—'
   return new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(n)
 }
 
 const DIRECTION_META = {
-  from_below: { label: 'From below', Icon: TrendingUp, color: 'text-emerald-400' },
-  from_above: { label: 'From above', Icon: TrendingDown, color: 'text-sky-400' },
-  golden_cross_imminent: { label: 'Golden cross', Icon: TrendingUp, color: 'text-emerald-400' },
-  death_cross_imminent: { label: 'Death cross', Icon: TrendingDown, color: 'text-rose-400' },
-  approaching_overbought: { label: 'Overbought', Icon: TrendingUp, color: 'text-amber-400' },
-  approaching_oversold: { label: 'Oversold', Icon: TrendingDown, color: 'text-sky-400' },
+  from_below: { label: 'From below', Icon: TrendingUp, color: 'text-up' },
+  from_above: { label: 'From above', Icon: TrendingDown, color: 'text-ink-2' },
+  golden_cross_imminent: { label: 'Golden cross', Icon: TrendingUp, color: 'text-up' },
+  death_cross_imminent: { label: 'Death cross', Icon: TrendingDown, color: 'text-down' },
+  approaching_overbought: { label: 'Overbought', Icon: TrendingUp, color: 'text-warn' },
+  approaching_oversold: { label: 'Oversold', Icon: TrendingDown, color: 'text-ink-2' },
 }
 
 function DirectionCell({ direction }) {
   const meta = DIRECTION_META[direction]
-  if (!meta) return <span className="text-zinc-500">—</span>
+  if (!meta) return <span className="text-ink-3">—</span>
   const { label, Icon, color } = meta
   return (
     <span className={`inline-flex items-center gap-1 ${color}`}>
@@ -36,13 +38,13 @@ function DirectionCell({ direction }) {
 
 function ReadinessBar({ value }) {
   const v = Math.max(0, Math.min(100, value ?? 0))
-  const color = v >= 70 ? 'bg-emerald-400' : v >= 45 ? 'bg-amber-400' : 'bg-zinc-500'
+  const fill = v >= 70 ? 'bg-ember-grad' : v >= 45 ? 'bg-ember/50' : 'bg-ink-3/50'
   return (
-    <div className="flex items-center gap-2">
-      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-white/10">
-        <div className={`h-full rounded-full ${color}`} style={{ width: `${v}%` }} />
+    <div className="flex items-center gap-2" aria-label={`Readiness ${v} of 100`}>
+      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-surface-3" aria-hidden>
+        <div className={`h-full rounded-full ${fill}`} style={{ width: `${v}%` }} />
       </div>
-      <span className="tabular-nums text-xs text-zinc-400">{v}</span>
+      <span className={['num text-xs', v >= 70 ? 'font-semibold text-flame' : 'text-ink-2'].join(' ')}>{v}</span>
     </div>
   )
 }
@@ -155,8 +157,8 @@ export function StrategyScreener({ token }) {
 
   if (loadingStrategies) {
     return (
-      <div className="flex items-center justify-center py-16 text-sm text-zinc-500">
-        <Loader2 className="mr-2 size-4 animate-spin" /> Loading strategies…
+      <div className="flex items-center justify-center py-16 text-sm text-ink-3">
+        <Loader2 className="mr-2 size-4 animate-spin" aria-hidden /> Loading strategies…
       </div>
     )
   }
@@ -167,45 +169,48 @@ export function StrategyScreener({ token }) {
   return (
     <div className="space-y-4">
       {/* Config card */}
-      <section className="rounded-2xl border border-border-subtle bg-gradient-to-b from-surface-1/80 to-surface-1/55 shadow-xl shadow-black/20">
-        <div className="flex items-center gap-2 border-b border-border-subtle px-5 py-3.5">
-          <Radar className="size-4 text-zinc-400" />
-          <h2 className="text-sm font-semibold tracking-tight text-zinc-100">Strategy setup</h2>
+      <section className="panel">
+        <div className="flex items-center gap-2 border-b border-line px-4 py-3 sm:px-5">
+          <Radar className="size-4 text-ink-3" aria-hidden />
+          <h2 className="eyebrow">Strategy setup</h2>
         </div>
 
-        <div className="space-y-5 p-5">
+        <div className="space-y-5 panel-pad">
           {/* Strategy picker */}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <div className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Strategy</span>
-              <select
-                value={strategyId}
-                onChange={(e) => setStrategyId(e.target.value)}
-                className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-zinc-100 outline-none ring-accent/25 focus:border-accent/35 focus:ring-2"
-              >
-                {strategies.map((s) => (
-                  <option key={s.id} value={s.id} disabled={s.disabled} className="bg-neutral-900">
-                    {s.label}{s.disabled ? ' (coming soon)' : ''}
-                  </option>
-                ))}
-              </select>
-              {strategy ? <p className="text-xs leading-relaxed text-zinc-500">{strategy.description}</p> : null}
+            <div>
+              <label className="block">
+                <span className="field-label">Strategy</span>
+                <select
+                  value={strategyId}
+                  onChange={(e) => setStrategyId(e.target.value)}
+                  className="select"
+                >
+                  {strategies.map((s) => (
+                    <option key={s.id} value={s.id} disabled={s.disabled} className="bg-surface-2 text-ink">
+                      {s.label}{s.disabled ? ' (coming soon)' : ''}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {strategy ? <p className="mt-1.5 text-xs leading-relaxed text-ink-3">{strategy.description}</p> : null}
             </div>
 
             {/* Universe */}
-            <div className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Universe to scan</span>
-              <div className="flex flex-wrap gap-1.5">
+            <div>
+              <span className="field-label" id="strategy-universe-label">Universe to scan</span>
+              <div className="flex flex-wrap gap-1.5" role="group" aria-labelledby="strategy-universe-label">
                 {UNIVERSES.map((u) => (
                   <button
                     key={u.id}
                     type="button"
                     onClick={() => setUniverse(u.id)}
+                    aria-pressed={universe === u.id}
                     className={[
-                      'rounded-lg px-3 py-1.5 text-xs font-medium transition',
+                      'rounded-lg border px-3 py-2 text-xs font-medium transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ember/60',
                       universe === u.id
-                        ? 'bg-accent-muted text-accent ring-1 ring-accent/30'
-                        : 'border border-white/10 bg-white/[0.04] text-zinc-400 hover:bg-white/[0.08] hover:text-zinc-200',
+                        ? 'border-ember/30 bg-ember/10 text-flame'
+                        : 'border-line bg-surface-2 text-ink-2 hover:bg-surface-3 hover:text-ink',
                     ].join(' ')}
                   >
                     {u.label}
@@ -213,28 +218,30 @@ export function StrategyScreener({ token }) {
                 ))}
               </div>
               {strategy?.supportsIntraday ? (
-                <label className="mt-1 inline-flex items-center gap-2 text-xs text-zinc-400">
+                <label className="mt-2.5 flex cursor-pointer items-center gap-2 text-xs text-ink-2">
                   <input
                     type="checkbox"
                     checked={intraday}
                     onChange={(e) => setIntraday(e.target.checked)}
-                    className="size-3.5 accent-[color:var(--accent,#c0431f)]"
+                    className="size-3.5 cursor-pointer"
+                    style={EMBER_ACCENT}
                   />
                   Use intraday session VWAP
                   {intraday && universe === 'sp500' ? (
-                    <span className="text-amber-400/80">(capped to the most liquid names)</span>
+                    <span className="text-warn">(capped to the most liquid names)</span>
                   ) : null}
                 </label>
               ) : null}
-              <label className="mt-1 inline-flex items-center gap-2 text-xs text-zinc-400">
+              <label className="mt-2.5 flex cursor-pointer items-center gap-2 text-xs text-ink-2">
                 <input
                   type="checkbox"
                   checked={liquidityFilter}
                   onChange={(e) => setLiquidityFilter(e.target.checked)}
-                  className="size-3.5 accent-[color:var(--accent,#c0431f)]"
+                  className="size-3.5 cursor-pointer"
+                  style={EMBER_ACCENT}
                 />
                 Liquid names only
-                <span className="text-zinc-600">(skip penny / thin volume)</span>
+                <span className="text-ink-3">(skip penny / thin volume)</span>
               </label>
             </div>
           </div>
@@ -242,9 +249,9 @@ export function StrategyScreener({ token }) {
           {/* Threshold + params */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {strategy?.threshold ? (
-              <div className="flex flex-col gap-1.5">
-                <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
-                  {strategy.threshold.label} ≤ <span className="text-zinc-300">{threshold}{thresholdUnit}</span>
+              <label className="block">
+                <span className="field-label">
+                  {strategy.threshold.label} ≤ <span className="num text-ink">{threshold}{thresholdUnit}</span>
                 </span>
                 <input
                   type="range"
@@ -253,14 +260,15 @@ export function StrategyScreener({ token }) {
                   step={strategy.threshold.step}
                   value={threshold}
                   onChange={(e) => setThreshold(Number(e.target.value))}
-                  className="w-full accent-[color:var(--accent,#c0431f)]"
+                  className="h-9 w-full cursor-pointer"
+                  style={EMBER_ACCENT}
                 />
-              </div>
+              </label>
             ) : null}
 
             {(strategy?.params ?? []).map((p) => (
-              <div key={p.key} className="flex flex-col gap-1.5">
-                <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">{p.label}</span>
+              <label key={p.key} className="block">
+                <span className="field-label">{p.label}</span>
                 <input
                   type="number"
                   min={p.min}
@@ -268,9 +276,9 @@ export function StrategyScreener({ token }) {
                   step={p.step ?? 1}
                   value={params[p.key] ?? p.default}
                   onChange={(e) => setParam(p.key)(e.target.value)}
-                  className="glass-input rounded-xl px-3 py-2 text-sm text-zinc-100"
+                  className="input"
                 />
-              </div>
+              </label>
             ))}
           </div>
 
@@ -280,130 +288,138 @@ export function StrategyScreener({ token }) {
               type="button"
               onClick={handleRun}
               disabled={running || !strategy || strategy.disabled}
-              className="glass-btn--accent inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold disabled:opacity-60"
+              className="btn-primary"
             >
-              {running ? <Loader2 className="size-4 animate-spin" /> : <Radar className="size-4" />}
+              {running ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Radar className="size-4" aria-hidden />}
               {running ? 'Scanning…' : 'Run scan'}
             </button>
             <button
               type="button"
               onClick={createScreenAlert}
               disabled={screenAlert === 'saving' || !strategy || strategy.disabled}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-white/[0.08] hover:text-zinc-100 disabled:opacity-50"
+              className="btn-ghost"
               title="Alert me when any name newly enters this screen"
             >
-              {screenAlert === 'saving' ? <Loader2 className="size-4 animate-spin" /> : <BellRing className="size-4" />}
-              {screenAlert === 'done' ? 'Watching screen ✓' : 'Watch this screen'}
+              {screenAlert === 'saving'
+                ? <Loader2 className="size-4 animate-spin" aria-hidden />
+                : screenAlert === 'done'
+                  ? <Check className="size-4 text-up" aria-hidden />
+                  : <BellRing className="size-4" aria-hidden />}
+              {screenAlert === 'done' ? 'Watching screen' : 'Watch this screen'}
             </button>
-            {screenAlert === 'error' ? <span className="text-xs text-rose-400">Could not create screen alert.</span> : null}
+            {screenAlert === 'error' ? (
+              <span className="text-xs text-down" role="alert">Could not create screen alert. Try again.</span>
+            ) : null}
           </div>
         </div>
       </section>
 
       {runError ? (
-        <div className="rounded-2xl border border-rose-500/20 bg-rose-500/5 p-4 text-sm text-rose-300">{runError}</div>
+        <div className="rounded-[14px] border border-down/30 bg-down/10 p-4 text-sm text-down" role="alert">
+          {runError} — adjust the setup and run again.
+        </div>
       ) : null}
 
       {/* Results */}
       {run ? (
         results.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-white/10 py-16 text-center">
-            <p className="text-sm font-medium text-zinc-400">Nothing is converging on this target right now</p>
-            <p className="text-xs text-zinc-600">
+          <div className="panel flex flex-col items-center gap-3 py-16 text-center">
+            <Radar className="size-8 text-ink-3" aria-hidden />
+            <p className="text-sm text-ink-2">
               {run.nearButStalled > 0
-                ? `${run.nearButStalled} name${run.nearButStalled === 1 ? ' is' : 's are'} near the level but not moving toward it.`
-                : 'Try widening the threshold or picking another universe.'}
+                ? `Nothing is converging right now — ${run.nearButStalled} name${run.nearButStalled === 1 ? ' is' : 's are'} near the level but not moving toward it.`
+                : 'Nothing is converging on this target right now — widen the threshold or pick another universe.'}
             </p>
+            <button type="button" onClick={handleRun} className="btn-ghost">
+              Scan again
+            </button>
           </div>
         ) : (
-          <TableShell
-            title={`${strategy?.label ?? 'Setups'} — ${results.length} converging`}
-            subtitle={[
-              `Scanned ${run.scanned} of ${run.universeSize}`,
-              run.nearButStalled > 0 ? `${run.nearButStalled} near but stalled (hidden)` : null,
-              run.illiquidFiltered > 0 ? `${run.illiquidFiltered} illiquid filtered` : null,
-              run.truncated ? `capped at ${run.cap} most-liquid` : null,
-            ].filter(Boolean).join(' · ')}
-          >
-            <table className="min-w-full text-left text-sm">
-              <thead className="sticky top-0 bg-surface-1/80 text-[11px] uppercase tracking-wide text-zinc-500 backdrop-blur">
-                <tr className="border-b border-border-subtle">
-                  <th className="px-4 py-2.5 font-medium">Symbol</th>
-                  <th className="px-4 py-2.5 text-right font-medium">Price</th>
-                  <th className="px-4 py-2.5 font-medium">Target</th>
-                  <th className="px-4 py-2.5 text-right font-medium">Distance</th>
-                  <th className="px-4 py-2.5 font-medium">Direction</th>
-                  <th className="px-4 py-2.5 text-right font-medium">ETA</th>
-                  <th className="px-4 py-2.5 font-medium">Readiness</th>
-                  <th className="px-4 py-2.5 text-center font-medium">Alert</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border-subtle/70">
-                {results.map((r) => {
-                  const st = alertState[r.symbol]
-                  return (
-                    <tr key={r.symbol} className="group transition-colors hover:bg-white/5">
-                      <td className="px-4 py-2.5">
-                        <div className="flex flex-col items-start gap-1">
+          <div className="rise">
+            <TableShell
+              title={`${strategy?.label ?? 'Setups'} — ${results.length} converging`}
+              subtitle={[
+                `Scanned ${run.scanned} of ${run.universeSize}`,
+                run.nearButStalled > 0 ? `${run.nearButStalled} near but stalled (hidden)` : null,
+                run.illiquidFiltered > 0 ? `${run.illiquidFiltered} illiquid filtered` : null,
+                run.truncated ? `capped at ${run.cap} most-liquid` : null,
+              ].filter(Boolean).join(' · ')}
+            >
+              <table>
+                <thead>
+                  <tr>
+                    <th>Symbol</th>
+                    <th className="num">Price</th>
+                    <th>Target</th>
+                    <th className="num">Distance</th>
+                    <th>Direction</th>
+                    <th className="num">ETA</th>
+                    <th>Readiness</th>
+                    <th className="text-center">Alert</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {results.map((r) => {
+                    const st = alertState[r.symbol]
+                    return (
+                      <tr key={r.symbol} className="group">
+                        <td>
+                          <div className="flex flex-col items-start gap-1">
+                            <button
+                              type="button"
+                              onClick={() => navigate(`/analysis/${r.symbol}`)}
+                              className="num inline-flex items-center gap-2 rounded font-semibold text-ink transition-colors duration-150 hover:text-flame outline-none focus-visible:ring-2 focus-visible:ring-ember/60"
+                            >
+                              {r.symbol}
+                              <ArrowUpRight className="size-3.5 text-ink-3 opacity-0 transition-opacity duration-150 group-hover:opacity-100" aria-hidden />
+                            </button>
+                            {r.earningsInDays != null ? (
+                              <span
+                                className={['chip text-[10px]', r.earningsFlag ? 'chip-warn' : ''].join(' ')}
+                                title={`Reports earnings ${r.earningsDate}${r.earningsSession && r.earningsSession !== 'any' ? ` (${r.earningsSession.toUpperCase()})` : ''}`}
+                              >
+                                <CalendarClock className="size-3" aria-hidden />
+                                {r.earningsInDays === 0 ? 'Earnings today' : `Earnings in ${r.earningsInDays}d`}
+                              </span>
+                            ) : null}
+                          </div>
+                        </td>
+                        <td className="num text-ink">{fmtPrice(r.price)}</td>
+                        <td>
+                          <span className="text-ink">{r.levelLabel}</span>
+                          <span className="num ml-1 text-ink-3">
+                            {r.levelValue != null ? (thresholdUnit === 'pts' ? r.levelValue : fmtPrice(r.levelValue)) : ''}
+                          </span>
+                        </td>
+                        <td className="num font-medium text-flame">
+                          {r.distancePct != null ? `${r.distancePct.toFixed(2)}${thresholdUnit === 'pts' ? '' : '%'}` : '—'}
+                        </td>
+                        <td><DirectionCell direction={r.direction} /></td>
+                        <td className="num">
+                          {r.etaBars != null ? `~${r.etaBars} bar${r.etaBars === 1 ? '' : 's'}` : '—'}
+                        </td>
+                        <td><ReadinessBar value={r.readiness} /></td>
+                        <td className="text-center">
                           <button
                             type="button"
-                            onClick={() => navigate(`/analysis/${r.symbol}`)}
-                            className="inline-flex items-center gap-2 font-semibold text-zinc-100 hover:text-accent"
+                            onClick={() => createSymbolAlert(r.symbol)}
+                            disabled={st === 'saving' || st === 'done'}
+                            className="inline-flex items-center justify-center rounded-lg p-2 text-ink-3 transition-colors duration-150 hover:bg-ember/10 hover:text-ember disabled:opacity-100 outline-none focus-visible:ring-2 focus-visible:ring-ember/60"
+                            title={st === 'done' ? 'Alert created' : 'Alert me when this enters the setup'}
+                            aria-label={`Set alert for ${r.symbol}`}
                           >
-                            {r.symbol}
-                            <ArrowUpRight className="size-3.5 opacity-0 transition group-hover:opacity-60" aria-hidden />
+                            {st === 'saving' ? <Loader2 className="size-4 animate-spin" aria-hidden />
+                              : st === 'done' ? <Check className="size-4 text-up" aria-hidden />
+                              : <Bell className="size-4" aria-hidden />}
                           </button>
-                          {r.earningsInDays != null ? (
-                            <span
-                              className={[
-                                'inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium',
-                                r.earningsFlag
-                                  ? 'bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/25'
-                                  : 'bg-zinc-800 text-zinc-400 ring-1 ring-white/5',
-                              ].join(' ')}
-                              title={`Reports earnings ${r.earningsDate}${r.earningsSession && r.earningsSession !== 'any' ? ` (${r.earningsSession.toUpperCase()})` : ''}`}
-                            >
-                              <CalendarClock className="size-3" />
-                              {r.earningsInDays === 0 ? 'Earnings today' : `Earnings in ${r.earningsInDays}d`}
-                            </span>
-                          ) : null}
-                        </div>
-                      </td>
-                      <td className="px-4 py-2.5 text-right tabular-nums text-zinc-300">{fmtPrice(r.price)}</td>
-                      <td className="px-4 py-2.5 text-zinc-400">
-                        <span className="text-zinc-300">{r.levelLabel}</span>
-                        <span className="ml-1 tabular-nums text-zinc-500">
-                          {r.levelValue != null ? (thresholdUnit === 'pts' ? r.levelValue : fmtPrice(r.levelValue)) : ''}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2.5 text-right tabular-nums text-zinc-300">
-                        {r.distancePct != null ? `${r.distancePct.toFixed(2)}${thresholdUnit === 'pts' ? '' : '%'}` : '—'}
-                      </td>
-                      <td className="px-4 py-2.5"><DirectionCell direction={r.direction} /></td>
-                      <td className="px-4 py-2.5 text-right tabular-nums text-zinc-400">
-                        {r.etaBars != null ? `~${r.etaBars} bar${r.etaBars === 1 ? '' : 's'}` : '—'}
-                      </td>
-                      <td className="px-4 py-2.5"><ReadinessBar value={r.readiness} /></td>
-                      <td className="px-4 py-2.5 text-center">
-                        <button
-                          type="button"
-                          onClick={() => createSymbolAlert(r.symbol)}
-                          disabled={st === 'saving' || st === 'done'}
-                          className="inline-flex items-center justify-center rounded-lg p-1.5 text-zinc-500 transition hover:bg-accent/10 hover:text-accent disabled:opacity-100"
-                          title={st === 'done' ? 'Alert created' : 'Alert me when this enters the setup'}
-                          aria-label={`Set alert for ${r.symbol}`}
-                        >
-                          {st === 'saving' ? <Loader2 className="size-4 animate-spin" />
-                            : st === 'done' ? <Check className="size-4 text-emerald-400" />
-                            : <Bell className="size-4" />}
-                        </button>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </TableShell>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </TableShell>
+          </div>
         )
       ) : null}
     </div>

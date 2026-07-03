@@ -2,18 +2,18 @@ import { useEffect, useMemo, useState } from 'react'
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { apiUrl } from '../lib/apiBase'
 
+/* Chart colors are hex-in-JS by design-system exception. */
+const UP_STROKE = '#3DDC97'
+const DOWN_STROKE = '#FF6161'
+
 const TOOLTIP_STYLE = {
-  background: 'rgba(20, 20, 24, 0.55)',
-  border: '1px solid rgba(255, 255, 255, 0.10)',
-  borderRadius: '0.75rem',
-  backdropFilter: 'blur(18px) saturate(170%)',
-  WebkitBackdropFilter: 'blur(18px) saturate(170%)',
-  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.35)',
-  color: 'oklch(0.92 0 0)',
+  background: 'rgba(27, 23, 19, 0.94)',
+  border: '1px solid rgba(244, 232, 216, 0.16)',
+  borderRadius: '10px',
+  color: '#F4EFE9',
   fontSize: '12px',
   padding: '8px 10px',
-  fontFamily:
-    'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  fontFamily: '"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
 }
 
 function isoDate(d) {
@@ -78,24 +78,26 @@ export function MiniPriceChart({ symbol, height = 140 }) {
   }, [raw])
 
   const stroke = useMemo(() => {
-    if (pts.length < 2) return 'oklch(0.72 0.17 165)'
+    if (pts.length < 2) return UP_STROKE
     const first = pts[0].close
     const last = pts[pts.length - 1].close
-    if (!Number.isFinite(first) || !Number.isFinite(last)) return 'oklch(0.72 0.17 165)'
-    return last >= first ? 'oklch(0.72 0.17 165)' : 'oklch(0.64 0.19 25)'
+    if (!Number.isFinite(first) || !Number.isFinite(last)) return UP_STROKE
+    return last >= first ? UP_STROKE : DOWN_STROKE
   }, [pts])
 
   return (
-    <div className="glass-bar rounded-xl border border-white/10 px-3 py-2.5">
+    <div className="rounded-xl border border-line bg-surface-2 px-3 py-2.5">
       <div className="flex items-baseline justify-between gap-3">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Last 90d</p>
-        <p className="text-[11px] font-medium text-zinc-600">{symbol}</p>
+        <p className="eyebrow">Last 90d</p>
+        <p className="num text-[11px] font-medium text-ink-3">{symbol}</p>
       </div>
       <div className="mt-2" style={{ height }}>
         {loading ? (
-          <p className="flex h-full items-center justify-center text-sm text-zinc-500">Loading chart…</p>
+          <div className="flex h-full items-center justify-center">
+            <div className="skeleton h-full w-full" aria-busy aria-label="Loading chart" />
+          </div>
         ) : err ? (
-          <p className="flex h-full items-center justify-center text-sm text-amber-200/90">{err}</p>
+          <p className="flex h-full items-center justify-center px-3 text-center text-sm text-warn">{err}</p>
         ) : pts.length ? (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={pts} margin={{ top: 6, right: 6, left: 0, bottom: 0 }}>
@@ -103,17 +105,16 @@ export function MiniPriceChart({ symbol, height = 140 }) {
               <YAxis hide domain={['auto', 'auto']} />
               <Tooltip
                 contentStyle={TOOLTIP_STYLE}
-                labelStyle={{ color: '#a1a1aa' }}
+                labelStyle={{ color: '#837A6F' }}
                 formatter={(value) => (typeof value === 'number' ? value.toFixed(2) : value)}
               />
               <Line type="monotone" dataKey="close" stroke={stroke} strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <p className="flex h-full items-center justify-center text-sm text-zinc-500">No chart data.</p>
+          <p className="flex h-full items-center justify-center text-sm text-ink-3">No chart data.</p>
         )}
       </div>
     </div>
   )
 }
-

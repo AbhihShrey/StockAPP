@@ -1,4 +1,4 @@
-import { ExternalLink, Loader2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ExternalLink, Loader2 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { MiniSparkline } from './MiniSparkline'
 import { apiUrl } from '../lib/apiBase'
@@ -66,7 +66,7 @@ function articleInDateRange(a, from, to) {
 function SentimentMeter({ sentiment, sentimentSource, compact }) {
   if (sentiment == null || !Number.isFinite(sentiment)) {
     return (
-      <div className={compact ? 'text-[10px] text-zinc-600' : 'text-xs text-zinc-500'}>No sentiment score</div>
+      <div className={compact ? 'text-[10px] text-ink-3' : 'text-xs text-ink-3'}>No sentiment score</div>
     )
   }
   const pos = Math.round(((sentiment + 1) / 2) * 100)
@@ -78,27 +78,25 @@ function SentimentMeter({ sentiment, sentimentSource, compact }) {
       : sentimentSource === 'fmp'
         ? `Provider sentiment. Raw ${sentiment.toFixed(2)}.`
         : `Tilt ${pos}% toward bullish (raw ${sentiment.toFixed(2)})`
+  const fill = sentiment > 0.12 ? 'bg-up' : sentiment < -0.12 ? 'bg-down' : 'bg-ink-3'
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-3">
           Sentiment
           {sentimentSource === 'lexicon' ? (
-            <span className="ml-1 font-normal normal-case text-zinc-600">(est.)</span>
+            <span className="ml-1 font-normal normal-case tracking-normal">(est.)</span>
           ) : null}
         </span>
-        <span className="text-[10px] font-semibold tabular-nums text-zinc-300">
-          {pos}% <span className="text-zinc-500">{label}</span>
+        <span className="num text-[10px] font-semibold text-ink-2">
+          {pos}% <span className="text-ink-3">{label}</span>
         </span>
       </div>
       <div
-        className="h-2 w-full overflow-hidden rounded-full bg-zinc-800 ring-1 ring-white/[0.06]"
+        className="h-1.5 w-full overflow-hidden rounded-full bg-surface-3 ring-1 ring-line"
         title={tip}
       >
-        <div
-          className="h-full rounded-l-full bg-gradient-to-r from-emerald-900 via-emerald-600 to-emerald-400"
-          style={{ width: `${pos}%` }}
-        />
+        <div className={['h-full rounded-full', fill].join(' ')} style={{ width: `${pos}%` }} />
       </div>
     </div>
   )
@@ -112,7 +110,7 @@ function SentimentBadge({ sentiment, sentimentSource }) {
   if (sentiment == null || !Number.isFinite(sentiment)) {
     return (
       <span
-        className="rounded border border-zinc-600/60 bg-zinc-800 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-400"
+        className="chip uppercase tracking-wide"
         title="No usable sentiment from the feed and nothing to infer from text."
       >
         N/A
@@ -121,29 +119,20 @@ function SentimentBadge({ sentiment, sentimentSource }) {
   }
   if (sentiment > 0.12) {
     return (
-      <span
-        className="rounded border border-emerald-500/40 bg-emerald-950/60 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-200"
-        title={estTitle}
-      >
+      <span className="chip chip-up uppercase tracking-wide" title={estTitle}>
         Pos
       </span>
     )
   }
   if (sentiment < -0.12) {
     return (
-      <span
-        className="rounded border border-rose-500/40 bg-rose-950/60 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-rose-200"
-        title={estTitle}
-      >
+      <span className="chip chip-down uppercase tracking-wide" title={estTitle}>
         Neg
       </span>
     )
   }
   return (
-    <span
-      className="rounded border border-zinc-500/40 bg-zinc-800/80 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-300"
-      title={estTitle}
-    >
+    <span className="chip uppercase tracking-wide" title={estTitle}>
       Neu
     </span>
   )
@@ -279,163 +268,157 @@ export function NewsMasterDetail() {
 
   return (
     <section className="space-y-4">
-      <div className="rounded-2xl border border-border-subtle bg-zinc-950/80 p-4 shadow-xl shadow-black/30 ring-1 ring-white/[0.04]">
-        <div className="flex flex-col gap-4">
-          <div className="w-full space-y-2">
-            <label className="block text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
-              Symbol focus
-            </label>
-            <div className="flex flex-wrap items-center gap-2">
-              <select
-                aria-label="Quick symbol"
-                value={QUICK_SYMBOLS.includes(symbolFilter) ? symbolFilter : ''}
-                onChange={(e) => {
-                  const v = e.target.value.toUpperCase()
-                  setSymbolDraft(v)
-                  setSymbolFilter(v)
-                  setPage(0)
-                }}
-                className="rounded-lg border border-border-subtle bg-surface-0/80 px-2 py-2 text-xs font-semibold text-zinc-200 outline-none focus:ring-2 focus:ring-accent/30"
-              >
-                <option value="">Quick symbol…</option>
-                {QUICK_SYMBOLS.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-              <input
-                list="news-quick-symbols"
-                value={symbolDraft}
-                onChange={(e) => setSymbolDraft(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && applySymbol()}
-                placeholder="Or type ticker…"
-                className="min-w-[10rem] flex-1 rounded-lg border border-border-subtle bg-surface-0/80 px-3 py-2 text-sm text-zinc-100 outline-none placeholder:text-zinc-600 focus:ring-2 focus:ring-accent/30"
-              />
-              <datalist id="news-quick-symbols">
-                {QUICK_SYMBOLS.map((s) => (
-                  <option key={s} value={s} />
-                ))}
-              </datalist>
-              <button
-                type="button"
-                onClick={applySymbol}
-                className="rounded-lg bg-accent-muted px-3 py-2 text-xs font-semibold text-accent accent-inset hover:bg-accent-muted/80"
-              >
-                Load
+      <div className="rise rise-3 panel panel-pad space-y-4">
+        <div className="space-y-2">
+          <label className="field-label" htmlFor="news-symbol-input">
+            Symbol focus
+          </label>
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              aria-label="Quick symbol"
+              value={QUICK_SYMBOLS.includes(symbolFilter) ? symbolFilter : ''}
+              onChange={(e) => {
+                const v = e.target.value.toUpperCase()
+                setSymbolDraft(v)
+                setSymbolFilter(v)
+                setPage(0)
+              }}
+              className="select num w-44 text-xs font-semibold"
+            >
+              <option value="">Quick symbol…</option>
+              {QUICK_SYMBOLS.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+            <input
+              id="news-symbol-input"
+              list="news-quick-symbols"
+              value={symbolDraft}
+              onChange={(e) => setSymbolDraft(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && applySymbol()}
+              placeholder="Or type ticker…"
+              className="input min-w-[10rem] flex-1"
+            />
+            <datalist id="news-quick-symbols">
+              {QUICK_SYMBOLS.map((s) => (
+                <option key={s} value={s} />
+              ))}
+            </datalist>
+            <button type="button" onClick={applySymbol} className="btn-primary px-4 text-xs">
+              Load
+            </button>
+            {symbolFilter ? (
+              <button type="button" onClick={clearSymbol} className="btn-ghost px-3 text-xs">
+                Clear
               </button>
-              {symbolFilter ? (
-                <button
-                  type="button"
-                  onClick={clearSymbol}
-                  className="rounded-lg border border-border-subtle px-3 py-2 text-xs font-medium text-zinc-400 hover:bg-white/5 hover:text-zinc-200"
-                >
-                  Clear
-                </button>
-              ) : null}
-            </div>
-            <p className="max-w-2xl text-[11px] leading-relaxed text-zinc-500">
-              Type or pick a symbol, then Load for headlines on that name (past & present in range). Leave empty for
-              the broad market feed.
-            </p>
+            ) : null}
           </div>
+          <p className="max-w-2xl text-[11px] leading-relaxed text-ink-3">
+            Type or pick a symbol, then Load for headlines on that name (past & present in range). Leave empty for
+            the broad market feed.
+          </p>
+        </div>
 
-          <div className="flex flex-wrap gap-2">
-            {CATEGORIES.map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => {
-                  setCategory(c.id)
-                  setPage(0)
-                }}
-                aria-pressed={category === c.id}
-                className={[
-                  'rounded-lg px-3 py-1.5 text-xs font-semibold transition',
-                  category === c.id
-                    ? 'bg-accent-muted text-accent accent-inset'
-                    : 'border border-border-subtle bg-surface-0/50 text-zinc-400 hover:border-zinc-600 hover:text-zinc-200',
-                ].join(' ')}
-              >
-                {c.label}
-              </button>
-            ))}
+        <div className="flex flex-wrap gap-2">
+          {CATEGORIES.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => {
+                setCategory(c.id)
+                setPage(0)
+              }}
+              aria-pressed={category === c.id}
+              className={[
+                'rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ember/60',
+                category === c.id
+                  ? 'border-ember/30 bg-ember/10 text-flame'
+                  : 'border-line bg-surface-2 text-ink-2 hover:bg-surface-3 hover:text-ink',
+              ].join(' ')}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap items-end gap-3">
+          <div>
+            <label className="field-label" htmlFor="news-from-date">From</label>
+            <input
+              id="news-from-date"
+              type="date"
+              value={from}
+              onChange={(e) => {
+                setFrom(e.target.value || addDays(to, -30))
+                setPage(0)
+              }}
+              className="input num w-40"
+            />
           </div>
-
-          <div className="flex flex-wrap items-end gap-3">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">From</p>
-              <input
-                type="date"
-                value={from}
-                onChange={(e) => {
-                  setFrom(e.target.value || addDays(to, -30))
-                  setPage(0)
-                }}
-                className="mt-1 rounded-lg border border-border-subtle bg-surface-0/80 px-2 py-1.5 text-sm text-zinc-100 outline-none"
-              />
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">To</p>
-              <input
-                type="date"
-                value={to}
-                onChange={(e) => {
-                  setTo(e.target.value || todayISO())
-                  setPage(0)
-                }}
-                className="mt-1 rounded-lg border border-border-subtle bg-surface-0/80 px-2 py-1.5 text-sm text-zinc-100 outline-none"
-              />
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">Per page</p>
-              <select
-                value={pageSize}
-                onChange={(e) => {
-                  setPageSize(Number(e.target.value) || 50)
-                  setPage(0)
-                }}
-                className="mt-1 rounded-lg border border-border-subtle bg-surface-0/80 px-2 py-1.5 text-sm text-zinc-100 outline-none"
-                aria-label="Page size"
-              >
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={75}>75</option>
-                <option value={100}>100</option>
-              </select>
-            </div>
+          <div>
+            <label className="field-label" htmlFor="news-to-date">To</label>
+            <input
+              id="news-to-date"
+              type="date"
+              value={to}
+              onChange={(e) => {
+                setTo(e.target.value || todayISO())
+                setPage(0)
+              }}
+              className="input num w-40"
+            />
+          </div>
+          <div>
+            <label className="field-label" htmlFor="news-page-size">Per page</label>
+            <select
+              id="news-page-size"
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value) || 50)
+                setPage(0)
+              }}
+              className="select num w-24"
+              aria-label="Page size"
+            >
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={75}>75</option>
+              <option value={100}>100</option>
+            </select>
           </div>
         </div>
       </div>
 
-      <div className="flex min-h-[28rem] flex-col gap-4 lg:flex-row lg:items-stretch">
-        <div className="flex min-h-0 w-full flex-col rounded-2xl border border-border-subtle bg-surface-1/50 lg:w-[40%] lg:max-w-[40%]">
-          <div className="border-b border-border-subtle px-3 py-2">
+      <div className="rise rise-4 flex min-h-[28rem] flex-col gap-4 lg:flex-row lg:items-stretch">
+        <div className="panel flex min-h-0 w-full flex-col overflow-hidden lg:w-[40%] lg:max-w-[40%]">
+          <div className="border-b border-line px-3 py-2">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">Headlines</p>
+              <p className="eyebrow">Headlines</p>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[10px] font-semibold tabular-nums text-zinc-500">{articles.length} loaded</span>
+                <span className="num text-[10px] font-semibold text-ink-3">{articles.length} loaded</span>
                 <div className="flex items-center gap-1.5">
                   <button
                     type="button"
                     onClick={() => setPage((p) => Math.max(0, p - 1))}
                     disabled={!canPrev}
-                    className="rounded-md border border-border-subtle bg-surface-0/60 px-2 py-1 text-xs font-semibold text-zinc-300 hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="btn-ghost h-7 w-7 px-0"
                     aria-label="Previous page"
                   >
-                    &lt;
+                    <ChevronLeft className="size-3.5" aria-hidden />
                   </button>
-                  <span className="min-w-[4.5rem] text-center text-[10px] font-semibold tabular-nums text-zinc-500">
+                  <span className="num min-w-[4.5rem] text-center text-[10px] font-semibold text-ink-3">
                     Page {page + 1}
                   </span>
                   <button
                     type="button"
                     onClick={() => setPage((p) => p + 1)}
                     disabled={!canNext}
-                    className="rounded-md border border-border-subtle bg-surface-0/60 px-2 py-1 text-xs font-semibold text-zinc-300 hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="btn-ghost h-7 w-7 px-0"
                     aria-label="Next page"
                   >
-                    &gt;
+                    <ChevronRight className="size-3.5" aria-hidden />
                   </button>
                 </div>
               </div>
@@ -443,20 +426,20 @@ export function NewsMasterDetail() {
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto p-2">
             {loading ? (
-              <div className="flex items-center justify-center gap-2 py-16 text-sm text-zinc-500">
+              <div className="flex items-center justify-center gap-2 py-16 text-sm text-ink-3">
                 <Loader2 className="size-4 animate-spin" aria-hidden />
                 Loading feed…
               </div>
             ) : error ? (
-              <p className="px-2 py-8 text-center text-sm text-rose-300">{error}</p>
+              <p className="px-2 py-8 text-center text-sm text-down">{error}</p>
             ) : articles.length === 0 ? (
-              <p className="px-2 py-10 text-center text-sm text-zinc-500">
+              <p className="px-2 py-10 text-center text-sm text-ink-3">
                 {symbolFilter
                   ? `No news found for ${symbolFilter} in this range. Try another page or widen dates, or clear the symbol for the market feed.`
                   : 'No articles matched these filters.'}
               </p>
             ) : (
-              <ul className="space-y-2">
+              <ul className="space-y-1">
                 {articles.map((a) => {
                   const active = selected?.id === a.id
                   return (
@@ -464,19 +447,25 @@ export function NewsMasterDetail() {
                       <button
                         type="button"
                         onClick={() => setSelectedId(a.id)}
+                        aria-current={active || undefined}
                         className={[
-                          'w-full rounded-xl border px-3 py-2.5 text-left transition',
-                          active
-                            ? 'border-accent/40 bg-accent-muted/25 accent-inset-light'
-                            : 'border-border-subtle/80 bg-surface-0/40 hover:border-zinc-600 hover:bg-surface-0/70',
+                          'relative w-full rounded-lg py-2.5 pl-4 pr-3 text-left transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ember/60',
+                          active ? 'bg-ember/5' : 'hover:bg-surface-2',
                         ].join(' ')}
                       >
-                        <p className="line-clamp-2 text-sm font-medium leading-snug text-zinc-100">{a.title}</p>
-                        <div className="mt-2 flex flex-wrap items-center gap-2">
-                          <span className="text-[10px] font-medium uppercase tracking-wide text-zinc-500">
+                        <span
+                          className={[
+                            'bg-ember-grad absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full transition-opacity duration-200',
+                            active ? 'opacity-100' : 'opacity-0',
+                          ].join(' ')}
+                          aria-hidden
+                        />
+                        <p className="line-clamp-2 text-sm font-medium leading-snug text-ink">{a.title}</p>
+                        <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                          <span className="num text-[10px] font-medium uppercase tracking-wide text-ink-3">
                             {a.site}
                           </span>
-                          <span className="text-[10px] text-zinc-600">{timeAgo(a.publishedDate)}</span>
+                          <span className="num text-[10px] text-ink-3">{timeAgo(a.publishedDate)}</span>
                           <SentimentBadge sentiment={a.sentiment} sentimentSource={a.sentimentSource} />
                         </div>
                         <div className="mt-2">
@@ -489,31 +478,31 @@ export function NewsMasterDetail() {
               </ul>
             )}
             {!loading && !error && articles.length > 0 ? (
-              <p className="px-2 pb-1 pt-3 text-center text-[10px] text-zinc-600">
+              <p className="px-2 pb-1 pt-3 text-center text-[10px] text-ink-3">
                 {canNext ? 'More articles available — use next page.' : 'Last page for this date window (or feed).'}
               </p>
             ) : null}
           </div>
         </div>
 
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col rounded-2xl border border-border-subtle bg-surface-1/40">
-          <div className="border-b border-border-subtle px-4 py-2">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">Story & context</p>
+        <div className="panel flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+          <div className="border-b border-line px-4 py-2">
+            <p className="eyebrow">Story & context</p>
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto p-4">
+          <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-5">
             {!selected ? (
-              <p className="py-12 text-center text-sm text-zinc-500">Select an article to read the summary.</p>
+              <p className="py-12 text-center text-sm text-ink-3">Select an article to read the summary.</p>
             ) : (
-              <div className="space-y-4">
+              <div className="max-w-prose space-y-4">
                 {symbolFilter ? (
-                  <div className="rounded-xl border border-border-subtle bg-zinc-950/50 p-4">
+                  <div className="rounded-xl border border-line bg-surface-2 p-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
-                        <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">Filtered symbol</p>
-                        <p className="mt-1 font-mono text-lg font-semibold text-zinc-100">{symbolFilter}</p>
+                        <p className="eyebrow">Filtered symbol</p>
+                        <p className="num mt-1 text-lg font-semibold text-ink">{symbolFilter}</p>
                       </div>
                       {snapLoading ? (
-                        <Loader2 className="size-5 animate-spin text-zinc-500" aria-label="Loading quote" />
+                        <Loader2 className="size-5 animate-spin text-ink-3" aria-label="Loading quote" />
                       ) : snapshot?.price != null ? (
                         <MiniSparkline values={snapshot.sparkline ?? []} className="opacity-90" />
                       ) : null}
@@ -521,19 +510,19 @@ export function NewsMasterDetail() {
                     {snapshot?.price != null ? (
                       <dl className="mt-3 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
                         <div>
-                          <dt className="text-[10px] uppercase tracking-wide text-zinc-500">Price</dt>
-                          <dd className="font-semibold tabular-nums text-zinc-100">{formatPrice(snapshot.price)}</dd>
+                          <dt className="text-[10px] uppercase tracking-wide text-ink-3">Price</dt>
+                          <dd className="num font-semibold text-ink">{formatPrice(snapshot.price)}</dd>
                         </div>
                         <div>
-                          <dt className="text-[10px] uppercase tracking-wide text-zinc-500">Change</dt>
+                          <dt className="text-[10px] uppercase tracking-wide text-ink-3">Change</dt>
                           <dd
                             className={[
-                              'font-semibold tabular-nums',
+                              'num font-semibold',
                               (snapshot.changePercent ?? 0) > 0
-                                ? 'text-emerald-300'
+                                ? 'text-up'
                                 : (snapshot.changePercent ?? 0) < 0
-                                  ? 'text-rose-300'
-                                  : 'text-zinc-300',
+                                  ? 'text-down'
+                                  : 'text-ink-2',
                             ].join(' ')}
                           >
                             {snapshot.changePercent != null && Number.isFinite(snapshot.changePercent)
@@ -542,23 +531,25 @@ export function NewsMasterDetail() {
                           </dd>
                         </div>
                         <div>
-                          <dt className="text-[10px] uppercase tracking-wide text-zinc-500">Volume</dt>
-                          <dd className="font-medium tabular-nums text-zinc-200">{formatVol(snapshot.volume)}</dd>
+                          <dt className="text-[10px] uppercase tracking-wide text-ink-3">Volume</dt>
+                          <dd className="num font-medium text-ink-2">{formatVol(snapshot.volume)}</dd>
                         </div>
                         <div>
-                          <dt className="text-[10px] uppercase tracking-wide text-zinc-500">Avg vol</dt>
-                          <dd className="font-medium tabular-nums text-zinc-400">{formatVol(snapshot.avgVolume)}</dd>
+                          <dt className="text-[10px] uppercase tracking-wide text-ink-3">Avg vol</dt>
+                          <dd className="num font-medium text-ink-3">{formatVol(snapshot.avgVolume)}</dd>
                         </div>
                       </dl>
                     ) : !snapLoading ? (
-                      <p className="mt-2 text-xs text-zinc-500">Live quote data unavailable for this symbol.</p>
+                      <p className="mt-2 text-xs text-ink-3">Live quote data unavailable for this symbol.</p>
                     ) : null}
                   </div>
                 ) : null}
 
                 <div>
-                  <h2 className="text-lg font-semibold leading-snug text-zinc-50">{selected.title}</h2>
-                  <p className="mt-1 text-xs text-zinc-500">
+                  <h2 className="font-display text-xl font-semibold leading-snug text-ink" style={{ fontStretch: '106%' }}>
+                    {selected.title}
+                  </h2>
+                  <p className="num mt-1.5 text-xs text-ink-3">
                     {selected.site} · {timeAgo(selected.publishedDate)}
                     {selected.publishedDate ? ` · ${selected.publishedDate}` : ''}
                   </p>
@@ -570,31 +561,24 @@ export function NewsMasterDetail() {
                   <img
                     src={selected.image}
                     alt=""
-                    className="max-h-48 w-full rounded-lg object-cover object-center ring-1 ring-white/10"
+                    className="max-h-48 w-full rounded-lg border border-line object-cover object-center"
                   />
                 ) : null}
 
-                <div className="prose prose-invert max-w-none prose-p:text-sm prose-p:leading-relaxed prose-p:text-zinc-300">
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-zinc-300">
-                    {selected.text || 'No summary text was provided for this item.'}
-                  </p>
-                </div>
+                <p className="whitespace-pre-wrap text-base leading-[1.6] text-ink-2">
+                  {selected.text || 'No summary text was provided for this item.'}
+                </p>
 
                 {selected.url ? (
-                  <a
-                    href={selected.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-2 rounded-lg border border-border-subtle bg-surface-0/60 px-3 py-2 text-xs font-semibold text-accent hover:bg-white/5"
-                  >
+                  <a href={selected.url} target="_blank" rel="noreferrer" className="btn-ghost text-xs">
                     Open source article
                     <ExternalLink className="size-3.5" aria-hidden />
                   </a>
                 ) : null}
 
                 {related.length > 0 ? (
-                  <div className="border-t border-border-subtle/80 pt-4">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">Related symbols</p>
+                  <div className="border-t border-line pt-4">
+                    <p className="eyebrow">Related symbols</p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {related.map((t) => (
                         <button
@@ -605,7 +589,7 @@ export function NewsMasterDetail() {
                             setSymbolFilter(t)
                             setPage(0)
                           }}
-                          className="rounded-full border border-zinc-600/70 bg-zinc-800/80 px-3 py-1 text-xs font-semibold text-zinc-200 hover:border-accent/40 hover:bg-accent-muted/20 hover:text-accent"
+                          className="chip num cursor-pointer px-3 py-1 text-xs font-semibold outline-none transition-colors duration-150 hover:border-ember/40 hover:bg-ember/10 hover:text-flame focus-visible:ring-2 focus-visible:ring-ember/60"
                         >
                           {t}
                         </button>
@@ -620,7 +604,7 @@ export function NewsMasterDetail() {
       </div>
 
       {meta?.source ? (
-        <p className="text-center text-[10px] text-zinc-600">Market data: {meta.source}</p>
+        <p className="text-center text-[10px] text-ink-3">Market data: {meta.source}</p>
       ) : null}
     </section>
   )

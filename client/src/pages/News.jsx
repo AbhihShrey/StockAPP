@@ -41,57 +41,35 @@ function fmtWhen(raw) {
 }
 
 function SessionIcon({ hint }) {
-  if (hint === 'bmo') return <Sun className="size-4 text-amber-200/90" aria-label="Before market open" />
-  if (hint === 'amc') return <Moon className="size-4 text-indigo-200/90" aria-label="After market close" />
-  return <Minus className="size-4 text-zinc-600" aria-label="Time unknown" />
+  if (hint === 'bmo') return <Sun className="size-4 text-warn" aria-label="Before market open" />
+  if (hint === 'amc') return <Moon className="size-4 text-ink-2" aria-label="After market close" />
+  return <Minus className="size-4 text-ink-3" aria-label="Time unknown" />
 }
 
-/** Solid fills + light border; matches earnings label typography. */
+/** Impact levels map to the standard chip variants. */
 const IMPACT_PILL = {
-  high: {
-    label: 'HIGH',
-    title: 'High impact',
-    className: 'border border-rose-400/55 bg-rose-700',
-    textClass: 'text-rose-50',
-  },
-  medium: {
-    label: 'MED',
-    title: 'Medium impact',
-    className: 'border border-amber-400/50 bg-amber-700',
-    textClass: 'text-amber-50',
-  },
-  low: {
-    label: 'LOW',
-    title: 'Low impact',
-    className: 'border border-zinc-500/45 bg-zinc-700',
-    textClass: 'text-zinc-100',
-  },
+  high: { label: 'HIGH', title: 'High impact', className: 'chip-down' },
+  medium: { label: 'MED', title: 'Medium impact', className: 'chip-warn' },
+  low: { label: 'LOW', title: 'Low impact', className: '' },
 }
 
 function ImpactPill({ level }) {
   const cfg = IMPACT_PILL[level] ?? IMPACT_PILL.low
   return (
     <span
-      className={[
-        'inline-flex min-w-[3.25rem] items-center justify-center rounded-full px-2.5 py-1',
-        cfg.className,
-      ].join(' ')}
+      className={['chip min-w-[3.25rem] justify-center tracking-wide', cfg.className].join(' ')}
       title={cfg.title}
       aria-label={cfg.title}
     >
-      <span
-        className={['whitespace-nowrap text-[11px] font-semibold tracking-wide', cfg.textClass].join(' ')}
-      >
-        {cfg.label}
-      </span>
+      {cfg.label}
     </span>
   )
 }
 
 function ImpactLegendBox() {
   return (
-    <div className="ml-auto flex max-w-full flex-wrap items-center gap-2 rounded-lg border border-border-subtle bg-surface-1/60 px-2.5 py-1.5">
-      <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">Impact</span>
+    <div className="ml-auto flex max-w-full flex-wrap items-center gap-2 rounded-lg border border-line bg-surface-2 px-2.5 py-1.5">
+      <span className="eyebrow">Impact</span>
       <div className="flex flex-wrap items-center gap-1.5">
         <ImpactPill level="high" />
         <ImpactPill level="medium" />
@@ -101,17 +79,13 @@ function ImpactLegendBox() {
   )
 }
 
-/** Sticky thead: frosted bar + upward strip (same layer as sticky) to mask scroll leak above headers. */
-const STICKY_TABLE_HEAD =
-  'sticky top-0 z-30 border-b border-white/10 bg-surface-0/85 text-[11px] uppercase tracking-wide text-zinc-500 shadow-[0_8px_32px_-12px_rgba(0,0,0,0.35)] backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-surface-0/75 [&_th]:relative [&_th]:z-10 before:pointer-events-none before:absolute before:inset-x-0 before:-top-4 before:z-[1] before:h-4 before:bg-surface-0/90 before:backdrop-blur-xl before:backdrop-saturate-150 before:supports-[backdrop-filter]:bg-surface-0/80'
-
 function ActualMacroValue({ eventKey, value }) {
   const s = fmtMacro(value)
   if (s === '—') {
-    return <span className="text-zinc-600">—</span>
+    return <span className="text-ink-3">—</span>
   }
   return (
-    <span key={`${eventKey}-${s}`} className="econ-actual-in inline-block font-medium tabular-nums text-zinc-100">
+    <span key={`${eventKey}-${s}`} className="ignite num inline-block font-medium text-ink">
       {s}
     </span>
   )
@@ -200,11 +174,10 @@ export function News() {
       key={id}
       type="button"
       onClick={() => setMode(id)}
+      aria-pressed={mode === id}
       className={[
-        'rounded-lg px-4 py-2 text-xs font-medium transition',
-        mode === id
-          ? 'bg-accent-muted text-accent accent-inset'
-          : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300',
+        'rounded-lg px-4 py-2 text-xs font-medium transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ember/60',
+        mode === id ? 'bg-surface-3 text-flame' : 'text-ink-2 hover:bg-surface-2 hover:text-ink',
       ].join(' ')}
     >
       {label}
@@ -212,42 +185,43 @@ export function News() {
   )
 
   return (
-    <div className="app-page-enter space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">News</h1>
+    <div className="space-y-6">
+      <header className="rise">
+        <p className="eyebrow">News · Markets & calendars</p>
+        <h1 className="display mt-1 text-2xl sm:text-3xl">News</h1>
+        <div className="ember-rule mt-4" />
       </header>
 
-      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border-subtle bg-surface-1/40 p-2">
+      <div className="rise rise-1 panel flex flex-wrap items-center gap-1 p-1">
         {tabBtn('market', 'Market news')}
         {tabBtn('earnings', 'Earnings')}
         {tabBtn('economic', 'Economic')}
-        {tabBtn('ipo', 'IPO Calendar')}
+        {tabBtn('ipo', 'IPO calendar')}
       </div>
 
       {mode !== 'market' && mode !== 'ipo' ? (
-        <section className="flex flex-wrap items-center gap-3 rounded-2xl border border-border-subtle bg-surface-1/60 p-4 shadow-xl shadow-black/25 backdrop-blur-sm">
-          <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+        <section className="rise rise-2 panel panel-pad flex flex-wrap items-center gap-4">
+          <div>
+            <label className="field-label" htmlFor="news-cal-date">
               {mode === 'earnings' ? 'Earnings date' : 'Week starting'}
-            </p>
-            <div className="inline-flex items-center gap-2 rounded-xl border border-border-subtle bg-surface-0/60 px-3 py-2">
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value || todayISO())}
-                className="bg-transparent text-sm text-zinc-100 outline-none"
-              />
-            </div>
+            </label>
+            <input
+              id="news-cal-date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value || todayISO())}
+              className="input num w-44"
+            />
           </div>
           {mode === 'earnings' ? (
-            <p className="ml-auto text-xs text-zinc-500">
+            <p className="ml-auto text-xs text-ink-3">
               <span className="inline-flex items-center gap-1">
-                <Sun className="size-3.5 text-amber-200/80" aria-hidden />
+                <Sun className="size-3.5 text-warn" aria-hidden />
                 BMO
               </span>{' '}
               ·{' '}
               <span className="inline-flex items-center gap-1">
-                <Moon className="size-3.5 text-indigo-200/80" aria-hidden />
+                <Moon className="size-3.5 text-ink-2" aria-hidden />
                 AMC
               </span>
             </p>
@@ -262,121 +236,162 @@ export function News() {
       ) : mode === 'ipo' ? (
         <IpoCalendarTab />
       ) : calLoading ? (
-        <section className="rounded-2xl border border-border-subtle bg-surface-1/60 p-8 text-center text-sm text-zinc-500">
-          Loading…
+        <section className="rise rise-3 panel panel-pad space-y-3" aria-busy aria-label="Loading calendar">
+          <div className="skeleton h-4 w-44" />
+          <div className="skeleton h-4 w-full" />
+          <div className="skeleton h-4 w-full" />
+          <div className="skeleton h-4 w-3/4" />
         </section>
       ) : mode === 'earnings' ? (
         errorEarn ? (
-          <section className="rounded-2xl border border-rose-500/20 bg-rose-500/5 p-6 text-sm text-rose-200">
-            <p className="font-medium">Couldn’t load earnings</p>
-            <p className="mt-1 text-rose-200/80">{errorEarn}</p>
+          <section className="rise rise-3 panel border-down/25 bg-down/5 p-6 text-sm">
+            <p className="font-medium text-down">Couldn’t load earnings</p>
+            <p className="mt-1 text-ink-2">{errorEarn}</p>
+            <p className="mt-2 text-xs text-ink-3">Pick another date or reload the page to retry.</p>
           </section>
         ) : (
+          <div className="rise rise-3">
+            <TableShell
+              title="Earnings calendar"
+              subtitle="Sorted by surprise %. Bars show the gap between estimated and actual EPS."
+            >
+              <div className="max-h-[34rem] overflow-y-auto">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Sym</th>
+                      <th>Company</th>
+                      <th className="text-center">Sess.</th>
+                      <th className="num">Est.</th>
+                      <th className="num">Actual</th>
+                      <th className="num">Surprise</th>
+                      <th className="min-w-[12rem]">Beat / miss</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {mainRows.map((r) => {
+                      const surprise = r.surprisePct
+                      const beat = r.result === 'BEAT'
+                      const miss = r.result === 'MISS'
+                      const neutral = r.result === 'MEET'
+
+                      const widthFrac = barWidthFrac(r.result, surprise)
+                      const barH = barHeightPx(widthFrac)
+
+                      return (
+                        <tr key={`${r.symbol}-${r.name}-${r.time ?? ''}`}>
+                          <td className="num font-semibold text-ink">{r.symbol ?? '—'}</td>
+                          <td className="max-w-[18rem] truncate" title={r.name ?? ''}>
+                            {r.name ?? '—'}
+                          </td>
+                          <td className="text-center" title={r.time ?? 'Time not provided'}>
+                            <span className="inline-flex items-center justify-center">
+                              <SessionIcon hint={r.sessionHint} />
+                            </span>
+                          </td>
+                          <td className="num text-ink-3">{fmtEps(r.epsEstimate)}</td>
+                          <td className="num text-ink">{fmtEps(r.epsActual)}</td>
+                          <td className="num font-semibold">
+                            <span className={beat ? 'text-up' : miss ? 'text-down' : 'text-ink-2'}>
+                              {fmtPct(surprise)}
+                            </span>
+                          </td>
+                          <td className="min-w-[12rem]">
+                            <div
+                              className="relative w-full overflow-hidden rounded-full bg-surface-2 ring-1 ring-line"
+                              style={{ height: Math.max(28, barH) }}
+                            >
+                              {widthFrac > 0 && beat ? (
+                                <div
+                                  className="absolute left-0 top-0 flex h-full min-w-[4.75rem] items-center justify-center rounded-full border border-up/30 bg-up/15 px-2.5"
+                                  style={{ width: `max(4.75rem, ${widthFrac}%)` }}
+                                >
+                                  <span className="whitespace-nowrap text-[11px] font-semibold tracking-wide text-up">
+                                    BEAT
+                                  </span>
+                                </div>
+                              ) : widthFrac > 0 && miss ? (
+                                <div
+                                  className="absolute right-0 top-0 flex h-full min-w-[4.75rem] items-center justify-center rounded-full border border-down/30 bg-down/15 px-2.5"
+                                  style={{ width: `max(4.75rem, ${widthFrac}%)` }}
+                                >
+                                  <span className="whitespace-nowrap text-[11px] font-semibold tracking-wide text-down">
+                                    MISS
+                                  </span>
+                                </div>
+                              ) : (
+                                <div className="flex h-full items-center justify-center text-[11px] font-semibold text-ink-3">
+                                  {neutral ? 'MEET' : '—'}
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                    {mainRows.length === 0 && (
+                      <tr>
+                        <td className="py-8 text-center text-ink-3" colSpan={7}>
+                          No earnings found for this date.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </TableShell>
+          </div>
+        )
+      ) : errorEcon ? (
+        <section className="rise rise-3 panel border-down/25 bg-down/5 p-6 text-sm">
+          <p className="font-medium text-down">Couldn’t load economic calendar</p>
+          <p className="mt-1 text-ink-2">{errorEcon}</p>
+          <p className="mt-2 text-xs text-ink-3">Pick another date or reload the page to retry.</p>
+        </section>
+      ) : (
+        <div className="rise rise-3">
           <TableShell
-            title="Earnings calendar"
-            subtitle="Sorted by surprise %. Bars show the gap between estimated and actual EPS."
+            title="Economic calendar"
+            subtitle="Macro releases for the selected week. Forecast is muted; actual lights up when present. Impact is color-coded by level."
           >
-            <div className="relative isolate max-h-[34rem] overflow-auto px-2 pb-1 pt-0">
-              <table className="min-w-full text-left text-sm">
-                <thead className={STICKY_TABLE_HEAD}>
+            <div className="max-h-[34rem] overflow-y-auto">
+              <table>
+                <thead>
                   <tr>
-                    <th className="px-4 py-2.5 font-medium">Sym</th>
-                    <th className="px-4 py-2.5 font-medium">Company</th>
-                    <th className="px-2 py-2.5 font-medium text-center">Sess.</th>
-                    <th className="px-3 py-2.5 font-medium text-right">Est.</th>
-                    <th className="px-3 py-2.5 font-medium text-right">Actual</th>
-                    <th className="px-4 py-2.5 font-medium text-right">Surprise</th>
-                    <th className="min-w-[12rem] px-4 py-2.5 font-medium">Beat / miss</th>
+                    <th>When</th>
+                    <th>Event</th>
+                    <th>Country</th>
+                    <th className="text-center">Impact</th>
+                    <th className="num">Forecast</th>
+                    <th className="num">Previous</th>
+                    <th className="num">Actual</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border-subtle/70">
-                  {mainRows.map((r) => {
-                    const surprise = r.surprisePct
-                    const beat = r.result === 'BEAT'
-                    const miss = r.result === 'MISS'
-                    const neutral = r.result === 'MEET'
-
-                    const widthFrac = barWidthFrac(r.result, surprise)
-                    const barH = barHeightPx(widthFrac)
-
-                    const barGlow = beat
-                      ? 'shadow-[0_0_22px_rgba(16,185,129,0.9),0_0_44px_rgba(16,185,129,0.35),inset_0_0_0_1px_rgba(255,255,255,0.12)]'
-                      : miss
-                        ? 'shadow-[0_0_22px_rgba(248,113,113,0.85),0_0_44px_rgba(248,113,113,0.3),inset_0_0_0_1px_rgba(255,255,255,0.1)]'
-                        : 'shadow-[0_0_10px_rgba(161,161,170,0.25)]'
-                    const barColor = beat
-                      ? `from-emerald-400/80 via-emerald-500/85 to-emerald-400/80 ${barGlow}`
-                      : miss
-                        ? `from-rose-400/80 via-rose-500/85 to-rose-400/80 ${barGlow}`
-                        : `from-zinc-500/70 via-zinc-400/70 to-zinc-500/70 ${barGlow}`
-
+                <tbody>
+                  {econRows.map((ev, i) => {
+                    const key = `${ev.date}-${i}-${ev.event}`
                     return (
-                      <tr key={`${r.symbol}-${r.name}-${r.time ?? ''}`} className="relative z-0">
-                        <td className="px-4 py-2.5 font-semibold text-zinc-100">{r.symbol ?? '—'}</td>
-                        <td className="max-w-[18rem] truncate px-4 py-2.5 text-zinc-300" title={r.name ?? ''}>
-                          {r.name ?? '—'}
-                        </td>
-                        <td className="px-2 py-2.5 text-center" title={r.time ?? 'Time not provided'}>
-                          <span className="inline-flex items-center justify-center">
-                            <SessionIcon hint={r.sessionHint} />
-                          </span>
-                        </td>
-                        <td className="px-3 py-2.5 text-right tabular-nums text-zinc-400">{fmtEps(r.epsEstimate)}</td>
-                        <td className="px-3 py-2.5 text-right tabular-nums text-zinc-200">{fmtEps(r.epsActual)}</td>
-                        <td className="px-4 py-2.5 text-right text-sm font-semibold tabular-nums">
-                          <span
-                            className={[
-                              beat ? 'text-emerald-300' : miss ? 'text-rose-300' : 'text-zinc-300',
-                            ].join(' ')}
-                          >
-                            {fmtPct(surprise)}
-                          </span>
-                        </td>
-                        <td className="overflow-visible px-4 py-2.5 align-middle">
-                          <div
-                            className="relative w-full overflow-visible rounded-full bg-surface-0/60 ring-1 ring-border-subtle/70"
-                            style={{ height: Math.max(28, barH) }}
-                          >
-                            {widthFrac > 0 && beat ? (
-                              <div
-                                className={[
-                                  'absolute left-0 top-0 flex h-full min-w-[4.75rem] items-center justify-center rounded-full bg-gradient-to-r px-2.5',
-                                  barColor,
-                                  widthFrac >= 70 ? 'animate-pulse-[1.8s_ease-in-out_infinite_alternate]' : '',
-                                ].join(' ')}
-                                style={{ width: `max(4.75rem, ${widthFrac}%)` }}
-                              >
-                                <span className="whitespace-nowrap text-[11px] font-semibold tracking-wide text-zinc-50">
-                                  BEAT
-                                </span>
-                              </div>
-                            ) : widthFrac > 0 && miss ? (
-                              <div
-                                className={[
-                                  'absolute right-0 top-0 flex h-full min-w-[4.75rem] items-center justify-center rounded-full bg-gradient-to-l px-2.5',
-                                  barColor,
-                                  widthFrac >= 70 ? 'animate-pulse-[1.8s_ease-in-out_infinite_alternate]' : '',
-                                ].join(' ')}
-                                style={{ width: `max(4.75rem, ${widthFrac}%)` }}
-                              >
-                                <span className="whitespace-nowrap text-[11px] font-semibold tracking-wide text-zinc-50">
-                                  MISS
-                                </span>
-                              </div>
-                            ) : (
-                              <div className="flex h-full items-center justify-center text-[11px] font-semibold text-zinc-300">
-                                {neutral ? 'MEET' : '—'}
-                              </div>
-                            )}
+                      <tr key={key}>
+                        <td className="num whitespace-nowrap text-xs text-ink-3">{fmtWhen(ev.date)}</td>
+                        <td className="max-w-[20rem] font-medium text-ink">{fmtMacro(ev.event)}</td>
+                        <td>{fmtMacro(ev.country)}</td>
+                        <td className="text-center">
+                          <div className="inline-flex justify-center">
+                            <ImpactPill level={ev.impactLevel} />
                           </div>
+                        </td>
+                        <td className="num text-ink-3">{fmtMacro(ev.forecast)}</td>
+                        <td className="num">{fmtMacro(ev.previous)}</td>
+                        <td className="num">
+                          <ActualMacroValue eventKey={key} value={ev.actual} />
                         </td>
                       </tr>
                     )
                   })}
-                  {mainRows.length === 0 && (
+                  {econRows.length === 0 && (
                     <tr>
-                      <td className="px-4 py-8 text-center text-sm text-zinc-500" colSpan={7}>
-                        No earnings found for this date.
+                      <td className="py-8 text-center text-ink-3" colSpan={7}>
+                        No macro events in this window.
                       </td>
                     </tr>
                   )}
@@ -384,62 +399,7 @@ export function News() {
               </table>
             </div>
           </TableShell>
-        )
-      ) : errorEcon ? (
-        <section className="rounded-2xl border border-rose-500/20 bg-rose-500/5 p-6 text-sm text-rose-200">
-          <p className="font-medium">Couldn’t load economic calendar</p>
-          <p className="mt-1 text-rose-200/80">{errorEcon}</p>
-        </section>
-      ) : (
-        <TableShell
-          title="Economic calendar"
-          subtitle="Macro releases for the selected week. Forecast is muted; actual slides in when present. Impact is color-coded by level."
-        >
-          <div className="relative isolate max-h-[34rem] overflow-auto px-2 pb-1 pt-0">
-            <table className="min-w-full text-left text-sm">
-              <thead className={STICKY_TABLE_HEAD}>
-                <tr>
-                  <th className="px-4 py-2.5 font-medium">When</th>
-                  <th className="px-4 py-2.5 font-medium">Event</th>
-                  <th className="px-3 py-2.5 font-medium">Country</th>
-                  <th className="px-3 py-2.5 font-medium text-center">Impact</th>
-                  <th className="px-3 py-2.5 font-medium text-right">Forecast</th>
-                  <th className="px-3 py-2.5 font-medium text-right">Previous</th>
-                  <th className="px-4 py-2.5 font-medium text-right">Actual</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border-subtle/70">
-                {econRows.map((ev, i) => {
-                  const key = `${ev.date}-${i}-${ev.event}`
-                  return (
-                    <tr key={key}>
-                      <td className="whitespace-nowrap px-4 py-2.5 text-xs text-zinc-500">{fmtWhen(ev.date)}</td>
-                      <td className="max-w-[20rem] px-4 py-2.5 font-medium text-zinc-100">{fmtMacro(ev.event)}</td>
-                      <td className="px-3 py-2.5 text-zinc-400">{fmtMacro(ev.country)}</td>
-                      <td className="overflow-visible px-3 py-2.5 text-center">
-                        <div className="inline-flex justify-center">
-                          <ImpactPill level={ev.impactLevel} />
-                        </div>
-                      </td>
-                      <td className="px-3 py-2.5 text-right tabular-nums text-zinc-600">{fmtMacro(ev.forecast)}</td>
-                      <td className="px-3 py-2.5 text-right tabular-nums text-zinc-400">{fmtMacro(ev.previous)}</td>
-                      <td className="px-4 py-2.5 text-right tabular-nums">
-                        <ActualMacroValue eventKey={key} value={ev.actual} />
-                      </td>
-                    </tr>
-                  )
-                })}
-                {econRows.length === 0 && (
-                  <tr>
-                    <td className="px-4 py-8 text-center text-sm text-zinc-500" colSpan={7}>
-                      No macro events in this window.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </TableShell>
+        </div>
       )}
     </div>
   )

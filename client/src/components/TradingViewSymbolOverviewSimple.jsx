@@ -21,7 +21,7 @@ export function TradingViewSymbolOverviewSimple({
   const containerRef = useRef(null)
   const theme = useChartTheme()
   const isLight = theme === 'light'
-  const bg = isLight ? '#ffffff' : '#131722'
+  const bg = isLight ? '#ffffff' : '#0f0c0a'
   const full = toTradingViewSymbol(ticker)
   const baseTicker = full.includes(':') ? full.split(':')[1] : String(ticker).toUpperCase()
 
@@ -70,12 +70,12 @@ export function TradingViewSymbolOverviewSimple({
         changeMode: 'price-only',
         lineType: 0,
         dateRanges: ['1m|1D'],
-        downColor: '#c24141',
-        upColor: '#1a8f72',
-        borderUpColor: '#1a8f72',
-        borderDownColor: '#c24141',
-        wickUpColor: '#1a8f72',
-        wickDownColor: '#c24141',
+        downColor: '#ff6161',
+        upColor: '#3ddc97',
+        borderUpColor: '#3ddc97',
+        borderDownColor: '#ff6161',
+        wickUpColor: '#3ddc97',
+        wickDownColor: '#ff6161',
       })
 
       root.replaceChildren()

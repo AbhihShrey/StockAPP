@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Loader2, Search, Sparkles } from 'lucide-react'
+import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Flame, Loader2, Search } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DashboardCard } from '../components/DashboardCard'
@@ -15,7 +15,7 @@ const TABS = [
 ]
 
 const INSIDER_FILTERS = [
-  { id: 'significant', label: 'Significant', icon: Sparkles },
+  { id: 'significant', label: 'Significant', icon: Flame },
   { id: 'all', label: 'All' },
   { id: 'purchase', label: 'Purchases' },
   { id: 'sale', label: 'Sales' },
@@ -57,20 +57,23 @@ function isWithinDays(dateStr, days) {
 // ── Pills ────────────────────────────────────────────────────────────────────
 
 const TXN_PILL = {
-  PURCHASE: 'bg-emerald-500/[0.07] text-emerald-300/90 ring-emerald-400/15',
-  SALE:     'bg-rose-500/[0.07] text-rose-300/90 ring-rose-400/15',
-  OPTION:   'bg-amber-500/[0.06] text-amber-200/85 ring-amber-400/15',
-  GIFT:     'bg-white/[0.04] text-zinc-300 ring-white/10',
-  AWARD:    'bg-sky-500/[0.06] text-sky-200/85 ring-sky-400/15',
-  TAX:      'bg-white/[0.03] text-zinc-400 ring-white/10',
-  OTHER:    'bg-white/[0.03] text-zinc-400 ring-white/10',
-  EXCHANGE: 'bg-amber-500/[0.06] text-amber-200/85 ring-amber-400/15',
+  PURCHASE: 'chip-up',
+  SALE:     'chip-down',
+  OPTION:   'chip-warn',
+  GIFT:     '',
+  AWARD:    'border-flame/25 bg-flame/10 text-flame',
+  TAX:      '',
+  OTHER:    '',
+  EXCHANGE: 'chip-warn',
 }
 
 function TxnPill({ code, label }) {
   const cls = TXN_PILL[code] ?? TXN_PILL.OTHER
+  const isBuy = code === 'PURCHASE'
+  const isSell = code === 'SALE'
   return (
-    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium ring-1 ${cls}`}>
+    <span className={`chip ${cls}`}>
+      {isBuy ? <ArrowUp className="size-3" aria-hidden /> : isSell ? <ArrowDown className="size-3" aria-hidden /> : null}
       {label}
     </span>
   )
@@ -79,7 +82,7 @@ function TxnPill({ code, label }) {
 function NewDot() {
   return (
     <span
-      className="inline-block size-1.5 shrink-0 rounded-full bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.6)]"
+      className="inline-block size-1.5 shrink-0 rounded-full bg-up shadow-[0_0_6px_rgba(61,220,151,0.6)]"
       title="Filed within the last 7 days"
       aria-label="New"
     />
@@ -89,36 +92,28 @@ function NewDot() {
 function SignificantBadge() {
   return (
     <span
-      className="inline-flex items-center gap-1 rounded-md bg-accent/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent ring-1 ring-accent/25"
+      className="inline-flex items-center gap-1 rounded-md bg-ember/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-flame ring-1 ring-ember/25"
       title="Officer/director purchase or large-dollar trade"
     >
-      <Sparkles className="size-2.5" /> Key
+      <Flame className="size-2.5" aria-hidden /> Key
     </span>
   )
 }
 
 function ChamberPill({ chamber }) {
-  if (!chamber) return <span className="text-zinc-600">—</span>
-  const isSenate = chamber === 'Senate'
-  const cls = isSenate
-    ? 'bg-violet-500/[0.07] text-violet-300/90 ring-violet-400/15'
-    : 'bg-cyan-500/[0.07] text-cyan-300/90 ring-cyan-400/15'
-  return (
-    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium ring-1 ${cls}`}>
-      {chamber}
-    </span>
-  )
+  if (!chamber) return <span className="text-ink-3">—</span>
+  return <span className="chip">{chamber}</span>
 }
 
 function PartyPill({ party }) {
-  if (!party) return <span className="text-zinc-600">—</span>
+  if (!party) return <span className="text-ink-3">—</span>
   const map = {
-    D: 'bg-blue-500/[0.08] text-blue-300/90 ring-blue-400/15',
-    R: 'bg-rose-500/[0.08] text-rose-300/90 ring-rose-400/15',
-    I: 'bg-white/[0.04] text-zinc-300 ring-white/10',
+    D: 'border-up/25 bg-up/10 text-up',
+    R: 'border-down/25 bg-down/10 text-down',
+    I: 'border-line bg-surface-2 text-ink-2',
   }
   return (
-    <span className={`inline-flex size-6 items-center justify-center rounded-md text-[11px] font-semibold ring-1 ${map[party]}`}>
+    <span className={`inline-flex size-6 items-center justify-center rounded-md border text-[11px] font-semibold ${map[party] ?? map.I}`}>
       {party}
     </span>
   )
@@ -134,14 +129,14 @@ function SortHeader({ label, sortKey, sort, setSort, align = 'left' }) {
     else setSort({ key: sortKey, dir: 'desc' })
   }
   return (
-    <th className={`px-6 py-4 ${align === 'right' ? 'text-right' : align === 'center' ? 'text-center' : 'text-left'}`}>
+    <th className={align === 'right' ? 'num' : align === 'center' ? 'text-center' : ''}>
       <button
         type="button"
         onClick={onClick}
-        className={`inline-flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.08em] transition ${active ? 'text-zinc-200' : 'text-zinc-500 hover:text-zinc-300'}`}
+        className={`inline-flex items-center gap-1 outline-none focus-visible:ring-2 focus-visible:ring-ember/60 transition ${active ? 'text-ink' : 'text-ink-3 hover:text-ink-2'}`}
       >
         {label}
-        {active ? (dir === 'asc' ? <ArrowUp className="size-3" /> : <ArrowDown className="size-3" />) : null}
+        {active ? (dir === 'asc' ? <ArrowUp className="size-3" aria-hidden /> : <ArrowDown className="size-3" aria-hidden />) : null}
       </button>
     </th>
   )
@@ -168,15 +163,52 @@ function SymbolFilter({ value, onChange }) {
     timer.current = setTimeout(() => onChange(v.trim().toUpperCase()), 400)
   }
   return (
-    <div className="relative">
-      <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-500" aria-hidden />
+    <div className="relative w-full sm:w-72">
+      <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-3" aria-hidden />
       <input
         value={local}
         onChange={(e) => handle(e.target.value)}
         placeholder="Filter by symbol (e.g. AAPL)"
         maxLength={12}
-        className="glass-input w-full rounded-xl py-2 pl-9 pr-3 font-mono text-sm uppercase tracking-wide text-zinc-100 placeholder:text-zinc-600 sm:w-72"
+        aria-label="Filter by symbol"
+        className="input num pl-9 uppercase tracking-wide"
       />
+    </div>
+  )
+}
+
+// ── Filter tabs (quiet segmented control) ────────────────────────────────────
+
+function FilterTabs({ filters, filter, setFilter, significantCount }) {
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {filters.map((f) => {
+        const active = filter === f.id
+        const Icon = f.icon
+        const isSig = f.id === 'significant'
+        return (
+          <button
+            key={f.id}
+            type="button"
+            aria-pressed={active}
+            onClick={() => setFilter(f.id)}
+            className={[
+              'inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition outline-none focus-visible:ring-2 focus-visible:ring-ember/60',
+              active
+                ? 'bg-ember/10 text-flame ring-1 ring-ember/25'
+                : 'border border-line bg-surface-2 text-ink-3 hover:bg-surface-3 hover:text-ink-2',
+            ].join(' ')}
+          >
+            {Icon ? <Icon className="size-3.5" aria-hidden /> : null}
+            {f.label}
+            {isSig && significantCount > 0 ? (
+              <span className={`num text-[10px] ${active ? 'text-flame/80' : 'text-ink-3'}`}>
+                {significantCount}
+              </span>
+            ) : null}
+          </button>
+        )
+      })}
     </div>
   )
 }
@@ -240,36 +272,12 @@ function InsiderTab({ token }) {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <SymbolFilter value={symbol} onChange={(v) => { setSymbol(v); setPage(0) }} />
-        <div className="flex flex-wrap gap-1.5">
-          {INSIDER_FILTERS.map((f) => {
-            const active = filter === f.id
-            const Icon = f.icon
-            const isSig = f.id === 'significant'
-            return (
-              <button
-                key={f.id}
-                type="button"
-                onClick={() => { setFilter(f.id); setPage(0) }}
-                className={[
-                  'inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition',
-                  active
-                    ? isSig
-                      ? 'bg-accent/12 text-accent ring-1 ring-accent/25'
-                      : 'bg-white/[0.07] text-zinc-100 ring-1 ring-white/15'
-                    : 'border border-white/[0.07] bg-white/[0.02] text-zinc-400 hover:bg-white/[0.05] hover:text-zinc-200',
-                ].join(' ')}
-              >
-                {Icon ? <Icon className="size-3.5" /> : null}
-                {f.label}
-                {isSig && significantCount > 0 ? (
-                  <span className={`tabular-nums text-[10px] ${active ? 'text-accent/80' : 'text-zinc-500'}`}>
-                    {significantCount}
-                  </span>
-                ) : null}
-              </button>
-            )
-          })}
-        </div>
+        <FilterTabs
+          filters={INSIDER_FILTERS}
+          filter={filter}
+          setFilter={(id) => { setFilter(id); setPage(0) }}
+          significantCount={significantCount}
+        />
       </div>
 
       <DashboardCard
@@ -280,27 +288,27 @@ function InsiderTab({ token }) {
         }
         action={
           filter === 'significant' ? (
-            <span className="text-[11px] text-zinc-500">Sorted by importance</span>
+            <span className="text-[11px] text-ink-3">Sorted by importance</span>
           ) : null
         }
         className="p-0"
       >
-        <div className="-mx-5 -my-5">
+        <div className="-mx-4 -my-4 sm:-mx-5 sm:-my-5">
           {loading ? (
-            <div className="flex items-center justify-center py-20 text-sm text-zinc-500">
-              <Loader2 className="mr-2 size-4 animate-spin" /> Loading…
+            <div className="flex items-center justify-center py-20 text-sm text-ink-3">
+              <Loader2 className="mr-2 size-4 animate-spin" aria-hidden /> Loading…
             </div>
           ) : error ? (
-            <div className="m-5 rounded-xl border border-rose-500/20 bg-rose-500/5 p-6 text-sm text-rose-300">{error}</div>
+            <div className="m-5 rounded-xl border border-down/25 bg-down/5 p-6 text-sm text-down">{error}</div>
           ) : filtered.length === 0 ? (
-            <div className="px-6 py-20 text-center text-sm text-zinc-500">
+            <div className="px-6 py-20 text-center text-sm text-ink-3">
               No insider trades match {symbol ? `“${symbol}”` : 'the current filter'}.
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[1100px] text-left text-sm">
-                <thead className="bg-white/[0.015] text-[11px]">
-                  <tr className="border-b border-white/[0.06]">
+            <div className="tbl rounded-none border-0 bg-transparent">
+              <table className="min-w-[1100px]">
+                <thead>
+                  <tr>
                     <SortHeader label="Date" sortKey="transactionDate" sort={sort} setSort={setSort} />
                     <SortHeader label="Symbol" sortKey="symbol" sort={sort} setSort={setSort} />
                     <SortHeader label="Company" sortKey="company" sort={sort} setSort={setSort} />
@@ -309,47 +317,41 @@ function InsiderTab({ token }) {
                     <SortHeader label="Type" sortKey="transactionType" sort={sort} setSort={setSort} />
                     <SortHeader label="Shares" sortKey="shares" sort={sort} setSort={setSort} align="right" />
                     <SortHeader label="Value" sortKey="value" sort={sort} setSort={setSort} align="right" />
-                    <th className="px-6 py-4 text-center text-[11px] font-medium uppercase tracking-[0.08em] text-zinc-500">Dir</th>
+                    <th className="text-center">Dir</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/[0.05]">
+                <tbody>
                   {pageRows.map((r, i) => (
                     <tr
                       key={`${r.symbol}-${r.transactionDate}-${i}`}
-                      className={[
-                        'transition-colors hover:bg-white/[0.025]',
-                        r.isSignificant ? 'bg-accent/[0.025]' : '',
-                      ].join(' ')}
+                      className={r.isSignificant ? 'bg-ember/8 ring-1 ring-inset ring-ember/25' : ''}
                     >
-                      <td className={[
-                        'whitespace-nowrap px-6 py-5 text-zinc-400',
-                        r.isSignificant ? 'border-l-2 border-l-accent/50' : 'border-l-2 border-l-transparent',
-                      ].join(' ')}>
+                      <td className="whitespace-nowrap text-ink-2">
                         <div className="flex items-center gap-1.5">
-                          <span>{fmtDate(r.transactionDate)}</span>
+                          <span className="num">{fmtDate(r.transactionDate)}</span>
                           {isWithinDays(r.filingDate ?? r.transactionDate, NEW_WINDOW_DAYS) ? <NewDot /> : null}
                           {r.isSignificant ? <SignificantBadge /> : null}
                         </div>
                       </td>
-                      <td className="px-6 py-5">
+                      <td>
                         <button
                           type="button"
                           onClick={() => navigate(`/analysis/${r.symbol}`)}
-                          className="font-mono text-[13px] font-semibold text-zinc-100 transition hover:text-accent"
+                          className="num text-[13px] font-semibold text-ink transition hover:text-flame outline-none focus-visible:ring-2 focus-visible:ring-ember/60 rounded"
                         >
                           {r.symbol}
                         </button>
                       </td>
-                      <td className="max-w-[18rem] truncate px-6 py-5 text-zinc-400" title={r.company ?? ''}>{r.company ?? '—'}</td>
-                      <td className="px-6 py-5 text-zinc-200">{r.insiderName ?? '—'}</td>
-                      <td className="max-w-[16rem] truncate px-6 py-5 text-zinc-500" title={r.title ?? ''}>{r.title ?? '—'}</td>
-                      <td className="px-6 py-5"><TxnPill code={r.transactionType} label={r.transactionLabel} /></td>
-                      <td className="px-6 py-5 text-right tabular-nums text-zinc-300">{fmtShares(r.shares)}</td>
-                      <td className="px-6 py-5 text-right tabular-nums font-semibold text-zinc-100">{fmtMoney(r.value)}</td>
-                      <td className="px-6 py-5 text-center">
-                        {r.direction === 'up' ? <ArrowUp className="mx-auto size-4 text-emerald-400/85" />
-                          : r.direction === 'down' ? <ArrowDown className="mx-auto size-4 text-rose-400/85" />
-                          : <span className="text-zinc-600">—</span>}
+                      <td className="max-w-[18rem] truncate text-ink-2" title={r.company ?? ''}>{r.company ?? '—'}</td>
+                      <td className="text-ink">{r.insiderName ?? '—'}</td>
+                      <td className="max-w-[16rem] truncate text-ink-3" title={r.title ?? ''}>{r.title ?? '—'}</td>
+                      <td><TxnPill code={r.transactionType} label={r.transactionLabel} /></td>
+                      <td className="num text-ink-2">{fmtShares(r.shares)}</td>
+                      <td className="num font-semibold text-ink">{fmtMoney(r.value)}</td>
+                      <td className="text-center">
+                        {r.direction === 'up' ? <ArrowUp className="mx-auto size-4 text-up" aria-label="Up" />
+                          : r.direction === 'down' ? <ArrowDown className="mx-auto size-4 text-down" aria-label="Down" />
+                          : <span className="text-ink-3">—</span>}
                       </td>
                     </tr>
                   ))}
@@ -367,7 +369,7 @@ function InsiderTab({ token }) {
 // ── Congressional tab ───────────────────────────────────────────────────────
 
 const CONGRESS_FILTERS = [
-  { id: 'significant', label: 'Significant', icon: Sparkles },
+  { id: 'significant', label: 'Significant', icon: Flame },
   { id: 'all', label: 'All' },
   { id: 'purchase', label: 'Purchases' },
   { id: 'sale', label: 'Sales' },
@@ -431,59 +433,35 @@ function CongressTab({ token }) {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <SymbolFilter value={symbol} onChange={(v) => { setSymbol(v); setPage(0) }} />
-        <div className="flex flex-wrap gap-1.5">
-          {CONGRESS_FILTERS.map((f) => {
-            const active = filter === f.id
-            const Icon = f.icon
-            const isSig = f.id === 'significant'
-            return (
-              <button
-                key={f.id}
-                type="button"
-                onClick={() => { setFilter(f.id); setPage(0) }}
-                className={[
-                  'inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition',
-                  active
-                    ? isSig
-                      ? 'bg-accent/12 text-accent ring-1 ring-accent/25'
-                      : 'bg-white/[0.07] text-zinc-100 ring-1 ring-white/15'
-                    : 'border border-white/[0.07] bg-white/[0.02] text-zinc-400 hover:bg-white/[0.05] hover:text-zinc-200',
-                ].join(' ')}
-              >
-                {Icon ? <Icon className="size-3.5" /> : null}
-                {f.label}
-                {isSig && significantCount > 0 ? (
-                  <span className={`tabular-nums text-[10px] ${active ? 'text-accent/80' : 'text-zinc-500'}`}>
-                    {significantCount}
-                  </span>
-                ) : null}
-              </button>
-            )
-          })}
-        </div>
+        <FilterTabs
+          filters={CONGRESS_FILTERS}
+          filter={filter}
+          setFilter={(id) => { setFilter(id); setPage(0) }}
+          significantCount={significantCount}
+        />
       </div>
 
       <DashboardCard
         title={loading ? 'Loading congressional trades…' : `${filtered.length.toLocaleString()} trade${filtered.length === 1 ? '' : 's'}`}
-        action={filter === 'significant' ? <span className="text-[11px] text-zinc-500">Sorted by importance</span> : null}
+        action={filter === 'significant' ? <span className="text-[11px] text-ink-3">Sorted by importance</span> : null}
         className="p-0"
       >
-        <div className="-mx-5 -my-5">
+        <div className="-mx-4 -my-4 sm:-mx-5 sm:-my-5">
           {loading ? (
-            <div className="flex items-center justify-center py-20 text-sm text-zinc-500">
-              <Loader2 className="mr-2 size-4 animate-spin" /> Loading…
+            <div className="flex items-center justify-center py-20 text-sm text-ink-3">
+              <Loader2 className="mr-2 size-4 animate-spin" aria-hidden /> Loading…
             </div>
           ) : error ? (
-            <div className="m-5 rounded-xl border border-rose-500/20 bg-rose-500/5 p-6 text-sm text-rose-300">{error}</div>
+            <div className="m-5 rounded-xl border border-down/25 bg-down/5 p-6 text-sm text-down">{error}</div>
           ) : filtered.length === 0 ? (
-            <div className="px-6 py-20 text-center text-sm text-zinc-500">
+            <div className="px-6 py-20 text-center text-sm text-ink-3">
               No congressional trades match {symbol ? `“${symbol}”` : 'the current filter'}.
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[1100px] text-left text-sm">
-                <thead className="bg-white/[0.015] text-[11px]">
-                  <tr className="border-b border-white/[0.06]">
+            <div className="tbl rounded-none border-0 bg-transparent">
+              <table className="min-w-[1100px]">
+                <thead>
+                  <tr>
                     <SortHeader label="Date" sortKey="transactionDate" sort={sort} setSort={setSort} />
                     <SortHeader label="Symbol" sortKey="symbol" sort={sort} setSort={setSort} />
                     <SortHeader label="Company" sortKey="company" sort={sort} setSort={setSort} />
@@ -495,44 +473,38 @@ function CongressTab({ token }) {
                     <SortHeader label="Filed" sortKey="filingDate" sort={sort} setSort={setSort} />
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/[0.05]">
+                <tbody>
                   {pageRows.map((r, i) => (
                     <tr
                       key={`${r.symbol}-${r.transactionDate}-${r.memberName}-${i}`}
-                      className={[
-                        'transition-colors hover:bg-white/[0.025]',
-                        r.isSignificant ? 'bg-accent/[0.025]' : '',
-                      ].join(' ')}
+                      className={r.isSignificant ? 'bg-ember/8 ring-1 ring-inset ring-ember/25' : ''}
                     >
-                      <td className={[
-                        'whitespace-nowrap px-6 py-5 text-zinc-400',
-                        r.isSignificant ? 'border-l-2 border-l-accent/50' : 'border-l-2 border-l-transparent',
-                      ].join(' ')}>
+                      <td className="whitespace-nowrap text-ink-2">
                         <div className="flex items-center gap-1.5">
-                          <span>{fmtDate(r.transactionDate)}</span>
+                          <span className="num">{fmtDate(r.transactionDate)}</span>
                           {r.isSignificant ? <SignificantBadge /> : null}
                         </div>
                       </td>
-                      <td className="px-6 py-5">
+                      <td>
                         {r.symbol ? (
                           <button
                             type="button"
                             onClick={() => navigate(`/analysis/${r.symbol}`)}
-                            className="font-mono text-[13px] font-semibold text-zinc-100 transition hover:text-accent"
+                            className="num text-[13px] font-semibold text-ink transition hover:text-flame outline-none focus-visible:ring-2 focus-visible:ring-ember/60 rounded"
                           >
                             {r.symbol}
                           </button>
-                        ) : <span className="text-zinc-600">—</span>}
+                        ) : <span className="text-ink-3">—</span>}
                       </td>
-                      <td className="max-w-[18rem] truncate px-6 py-5 text-zinc-400" title={r.company ?? ''}>{r.company ?? '—'}</td>
-                      <td className="px-6 py-5 text-zinc-200">{r.memberName ?? '—'}</td>
-                      <td className="px-6 py-5"><ChamberPill chamber={r.chamber} /></td>
-                      <td className="px-6 py-5"><PartyPill party={r.party} /></td>
-                      <td className="px-6 py-5"><TxnPill code={r.transactionType} label={r.transactionLabel} /></td>
-                      <td className="whitespace-nowrap px-6 py-5 text-right tabular-nums text-zinc-300">
+                      <td className="max-w-[18rem] truncate text-ink-2" title={r.company ?? ''}>{r.company ?? '—'}</td>
+                      <td className="text-ink">{r.memberName ?? '—'}</td>
+                      <td><ChamberPill chamber={r.chamber} /></td>
+                      <td><PartyPill party={r.party} /></td>
+                      <td><TxnPill code={r.transactionType} label={r.transactionLabel} /></td>
+                      <td className="num whitespace-nowrap text-ink-2">
                         {r.amountRange ?? '—'}
                       </td>
-                      <td className="whitespace-nowrap px-6 py-5 text-zinc-500">{fmtDate(r.filingDate)}</td>
+                      <td className="num whitespace-nowrap text-ink-3">{fmtDate(r.filingDate)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -551,25 +523,25 @@ function Pagination({ page, pageCount, onChange, total }) {
   const start = page * PAGE_SIZE + 1
   const end = Math.min(total, (page + 1) * PAGE_SIZE)
   return (
-    <div className="flex items-center justify-between gap-3 border-t border-white/[0.05] px-6 py-4 text-xs text-zinc-500">
-      <span className="tabular-nums">{start}–{end} of {total.toLocaleString()}</span>
+    <div className="flex items-center justify-between gap-3 border-t border-line px-6 py-4 text-xs text-ink-3">
+      <span className="num">{start}–{end} of {total.toLocaleString()}</span>
       <div className="flex items-center gap-2">
         <button
           type="button"
           onClick={() => onChange(Math.max(0, page - 1))}
           disabled={page === 0}
-          className="glass-btn inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 disabled:cursor-not-allowed disabled:opacity-40"
+          className="btn-ghost h-8 px-2.5 text-xs"
         >
-          <ChevronLeft className="size-3.5" /> Prev
+          <ChevronLeft className="size-3.5" aria-hidden /> Prev
         </button>
-        <span className="tabular-nums text-zinc-400">{page + 1} / {pageCount}</span>
+        <span className="num text-ink-2">{page + 1} / {pageCount}</span>
         <button
           type="button"
           onClick={() => onChange(Math.min(pageCount - 1, page + 1))}
           disabled={page >= pageCount - 1}
-          className="glass-btn inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 disabled:cursor-not-allowed disabled:opacity-40"
+          className="btn-ghost h-8 px-2.5 text-xs"
         >
-          Next <ChevronRight className="size-3.5" />
+          Next <ChevronRight className="size-3.5" aria-hidden />
         </button>
       </div>
     </div>
@@ -583,31 +555,38 @@ export function InsiderActivity() {
   const [tab, setTab] = useState('insider')
 
   return (
-    <div className="app-page-enter space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">Insider Activity</h1>
-        <p className="mt-0.5 text-sm text-zinc-500">Form 4 insider trades and Senate / House disclosures.</p>
+    <div className="space-y-6">
+      <header className="rise">
+        <p className="eyebrow">Insider activity · US equities</p>
+        <h1 className="display text-2xl sm:text-3xl">Insider Activity</h1>
+        <div className="ember-rule mt-4" />
       </header>
 
-      <div className="inline-flex gap-1 rounded-xl border border-white/[0.07] bg-white/[0.02] p-1">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => setTab(t.id)}
-            className={[
-              'rounded-lg px-4 py-1.5 text-xs font-medium transition',
-              tab === t.id
-                ? 'bg-white/[0.06] text-zinc-100 ring-1 ring-white/10'
-                : 'text-zinc-500 hover:text-zinc-300',
-            ].join(' ')}
-          >
-            {t.label}
-          </button>
-        ))}
+      <div className="rise rise-1 inline-flex gap-1 rounded-xl border border-line bg-surface-2 p-1">
+        {TABS.map((t) => {
+          const active = tab === t.id
+          return (
+            <button
+              key={t.id}
+              type="button"
+              aria-pressed={active}
+              onClick={() => setTab(t.id)}
+              className={[
+                'rounded-lg px-4 py-1.5 text-xs font-medium transition outline-none focus-visible:ring-2 focus-visible:ring-ember/60',
+                active
+                  ? 'bg-ember/10 text-flame ring-1 ring-ember/25'
+                  : 'text-ink-3 hover:text-ink-2',
+              ].join(' ')}
+            >
+              {t.label}
+            </button>
+          )
+        })}
       </div>
 
-      {tab === 'insider' ? <InsiderTab token={token} /> : <CongressTab token={token} />}
+      <div className="rise rise-2">
+        {tab === 'insider' ? <InsiderTab token={token} /> : <CongressTab token={token} />}
+      </div>
     </div>
   )
 }

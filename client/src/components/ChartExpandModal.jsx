@@ -71,21 +71,21 @@ export function ChartExpandModal({
     >
       <button
         type="button"
-        className="fixed inset-0 bg-black/75 backdrop-blur-sm"
+        className="glass fixed inset-0 bg-black/60"
         aria-label="Close"
         onClick={onClose}
       />
       <div className="relative z-[101] flex min-h-dvh items-center justify-center px-4 py-6 sm:px-6 sm:py-8">
-        <div className="flex w-full max-w-6xl flex-col gap-3 overflow-y-auto rounded-2xl border border-white/10 bg-surface-1 p-4 shadow-2xl shadow-black/60 sm:gap-4 sm:p-5 [max-height:calc(100dvh_-_3rem)]">
+        <div className="panel flex w-full max-w-6xl flex-col gap-3 overflow-y-auto p-4 shadow-2xl shadow-black/60 sm:gap-4 sm:p-5 [max-height:calc(100dvh_-_3rem)]">
           <div className="flex shrink-0 items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">Expanded view</p>
-              <p className="text-lg font-semibold text-zinc-100">{ticker}</p>
+              <p className="eyebrow">Expanded view</p>
+              <p className="num mt-0.5 text-lg font-semibold text-ink">{ticker}</p>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg p-2 text-zinc-400 transition hover:bg-white/10 hover:text-zinc-100"
+              className="rounded-lg p-2 text-ink-2 transition-colors duration-200 hover:bg-surface-3 hover:text-ink outline-none focus-visible:ring-2 focus-visible:ring-ember/60"
               aria-label="Close expanded chart"
             >
               <X className="size-5" />

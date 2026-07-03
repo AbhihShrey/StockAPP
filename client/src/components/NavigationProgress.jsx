@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
-/** Thin top bar while route pathname changes. */
+/** Thin molten bar across the top while the route changes. */
 export function NavigationProgress() {
   const { pathname } = useLocation()
   const [phase, setPhase] = useState('idle')
@@ -30,8 +30,8 @@ export function NavigationProgress() {
     <div className="pointer-events-none fixed inset-x-0 top-0 z-[200] h-[2px] overflow-hidden" aria-hidden>
       <div
         className={[
-          'nav-progress-bar accent-glow h-full bg-accent',
-          phase === 'enter' ? 'nav-progress-bar--enter' : 'nav-progress-bar--leave',
+          'nav-progress h-full',
+          phase === 'enter' ? 'nav-progress--enter' : 'nav-progress--leave',
         ].join(' ')}
       />
     </div>

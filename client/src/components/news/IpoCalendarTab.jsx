@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, ExternalLink, Loader2, Sparkles, X } from 'lucide-react'
+import { ArrowDown, ArrowUp, CalendarX, ExternalLink, Loader2, Sparkles, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DashboardCard } from '../DashboardCard'
@@ -61,11 +61,11 @@ function fmtMoney(n) {
 
 // ── Pills ───────────────────────────────────────────────────────────────────
 
-const STATUS_PILL = {
-  UPCOMING:  'bg-teal-500/[0.08] text-teal-300/90 ring-teal-400/20',
-  PRICED:    'bg-emerald-500/[0.08] text-emerald-300/90 ring-emerald-400/20',
-  FILED:     'bg-amber-500/[0.07] text-amber-200/90 ring-amber-400/20',
-  WITHDRAWN: 'bg-rose-500/[0.08] text-rose-300/90 ring-rose-400/20',
+const STATUS_CHIP = {
+  UPCOMING: 'chip',
+  PRICED: 'chip chip-up',
+  FILED: 'chip chip-warn',
+  WITHDRAWN: 'chip chip-down',
 }
 const STATUS_LABEL = {
   UPCOMING: 'Upcoming',
@@ -74,38 +74,24 @@ const STATUS_LABEL = {
   WITHDRAWN: 'Withdrawn',
 }
 function StatusPill({ status }) {
-  const cls = STATUS_PILL[status] ?? STATUS_PILL.UPCOMING
-  return (
-    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium ring-1 ${cls}`}>
-      {STATUS_LABEL[status] ?? 'Upcoming'}
-    </span>
-  )
+  const cls = STATUS_CHIP[status] ?? STATUS_CHIP.UPCOMING
+  return <span className={cls}>{STATUS_LABEL[status] ?? 'Upcoming'}</span>
 }
 
 function SignificantBadge() {
   return (
     <span
-      className="inline-flex items-center gap-1 rounded-md bg-accent/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent ring-1 ring-accent/25"
+      className="chip chip-ember uppercase tracking-wide"
       title="Large IPO or major-exchange listing with disclosed range"
     >
-      <Sparkles className="size-2.5" /> Key
+      <Sparkles className="size-3" aria-hidden /> Key
     </span>
   )
 }
 
-const EXCHANGE_PILL = {
-  NASDAQ: 'bg-sky-500/[0.07] text-sky-300/90 ring-sky-400/15',
-  NYSE:   'bg-violet-500/[0.07] text-violet-300/90 ring-violet-400/15',
-  AMEX:   'bg-zinc-500/[0.08] text-zinc-300 ring-zinc-400/15',
-}
 function ExchangePill({ exchange }) {
-  if (!exchange) return <span className="text-zinc-600">—</span>
-  const cls = EXCHANGE_PILL[exchange] ?? 'bg-white/[0.04] text-zinc-300 ring-white/10'
-  return (
-    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium ring-1 ${cls}`}>
-      {exchange}
-    </span>
-  )
+  if (!exchange) return <span className="text-ink-3">—</span>
+  return <span className="chip">{exchange}</span>
 }
 
 // ── Sortable header ─────────────────────────────────────────────────────────
@@ -118,14 +104,17 @@ function SortHeader({ label, sortKey, sort, setSort, align = 'left' }) {
     else setSort({ key: sortKey, dir: 'desc' })
   }
   return (
-    <th className={`px-6 py-4 ${align === 'right' ? 'text-right' : align === 'center' ? 'text-center' : 'text-left'}`}>
+    <th className={align === 'right' ? 'text-right' : align === 'center' ? 'text-center' : 'text-left'}>
       <button
         type="button"
         onClick={onClick}
-        className={`inline-flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.08em] transition ${active ? 'text-zinc-200' : 'text-zinc-500 hover:text-zinc-300'}`}
+        className={[
+          'inline-flex items-center gap-1 uppercase outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-ember/60',
+          active ? 'text-ink' : 'text-ink-3 hover:text-ink-2',
+        ].join(' ')}
       >
         {label}
-        {active ? (dir === 'asc' ? <ArrowUp className="size-3" /> : <ArrowDown className="size-3" />) : null}
+        {active ? (dir === 'asc' ? <ArrowUp className="size-3" aria-hidden /> : <ArrowDown className="size-3" aria-hidden />) : null}
       </button>
     </th>
   )
@@ -157,35 +146,35 @@ function IpoDetailModal({ row, onClose }) {
       role="dialog"
       aria-modal="true"
     >
-      <div className="absolute inset-0 bg-black/65 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-white/10 bg-neutral-900/95 shadow-2xl">
-        <div className="flex items-start justify-between gap-4 border-b border-white/10 px-6 py-5">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-[14px] border border-line-strong bg-surface-1 shadow-2xl shadow-black/50">
+        <div className="flex items-start justify-between gap-4 border-b border-line px-6 py-5">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               {row.symbol ? (
-                <span className="font-mono text-base font-semibold tracking-tight text-zinc-100">{row.symbol}</span>
+                <span className="num text-base font-semibold text-ink">{row.symbol}</span>
               ) : null}
               <ExchangePill exchange={row.exchange} />
               <StatusPill status={row.status} />
             </div>
-            <h2 className="mt-1 truncate text-sm text-zinc-300">{row.company ?? '—'}</h2>
-            <p className="mt-0.5 text-xs text-zinc-500">{fmtDate(row.date)}{row.sector ? ` · ${row.sector}` : ''}</p>
+            <h2 className="mt-1 truncate text-sm text-ink-2">{row.company ?? '—'}</h2>
+            <p className="num mt-0.5 text-xs text-ink-3">{fmtDate(row.date)}{row.sector ? ` · ${row.sector}` : ''}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-zinc-400 transition hover:bg-white/[0.06] hover:text-zinc-200"
+            className="rounded-lg p-1.5 text-ink-3 outline-none transition-colors duration-150 hover:bg-surface-2 hover:text-ink focus-visible:ring-2 focus-visible:ring-ember/60"
             aria-label="Close"
           >
-            <X className="size-4" />
+            <X className="size-4" aria-hidden />
           </button>
         </div>
 
         <div className="space-y-5 px-6 py-5 text-sm">
           {row.description ? (
             <section>
-              <h3 className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-zinc-500">About</h3>
-              <p className="text-zinc-300">{row.description}</p>
+              <h3 className="eyebrow mb-1.5">About</h3>
+              <p className="leading-relaxed text-ink-2">{row.description}</p>
             </section>
           ) : null}
 
@@ -200,15 +189,10 @@ function IpoDetailModal({ row, onClose }) {
 
           {row.underwriters?.length ? (
             <section>
-              <h3 className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-zinc-500">
-                Lead underwriters
-              </h3>
+              <h3 className="eyebrow mb-1.5">Lead underwriters</h3>
               <div className="flex flex-wrap gap-1.5">
                 {row.underwriters.map((u, i) => (
-                  <span
-                    key={`${u}-${i}`}
-                    className="inline-flex items-center rounded-md bg-white/[0.04] px-2 py-0.5 text-[12px] text-zinc-300 ring-1 ring-white/10"
-                  >
+                  <span key={`${u}-${i}`} className="chip">
                     {u}
                   </span>
                 ))}
@@ -221,9 +205,9 @@ function IpoDetailModal({ row, onClose }) {
               href={row.filingUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-accent/12 px-3 py-1.5 text-sm font-medium text-accent ring-1 ring-accent/25 transition hover:bg-accent/20"
+              className="btn-ghost text-xs"
             >
-              View filing <ExternalLink className="size-3.5" />
+              View filing <ExternalLink className="size-3.5" aria-hidden />
             </a>
           ) : null}
         </div>
@@ -235,8 +219,8 @@ function IpoDetailModal({ row, onClose }) {
 function Field({ label, value }) {
   return (
     <div>
-      <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-zinc-500">{label}</p>
-      <p className="mt-0.5 tabular-nums text-zinc-100">{value}</p>
+      <p className="eyebrow">{label}</p>
+      <p className="num mt-0.5 text-ink">{value}</p>
     </div>
   )
 }
@@ -245,10 +229,10 @@ function Field({ label, value }) {
 
 function SummaryCard({ label, value, hint }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-neutral-900/50 px-6 py-5 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.55)]">
-      <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-zinc-500">{label}</p>
-      <p className="mt-1.5 text-xl font-semibold tabular-nums tracking-tight text-zinc-100">{value}</p>
-      {hint ? <p className="mt-0.5 text-[11px] text-zinc-500">{hint}</p> : null}
+    <div className="panel panel-hover panel-pad">
+      <p className="eyebrow">{label}</p>
+      <p className="num mt-1.5 text-xl font-semibold text-ink">{value}</p>
+      {hint ? <p className="mt-0.5 text-[11px] text-ink-3">{hint}</p> : null}
     </div>
   )
 }
@@ -330,8 +314,8 @@ export function IpoCalendarTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="inline-flex gap-1 rounded-xl border border-white/[0.07] bg-white/[0.02] p-1">
+      <div className="rise rise-3 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="inline-flex gap-1 rounded-xl border border-line bg-surface-1 p-1">
           {[
             { id: 'upcoming', label: 'Upcoming · 60d' },
             { id: 'recent', label: 'Recent · 90d' },
@@ -340,11 +324,10 @@ export function IpoCalendarTab() {
               key={v.id}
               type="button"
               onClick={() => setView(v.id)}
+              aria-pressed={view === v.id}
               className={[
-                'rounded-lg px-4 py-1.5 text-xs font-medium transition',
-                view === v.id
-                  ? 'bg-white/[0.06] text-zinc-100 ring-1 ring-white/10'
-                  : 'text-zinc-500 hover:text-zinc-300',
+                'rounded-lg px-4 py-1.5 text-xs font-medium transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ember/60',
+                view === v.id ? 'bg-surface-3 text-flame' : 'text-ink-2 hover:bg-surface-2 hover:text-ink',
               ].join(' ')}
             >
               {v.label}
@@ -361,19 +344,20 @@ export function IpoCalendarTab() {
                 key={f.id}
                 type="button"
                 onClick={() => setFilter(f.id)}
+                aria-pressed={active}
                 className={[
-                  'inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition',
+                  'inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ember/60',
                   active
                     ? isSig
-                      ? 'bg-accent/12 text-accent ring-1 ring-accent/25'
-                      : 'bg-white/[0.07] text-zinc-100 ring-1 ring-white/15'
-                    : 'border border-white/[0.07] bg-white/[0.02] text-zinc-400 hover:bg-white/[0.05] hover:text-zinc-200',
+                      ? 'border-ember/30 bg-ember/10 text-flame'
+                      : 'border-line-strong bg-surface-3 text-ink'
+                    : 'border-line bg-surface-2 text-ink-2 hover:bg-surface-3 hover:text-ink',
                 ].join(' ')}
               >
-                {Icon ? <Icon className="size-3.5" /> : null}
+                {Icon ? <Icon className="size-3.5" aria-hidden /> : null}
                 {f.label}
                 {isSig && significantCount > 0 ? (
-                  <span className={`tabular-nums text-[10px] ${active ? 'text-accent/80' : 'text-zinc-500'}`}>
+                  <span className={['num text-[10px]', active ? 'text-flame/80' : 'text-ink-3'].join(' ')}>
                     {significantCount}
                   </span>
                 ) : null}
@@ -383,7 +367,7 @@ export function IpoCalendarTab() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="rise rise-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <SummaryCard
           label="IPOs this month"
           value={loading ? '—' : summary.monthCount.toLocaleString()}
@@ -401,118 +385,114 @@ export function IpoCalendarTab() {
         />
       </div>
 
-      <DashboardCard
-        title={loading ? 'Loading IPO calendar…' : `${filtered.length.toLocaleString()} deal${filtered.length === 1 ? '' : 's'}`}
-        action={
-          filter === 'significant' ? (
-            <span className="text-[11px] text-zinc-500">Sorted by importance</span>
-          ) : null
-        }
-        className="p-0"
-      >
-        <div className="-mx-5 -my-5">
-          {loading ? (
-            <div className="flex items-center justify-center py-20 text-sm text-zinc-500">
-              <Loader2 className="mr-2 size-4 animate-spin" /> Loading…
-            </div>
-          ) : error ? (
-            <div className="m-5 rounded-xl border border-rose-500/20 bg-rose-500/5 p-6 text-sm text-rose-300">
-              <p className="font-medium">Couldn’t load IPO calendar</p>
-              <p className="mt-1 text-rose-200/80">{error}</p>
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="px-6 py-20 text-center text-sm text-zinc-500">
-              {rows.length === 0 ? (
-                <>No IPOs found for the {view === 'upcoming' ? 'upcoming 60 days' : 'past 90 days'}.</>
-              ) : filter === 'significant' ? (
-                <>
-                  No IPOs cleared the significance threshold in this window.{' '}
-                  <button
-                    type="button"
-                    onClick={() => setFilter('all')}
-                    className="text-accent transition hover:text-accent/80"
-                  >
+      <div className="rise rise-5">
+        <DashboardCard
+          title={loading ? 'Loading IPO calendar…' : `${filtered.length.toLocaleString()} deal${filtered.length === 1 ? '' : 's'}`}
+          action={
+            filter === 'significant' ? (
+              <span className="text-[11px] text-ink-3">Sorted by importance</span>
+            ) : null
+          }
+        >
+          <div className="-mx-4 -my-4 sm:-mx-5 sm:-my-5">
+            {loading ? (
+              <div className="flex items-center justify-center gap-2 py-20 text-sm text-ink-3">
+                <Loader2 className="size-4 animate-spin" aria-hidden /> Loading…
+              </div>
+            ) : error ? (
+              <div className="m-5 rounded-xl border border-down/25 bg-down/5 p-6 text-sm">
+                <p className="font-medium text-down">Couldn’t load IPO calendar</p>
+                <p className="mt-1 text-ink-2">{error}</p>
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
+                <CalendarX className="size-8 text-ink-3" aria-hidden />
+                <p className="text-sm text-ink-3">
+                  {rows.length === 0 ? (
+                    <>No IPOs found for the {view === 'upcoming' ? 'upcoming 60 days' : 'past 90 days'}.</>
+                  ) : filter === 'significant' ? (
+                    <>No IPOs cleared the significance threshold in this window.</>
+                  ) : (
+                    <>No IPOs match the “{filter}” filter in this window.</>
+                  )}
+                </p>
+                {rows.length > 0 && filter !== 'all' ? (
+                  <button type="button" onClick={() => setFilter('all')} className="btn-ghost text-xs">
                     Show all {rows.length.toLocaleString()} deal{rows.length === 1 ? '' : 's'}
                   </button>
-                  .
-                </>
-              ) : (
-                <>No IPOs match the “{filter}” filter in this window.</>
-              )}
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[1200px] text-left text-sm">
-                <thead className="bg-white/[0.015] text-[11px]">
-                  <tr className="border-b border-white/[0.06]">
-                    <SortHeader label="Date" sortKey="date" sort={sort} setSort={setSort} />
-                    <SortHeader label="Symbol" sortKey="symbol" sort={sort} setSort={setSort} />
-                    <SortHeader label="Company" sortKey="company" sort={sort} setSort={setSort} />
-                    <SortHeader label="Exchange" sortKey="exchange" sort={sort} setSort={setSort} />
-                    <SortHeader label="Sector" sortKey="sector" sort={sort} setSort={setSort} />
-                    <SortHeader label="Price range" sortKey="priceRangeMidpoint" sort={sort} setSort={setSort} align="right" />
-                    <SortHeader label="Shares" sortKey="shares" sort={sort} setSort={setSort} align="right" />
-                    <SortHeader label="Est. raise" sortKey="estRaise" sort={sort} setSort={setSort} align="right" />
-                    <SortHeader label="Status" sortKey="status" sort={sort} setSort={setSort} />
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/[0.05]">
-                  {filtered.map((r, i) => (
-                    <tr
-                      key={`${r.symbol ?? r.company ?? 'row'}-${r.date ?? ''}-${i}`}
-                      onClick={() => setSelected(r)}
-                      className={[
-                        'cursor-pointer transition-colors hover:bg-white/[0.025]',
-                        r.isSignificant ? 'bg-accent/[0.025]' : '',
-                      ].join(' ')}
-                    >
-                      <td
-                        className={[
-                          'whitespace-nowrap px-6 py-5 text-zinc-400',
-                          r.isSignificant ? 'border-l-2 border-l-accent/50' : 'border-l-2 border-l-transparent',
-                        ].join(' ')}
-                      >
-                        <div className="flex items-center gap-1.5">
-                          <span>{fmtDate(r.date)}</span>
-                          {r.isSignificant ? <SignificantBadge /> : null}
-                        </div>
-                      </td>
-                      <td className="px-6 py-5">
-                        {r.symbol ? (
-                          <button
-                            type="button"
-                            onClick={(e) => { e.stopPropagation(); navigate(`/analysis/${r.symbol}`) }}
-                            className="font-mono text-[13px] font-semibold text-zinc-100 transition hover:text-accent"
-                          >
-                            {r.symbol}
-                          </button>
-                        ) : <span className="text-zinc-600">—</span>}
-                      </td>
-                      <td className="max-w-[20rem] truncate px-6 py-5 text-zinc-200" title={r.company ?? ''}>
-                        {r.company ?? '—'}
-                      </td>
-                      <td className="px-6 py-5"><ExchangePill exchange={r.exchange} /></td>
-                      <td className="max-w-[14rem] truncate px-6 py-5 text-zinc-400" title={r.sector ?? ''}>
-                        {r.sector ?? '—'}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-5 text-right tabular-nums text-zinc-300">
-                        {fmtRange(r.priceRangeLow, r.priceRangeHigh)}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-5 text-right tabular-nums text-zinc-300">
-                        {fmtShares(r.shares)}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-5 text-right tabular-nums font-semibold text-zinc-100">
-                        {fmtMoney(r.estRaise)}
-                      </td>
-                      <td className="px-6 py-5"><StatusPill status={r.status} /></td>
+                ) : null}
+              </div>
+            ) : (
+              <div className="tbl rounded-none border-0 bg-transparent">
+                <table className="min-w-[1200px]">
+                  <thead>
+                    <tr>
+                      <SortHeader label="Date" sortKey="date" sort={sort} setSort={setSort} />
+                      <SortHeader label="Symbol" sortKey="symbol" sort={sort} setSort={setSort} />
+                      <SortHeader label="Company" sortKey="company" sort={sort} setSort={setSort} />
+                      <SortHeader label="Exchange" sortKey="exchange" sort={sort} setSort={setSort} />
+                      <SortHeader label="Sector" sortKey="sector" sort={sort} setSort={setSort} />
+                      <SortHeader label="Price range" sortKey="priceRangeMidpoint" sort={sort} setSort={setSort} align="right" />
+                      <SortHeader label="Shares" sortKey="shares" sort={sort} setSort={setSort} align="right" />
+                      <SortHeader label="Est. raise" sortKey="estRaise" sort={sort} setSort={setSort} align="right" />
+                      <SortHeader label="Status" sortKey="status" sort={sort} setSort={setSort} />
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </DashboardCard>
+                  </thead>
+                  <tbody>
+                    {filtered.map((r, i) => (
+                      <tr
+                        key={`${r.symbol ?? r.company ?? 'row'}-${r.date ?? ''}-${i}`}
+                        onClick={() => setSelected(r)}
+                        className={['cursor-pointer', r.isSignificant ? 'bg-ember/5' : ''].join(' ')}
+                      >
+                        <td
+                          className={[
+                            'whitespace-nowrap border-l-2',
+                            r.isSignificant ? 'border-l-ember/60' : 'border-l-transparent',
+                          ].join(' ')}
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <span className="num">{fmtDate(r.date)}</span>
+                            {r.isSignificant ? <SignificantBadge /> : null}
+                          </div>
+                        </td>
+                        <td>
+                          {r.symbol ? (
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); navigate(`/analysis/${r.symbol}`) }}
+                              className="num text-[13px] font-semibold text-ink outline-none transition-colors duration-150 hover:text-ember focus-visible:ring-2 focus-visible:ring-ember/60"
+                            >
+                              {r.symbol}
+                            </button>
+                          ) : <span className="text-ink-3">—</span>}
+                        </td>
+                        <td className="max-w-[20rem] truncate text-ink" title={r.company ?? ''}>
+                          {r.company ?? '—'}
+                        </td>
+                        <td><ExchangePill exchange={r.exchange} /></td>
+                        <td className="max-w-[14rem] truncate text-ink-3" title={r.sector ?? ''}>
+                          {r.sector ?? '—'}
+                        </td>
+                        <td className="num whitespace-nowrap">
+                          {fmtRange(r.priceRangeLow, r.priceRangeHigh)}
+                        </td>
+                        <td className="num whitespace-nowrap">
+                          {fmtShares(r.shares)}
+                        </td>
+                        <td className="num whitespace-nowrap font-semibold text-ink">
+                          {fmtMoney(r.estRaise)}
+                        </td>
+                        <td><StatusPill status={r.status} /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </DashboardCard>
+      </div>
 
       <IpoDetailModal row={selected} onClose={() => setSelected(null)} />
     </div>

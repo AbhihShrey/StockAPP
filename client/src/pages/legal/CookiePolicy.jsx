@@ -4,7 +4,7 @@ export function CookiePolicy() {
   return (
     <LegalShell title="Cookie Policy" lastUpdated="April 26, 2026">
       <p>
-        Ember Finances uses your browser&rsquo;s <code>localStorage</code> to remember your sign-in session and
+        Ember Finance uses your browser&rsquo;s <code>localStorage</code> to remember your sign-in session and
         a small set of UI preferences. We do <strong>not</strong> use third-party advertising cookies,
         third-party analytics cookies, or cross-site tracking pixels.
       </p>
@@ -30,12 +30,12 @@ export function CookiePolicy() {
       <h2>3. Server-side cookies</h2>
       <p>
         Authentication is implemented with a JWT held in <code>localStorage</code>, not a cookie. The
-        Ember Finances backend itself does not set any cookies on your browser.
+        Ember Finance backend itself does not set any cookies on your browser.
       </p>
 
       <h2>4. Clearing data</h2>
       <p>
-        You can clear all Ember Finances-related browser data at any time by signing out (which removes the
+        You can clear all Ember Finance-related browser data at any time by signing out (which removes the
         auth token), or by clearing your browser&rsquo;s storage for this site. Doing so will sign you
         out and reset your UI preferences to defaults.
       </p>

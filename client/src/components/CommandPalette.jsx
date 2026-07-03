@@ -122,13 +122,16 @@ function CommandPalette({ onClose }) {
     return () => clearTimeout(timer)
   }, [query, token])
 
-  const select = useCallback((item) => {
-    if (!item) return
-    const sym = String(item.symbol).toUpperCase()
-    saveRecent(sym)
-    onClose()
-    navigate(`/analysis/${encodeURIComponent(sym)}`)
-  }, [navigate, onClose])
+  const select = useCallback(
+    (item) => {
+      if (!item) return
+      const sym = String(item.symbol).toUpperCase()
+      saveRecent(sym)
+      onClose()
+      navigate(`/analysis/${encodeURIComponent(sym)}`)
+    },
+    [navigate, onClose],
+  )
 
   const onKeyDown = (e) => {
     if (e.key === 'Escape') {
@@ -154,18 +157,20 @@ function CommandPalette({ onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-start justify-center bg-black/55 backdrop-blur-sm pt-24 sm:pt-32"
-      onMouseDown={(e) => { if (e.target === e.currentTarget) onClose() }}
+      className="fixed inset-0 z-[200] flex items-start justify-center bg-black/55 pt-24 backdrop-blur-sm sm:pt-32"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
       role="dialog"
       aria-modal="true"
       aria-label="Search stocks"
     >
       <div
-        className="glass-bar w-full max-w-[560px] mx-4 overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-black/60"
+        className="glass mx-4 w-full max-w-[560px] overflow-hidden rounded-[14px] border border-line-strong shadow-2xl shadow-black/60"
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3">
-          <Search className="size-4 shrink-0 text-zinc-500" aria-hidden />
+        <div className="flex items-center gap-3 border-b border-line px-4 py-3">
+          <Search className="size-4 shrink-0 text-ink-3" aria-hidden />
           <input
             ref={inputRef}
             type="text"
@@ -173,17 +178,15 @@ function CommandPalette({ onClose }) {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onKeyDown}
             placeholder="Search stocks by symbol or company…"
-            className="flex-1 bg-transparent text-sm text-zinc-100 outline-none placeholder:text-zinc-600"
+            className="flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-ink-3"
             autoComplete="off"
             spellCheck={false}
           />
-          <span className="hidden shrink-0 rounded-md border border-white/10 px-1.5 py-0.5 text-[10px] font-medium text-zinc-500 sm:inline">
-            ESC to close
-          </span>
+          <span className="kbd hidden shrink-0 sm:inline">ESC</span>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md p-1 text-zinc-500 transition hover:bg-white/5 hover:text-zinc-200 sm:hidden"
+            className="rounded-md p-1 text-ink-3 transition-colors duration-150 hover:bg-surface-3 hover:text-ink sm:hidden"
             aria-label="Close"
           >
             <X className="size-4" />
@@ -192,16 +195,12 @@ function CommandPalette({ onClose }) {
 
         <div className="max-h-[420px] overflow-y-auto">
           {showingRecents && items.length === 0 && (
-            <p className="px-4 py-6 text-center text-xs text-zinc-600">
+            <p className="px-4 py-6 text-center text-xs text-ink-3">
               Start typing to search stocks. Recent searches will appear here.
             </p>
           )}
 
-          {showingRecents && items.length > 0 && (
-            <div className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-600">
-              Recent
-            </div>
-          )}
+          {showingRecents && items.length > 0 && <div className="eyebrow px-4 py-2">Recent</div>}
 
           {items.map((item, i) => {
             const highlighted = i === active
@@ -213,35 +212,35 @@ function CommandPalette({ onClose }) {
                 onMouseEnter={() => setActive(i)}
                 onClick={() => select(item)}
                 className={[
-                  'flex w-full items-center gap-3 px-4 py-2.5 text-left transition',
-                  highlighted ? 'bg-accent/10' : 'hover:bg-white/5',
+                  'flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors duration-150',
+                  highlighted ? 'bg-ember/10' : 'hover:bg-surface-3',
                 ].join(' ')}
               >
-                {Icon ? <Icon className="size-3.5 shrink-0 text-zinc-600" aria-hidden /> : <span className="size-3.5 shrink-0" />}
-                <span className="w-16 shrink-0 font-semibold text-zinc-100">{item.symbol}</span>
-                <span className="min-w-0 flex-1 truncate text-sm text-zinc-400">{item.name || ''}</span>
-                {item.exchange && (
-                  <span className="shrink-0 rounded-md bg-white/5 px-2 py-0.5 text-[10px] font-medium text-zinc-500 ring-1 ring-white/10">
-                    {item.exchange}
-                  </span>
+                {Icon ? (
+                  <Icon className="size-3.5 shrink-0 text-ink-3" aria-hidden />
+                ) : (
+                  <span className="size-3.5 shrink-0" />
                 )}
+                <span className="num w-16 shrink-0 font-semibold text-ink">{item.symbol}</span>
+                <span className="min-w-0 flex-1 truncate text-sm text-ink-2">{item.name || ''}</span>
+                {item.exchange && <span className="chip shrink-0">{item.exchange}</span>}
               </button>
             )
           })}
 
           {loading && !showingRecents && items.length === 0 && (
-            <p className="px-4 py-6 text-center text-xs text-zinc-600">Searching…</p>
+            <p className="px-4 py-6 text-center text-xs text-ink-3">Searching…</p>
           )}
 
           {showEmpty && (
-            <p className="px-4 py-6 text-center text-sm text-zinc-500">
+            <p className="px-4 py-6 text-center text-sm text-ink-2">
               No results for &ldquo;{query.trim()}&rdquo;
             </p>
           )}
 
           {showError && (
-            <p className="px-4 py-6 text-center text-sm text-rose-400">
-              Search unavailable — check your connection
+            <p className="px-4 py-6 text-center text-sm text-down">
+              Search is unavailable — check your connection and try again
             </p>
           )}
         </div>

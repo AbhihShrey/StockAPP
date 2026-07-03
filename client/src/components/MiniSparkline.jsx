@@ -1,6 +1,10 @@
 /**
  * Tiny line chart for recent closes (oldest → newest, left → right).
+ * Chart colors are hex-in-JS by design-system exception.
  */
+const UP_STROKE = 'rgba(61,220,151,0.95)' // #3DDC97
+const DOWN_STROKE = 'rgba(255,97,97,0.95)' // #FF6161
+
 export function MiniSparkline({ values, className = '' }) {
   const w = 72
   const h = 22
@@ -18,7 +22,7 @@ export function MiniSparkline({ values, className = '' }) {
   const first = clean[0]
   const last = clean[clean.length - 1]
   const up = last >= first
-  const stroke = up ? 'rgba(52,211,153,0.95)' : 'rgba(251,113,133,0.95)'
+  const stroke = up ? UP_STROKE : DOWN_STROKE
 
   const pts = clean
     .map((v, i) => {

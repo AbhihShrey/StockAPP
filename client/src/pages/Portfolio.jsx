@@ -1,7 +1,5 @@
 import {
   AlertTriangle,
-  ChevronDown,
-  DollarSign,
   Loader2,
   Plus,
   RefreshCw,
@@ -14,6 +12,7 @@ import {
 } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
+import { AnimatedNumber } from '../components/AnimatedNumber'
 import { ConsensusPill } from '../components/AnalystCoveragePanel'
 import { useAuth } from '../context/AuthContext'
 import { apiUrl, authHeaders } from '../lib/apiBase'
@@ -42,11 +41,8 @@ function blankPortfolio(id, name, budget) {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const PIE_COLORS = [
-  'oklch(0.72 0.17 165)', 'oklch(0.65 0.18 220)', 'oklch(0.70 0.18 260)',
-  'oklch(0.68 0.17 300)', 'oklch(0.72 0.18 50)',  'oklch(0.68 0.18 90)',
-  'oklch(0.65 0.17 0)',   'oklch(0.70 0.15 180)',
-]
+// Chart config — the one allowed place for hex (warm allocation ramp).
+const PIE_COLORS = ['#FF6B2C', '#FFA53D', '#C2410C', '#3DDC97', '#B5AB9F', '#837A6F']
 
 function fmt(n, d = 2) {
   if (n == null || !Number.isFinite(n)) return '—'
@@ -67,9 +63,9 @@ function PieTooltip({ active, payload }) {
   if (!active || !payload?.length) return null
   const d = payload[0]
   return (
-    <div className="glass-bar rounded-xl border border-white/10 px-3 py-2 text-xs shadow-xl">
-      <p className="font-semibold text-zinc-100">{d.name}</p>
-      <p className="text-zinc-400">{fmt(d.value, 1)}% of portfolio</p>
+    <div className="glass rounded-lg border border-line-strong px-3 py-2 text-xs shadow-xl shadow-black/40">
+      <p className="num font-semibold text-ink">{d.name}</p>
+      <p className="num mt-0.5 text-ink-2">{fmt(d.value, 1)}% of portfolio</p>
     </div>
   )
 }
@@ -91,29 +87,55 @@ function NewPortfolioModal({ onClose, onCreate }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <form onSubmit={submit} className="glass-bar w-[360px] max-w-[calc(100vw-2rem)] rounded-2xl border border-white/10 p-6 shadow-2xl">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <form
+        onSubmit={submit}
+        className="glass w-[360px] max-w-full rounded-[14px] border border-line-strong p-6 shadow-2xl shadow-black/50"
+      >
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-zinc-100">New portfolio</h2>
-          <button type="button" onClick={onClose} className="rounded-lg p-1 text-zinc-500 hover:text-zinc-300"><X className="size-4" /></button>
+          <h2 className="font-display text-base font-semibold text-ink">New portfolio</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="rounded-lg p-1.5 text-ink-3 outline-none transition-colors hover:bg-surface-2 hover:text-ink focus-visible:ring-2 focus-visible:ring-ember/60"
+          >
+            <X className="size-4" />
+          </button>
         </div>
         <div className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-zinc-500">Portfolio name</label>
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Tech focused, Long-term" autoFocus
-              className="glass-input w-full rounded-xl px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600" />
+            <label htmlFor="new-portfolio-name" className="field-label">Portfolio name</label>
+            <input
+              id="new-portfolio-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Tech focused, Long-term"
+              autoFocus
+              className="input"
+            />
           </div>
           <div>
-            <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-zinc-500">Starting budget ($)</label>
-            <input value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="100000"
-              className="glass-input w-full rounded-xl px-3 py-2 font-mono text-sm text-zinc-100" />
-            <p className="mt-1 text-[11px] text-zinc-600">This is the total virtual cash you start with. You can only spend what you have.</p>
+            <label htmlFor="new-portfolio-budget" className="field-label">Starting budget ($)</label>
+            <input
+              id="new-portfolio-budget"
+              value={budget}
+              onChange={(e) => setBudget(e.target.value)}
+              placeholder="100000"
+              className="input num"
+            />
+            <p className="mt-1.5 text-[11px] text-ink-3">
+              This is the total virtual cash you start with. You can only spend what you have.
+            </p>
           </div>
-          {error && <p className="text-xs text-rose-400">{error}</p>}
+          {error && <p className="text-xs text-down">{error}</p>}
         </div>
         <div className="mt-5 flex gap-2">
-          <button type="submit" className="glass-btn--accent flex-1 rounded-xl py-2 text-sm font-semibold">Create</button>
-          <button type="button" onClick={onClose} className="glass-btn rounded-xl px-4 py-2 text-sm">Cancel</button>
+          <button type="submit" className="btn-primary flex-1">Create portfolio</button>
+          <button type="button" onClick={onClose} className="btn-ghost">Cancel</button>
         </div>
       </form>
     </div>
@@ -173,78 +195,98 @@ function AddPositionPanel({ cash, token, onBuy }) {
   }
 
   return (
-    <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-5">
-      <h3 className="mb-4 text-sm font-semibold text-zinc-200">Add position</h3>
+    <section className="panel panel-hover panel-pad">
+      <h2 className="eyebrow mb-4">Add position</h2>
       <div className="flex flex-wrap items-end gap-3">
         {/* Symbol */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Symbol</label>
+        <div className="flex flex-col">
+          <label htmlFor="add-position-symbol" className="field-label">Symbol</label>
           <div className="relative">
             <input
+              id="add-position-symbol"
               value={symbol}
               onChange={(e) => { setSymbol(e.target.value.toUpperCase()); setFetchedPrice(null); setBusySymbol('') }}
               onBlur={handleSymbolBlur}
               onKeyDown={(e) => e.key === 'Enter' && handleSymbolBlur()}
               placeholder="AAPL"
               maxLength={12}
-              className="glass-input w-28 rounded-xl px-3 py-2 font-mono text-sm text-zinc-100 placeholder:text-zinc-600"
+              className="input num w-28"
             />
-            {fetching && <Loader2 className="absolute right-2.5 top-1/2 size-3.5 -translate-y-1/2 animate-spin text-zinc-500" />}
+            {fetching && (
+              <Loader2 className="absolute top-1/2 right-2.5 size-3.5 -translate-y-1/2 animate-spin text-ink-3" aria-hidden />
+            )}
           </div>
         </div>
 
         {/* Price display */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Live price</label>
-          <div className="flex h-9 w-28 items-center rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 font-mono text-sm">
+        <div className="flex flex-col">
+          <span className="field-label">Live price</span>
+          <div className="num flex h-9 w-28 items-center rounded-lg border border-line bg-surface-2 px-3 text-sm">
             {fetchedPrice != null
-              ? <span className="text-emerald-400">${fmt(fetchedPrice)}</span>
-              : <span className="text-zinc-600">{fetching ? '…' : 'Enter symbol'}</span>}
+              ? <span className="text-ink">${fmt(fetchedPrice)}</span>
+              : <span className="text-ink-3">{fetching ? '…' : 'Enter symbol'}</span>}
           </div>
         </div>
 
         {/* Mode toggle + amount */}
         <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-1 rounded-lg border border-white/[0.08] bg-white/[0.03] p-0.5">
-            {[['dollars', '$ Amount'], ['shares', 'Shares']].map(([m, l]) => (
-              <button key={m} type="button" onClick={() => { setInputMode(m); setAmount('') }}
-                className={['rounded-md px-2.5 py-1 text-[11px] font-medium transition', inputMode === m ? 'bg-white/15 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'].join(' ')}>
+          <div
+            className="inline-flex items-center gap-1 self-start rounded-lg border border-line bg-surface-2 p-0.5"
+            role="group"
+            aria-label="Amount input mode"
+          >
+            {[['dollars', '$ amount'], ['shares', 'Shares']].map(([m, l]) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => { setInputMode(m); setAmount('') }}
+                aria-pressed={inputMode === m}
+                className={[
+                  'rounded-md px-2.5 py-1 text-[11px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ember/60',
+                  inputMode === m ? 'bg-surface-3 text-ink' : 'text-ink-3 hover:text-ink-2',
+                ].join(' ')}
+              >
                 {l}
               </button>
             ))}
           </div>
+          <label htmlFor="add-position-amount" className="sr-only">
+            {inputMode === 'dollars' ? 'Dollar amount' : 'Number of shares'}
+          </label>
           <input
+            id="add-position-amount"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && canBuy && handleBuy()}
             placeholder={inputMode === 'dollars' ? 'e.g. 5000' : 'e.g. 10'}
-            className="glass-input w-36 rounded-xl px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600"
+            className="input num w-36"
           />
         </div>
 
         {/* Buy summary + button */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Order summary</label>
+        <div className="flex flex-col">
+          <span className="field-label">Order summary</span>
           <div className="flex items-center gap-2">
-            <div className="flex h-9 items-center rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 text-xs text-zinc-400 whitespace-nowrap">
+            <div className="num flex h-9 items-center rounded-lg border border-line bg-surface-2 px-3 text-xs whitespace-nowrap text-ink-2">
               {cost != null && shares != null ? (
                 <>{fmt(shares, 4)} sh · {fmtDollar(cost, false)}</>
-              ) : <span className="text-zinc-600">—</span>}
+              ) : <span className="text-ink-3">—</span>}
             </div>
-            <button
-              type="button"
-              onClick={handleBuy}
-              disabled={!canBuy}
-              className="glass-btn--accent rounded-xl px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40"
-            >
+            <button type="button" onClick={handleBuy} disabled={!canBuy} className="btn-primary">
               Buy
             </button>
           </div>
         </div>
       </div>
-      {fetchError && <p className="mt-2 flex items-center gap-1.5 text-xs text-rose-400"><AlertTriangle className="size-3.5" />{fetchError}</p>}
-      {cost != null && cost > cash && <p className="mt-2 text-xs text-rose-400">Insufficient funds — you need {fmtDollar(cost - cash, false)} more.</p>}
-    </div>
+      {fetchError && (
+        <p className="mt-3 flex items-center gap-1.5 text-xs text-down">
+          <AlertTriangle className="size-3.5" aria-hidden />{fetchError}
+        </p>
+      )}
+      {cost != null && cost > cash && (
+        <p className="num mt-2 text-xs text-down">Insufficient funds — you need {fmtDollar(cost - cash, false)} more.</p>
+      )}
+    </section>
   )
 }
 
@@ -403,34 +445,44 @@ export function Portfolio() {
       : []),
   ]
 
+  const gaining = totalReturn >= 0
+
   return (
-    <div className="app-page-enter space-y-6">
-      {/* Header + portfolio tabs */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight text-zinc-100">Portfolio</h1>
-          <p className="mt-0.5 text-sm text-zinc-500">Virtual trading — real market prices, simulated capital.</p>
+    <div className="space-y-6">
+      {/* Page header */}
+      <header className="rise">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="eyebrow">Portfolio · Paper trading</p>
+            <h1 className="display mt-1 text-2xl sm:text-3xl">Portfolio</h1>
+            <p className="mt-1.5 text-sm text-ink-3">Virtual trading — real market prices, simulated capital.</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowNewModal(true)}
+            className="btn-ghost shrink-0 self-start sm:self-auto"
+          >
+            <Plus className="size-4" aria-hidden /> New portfolio
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => setShowNewModal(true)}
-          className="glass-btn inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"
-        >
-          <Plus className="size-3.5" /> New portfolio
-        </button>
-      </div>
+        <div className="ember-rule mt-4" aria-hidden />
+      </header>
 
       {/* Portfolio switcher */}
       {store.portfolios.length > 1 && (
-        <div className="flex flex-wrap gap-1.5">
+        <div className="rise rise-1 flex flex-wrap gap-1.5" role="group" aria-label="Portfolios">
           {store.portfolios.map((p) => (
             <button
               key={p.id}
               type="button"
               onClick={() => setActive(p.id)}
-              className={['rounded-lg px-3 py-1.5 text-xs font-medium transition', p.id === active.id
-                ? 'bg-accent-muted text-accent accent-inset'
-                : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300'].join(' ')}
+              aria-pressed={p.id === active.id}
+              className={[
+                'rounded-lg border px-3 py-1.5 text-xs font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ember/60',
+                p.id === active.id
+                  ? 'border-ember/30 bg-ember/10 text-flame'
+                  : 'border-line bg-surface-2 text-ink-3 hover:bg-surface-3 hover:text-ink',
+              ].join(' ')}
             >
               {p.name}
             </button>
@@ -438,114 +490,143 @@ export function Portfolio() {
         </div>
       )}
 
-      {/* Summary cards */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {[
-          { label: 'Total value', value: fmtCash(totalValue), sub: `${active?.name}` },
-          { label: 'Cash available', value: fmtCash(active?.cash), sub: `${cashPct > 0 ? fmt(cashPct, 1) : 0}% of portfolio` },
-          {
-            label: 'Total return',
-            value: fmtDollar(totalReturn),
-            colored: true, num: totalReturn,
-            sub: totalReturnPct != null ? `${totalReturnPct >= 0 ? '+' : ''}${fmt(totalReturnPct)}%` : null,
-          },
-          { label: 'Starting budget', value: fmtCash(active?.budget), sub: 'Virtual capital' },
-        ].map((c) => (
-          <div
-            key={c.label}
-            data-positive={c.colored && c.num != null && c.num > 0 ? '1' : undefined}
-            className={`portfolio-summary card-hover rounded-xl border border-white/[0.07] bg-white/[0.03] p-4`}
+      {/* KPI heroes */}
+      <section className="rise rise-2 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="panel panel-hover panel-pad">
+          <p className="eyebrow">Total value</p>
+          <p className="display num mt-2 text-2xl text-ink sm:text-3xl">
+            <AnimatedNumber value={totalValue} format={(v) => fmtCash(v)} />
+          </p>
+          <p className="mt-1 truncate text-xs text-ink-3">{active?.name}</p>
+        </div>
+        <div className="panel panel-hover panel-pad">
+          <p className="eyebrow">Cash available</p>
+          <p className="display num mt-2 text-2xl text-ink sm:text-3xl">
+            <AnimatedNumber value={active?.cash} format={(v) => fmtCash(v)} />
+          </p>
+          <p className="num mt-1 text-xs text-ink-3">{cashPct > 0 ? fmt(cashPct, 1) : 0}% of portfolio</p>
+        </div>
+        <div className="panel panel-hover panel-pad">
+          <p className="eyebrow">Total return</p>
+          <p
+            className={[
+              'display num mt-2 flex items-center gap-1.5 text-2xl sm:text-3xl',
+              gaining ? 'text-up' : 'text-down',
+            ].join(' ')}
           >
-            <p className="text-[11px] text-zinc-500">{c.label}</p>
-            <p className={`mt-1 text-lg font-semibold tabular-nums ${
-              c.colored
-                ? c.num == null ? 'text-zinc-400' : c.num >= 0 ? 'text-emerald-400' : 'text-red-400'
-                : 'text-zinc-100'
-            }`}>
-              {c.value}
+            {gaining
+              ? <TrendingUp className="size-5 shrink-0" aria-hidden />
+              : <TrendingDown className="size-5 shrink-0" aria-hidden />}
+            <AnimatedNumber value={totalReturn} format={(v) => fmtDollar(v)} />
+          </p>
+          {totalReturnPct != null && (
+            <p className={['num mt-1 text-xs', gaining ? 'text-up/70' : 'text-down/70'].join(' ')}>
+              {totalReturnPct >= 0 ? '▲' : '▼'} {totalReturnPct >= 0 ? '+' : ''}{fmt(totalReturnPct)}%
             </p>
-            {c.sub && <p className={`mt-0.5 text-[11px] tabular-nums ${c.colored && c.num != null ? c.num >= 0 ? 'text-emerald-500/70' : 'text-red-500/70' : 'text-zinc-600'}`}>{c.sub}</p>}
-          </div>
-        ))}
-      </div>
+          )}
+        </div>
+        <div className="panel panel-hover panel-pad">
+          <p className="eyebrow">Starting budget</p>
+          <p className="display num mt-2 text-2xl text-ink sm:text-3xl">{fmtCash(active?.budget)}</p>
+          <p className="mt-1 text-xs text-ink-3">Virtual capital</p>
+        </div>
+      </section>
 
       {/* Add position */}
-      <AddPositionPanel cash={active?.cash ?? 0} token={token} onBuy={handleBuy} />
+      <div className="rise rise-3">
+        <AddPositionPanel cash={active?.cash ?? 0} token={token} onBuy={handleBuy} />
+      </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Positions table */}
-        <div className="dash-module-enter overflow-hidden rounded-xl border border-white/[0.07] bg-white/[0.03] lg:col-span-2">
-          <div className="flex items-center justify-between px-5 py-4">
-            <h2 className="text-sm font-semibold text-zinc-200">Holdings</h2>
+      <div className="rise rise-4 grid gap-4 lg:grid-cols-3">
+        {/* Holdings table */}
+        <section className="panel overflow-hidden lg:col-span-2">
+          <div className="flex items-center justify-between border-b border-line px-4 py-3 sm:px-5">
+            <h2 className="eyebrow">Holdings</h2>
             <div className="flex items-center gap-2">
-              {quotesLoading && <Loader2 className="size-3.5 animate-spin text-zinc-600" />}
+              {quotesLoading && <Loader2 className="size-3.5 animate-spin text-ink-3" aria-hidden />}
               <button
                 type="button"
                 onClick={() => fetchQuotes(active?.positions ?? [])}
-                className="rounded-lg p-1.5 text-zinc-600 transition hover:text-zinc-300"
+                className="rounded-lg p-2 text-ink-3 outline-none transition-colors hover:bg-surface-2 hover:text-ink focus-visible:ring-2 focus-visible:ring-ember/60"
+                aria-label="Refresh prices"
                 title="Refresh prices"
               >
-                <RefreshCw className="size-3.5" />
+                <RefreshCw className="size-4" />
               </button>
             </div>
           </div>
 
           {rows.length === 0 ? (
-            <div className="px-5 pb-8 pt-2 text-center">
-              <Wallet className="mx-auto mb-2 size-8 text-zinc-700" />
-              <p className="text-sm text-zinc-500">No positions yet.</p>
-              <p className="mt-1 text-xs text-zinc-600">Enter a symbol above, fetch its price, then buy shares or a dollar amount.</p>
+            <div className="flex flex-col items-center gap-3 px-5 py-12 text-center">
+              <Wallet className="size-8 text-ink-3" aria-hidden />
+              <p className="text-sm text-ink-2">No positions yet.</p>
+              <p className="max-w-xs text-xs text-ink-3">
+                Enter a symbol above, fetch its price, then buy shares or a dollar amount.
+              </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs">
+            <div className="tbl rounded-none border-0 bg-transparent">
+              <table>
                 <thead>
-                  <tr className="border-b border-white/[0.06] text-left text-zinc-500">
-                    {['Symbol', 'Shares', 'Avg Cost', 'Price', 'Mkt Value', 'P&L', 'Return', 'Day %', 'Analyst Target', ''].map((h) => (
-                      <th key={h} className="px-4 py-2.5 font-medium">{h}</th>
-                    ))}
+                  <tr>
+                    <th>Symbol</th>
+                    <th className="num">Shares</th>
+                    <th className="num">Avg cost</th>
+                    <th className="num">Price</th>
+                    <th className="num">Mkt value</th>
+                    <th className="num">P&amp;L</th>
+                    <th className="num">Return</th>
+                    <th className="num">Day %</th>
+                    <th>Analyst target</th>
+                    <th><span className="sr-only">Actions</span></th>
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((r) => (
-                    <tr key={r.symbol} className="border-b border-white/[0.04] transition-colors hover:bg-white/[0.03]">
-                      <td className="px-4 py-3 font-mono font-semibold text-zinc-100">{r.symbol}</td>
-                      <td className="px-4 py-3 tabular-nums text-zinc-300">{fmt(r.shares, r.shares % 1 === 0 ? 0 : 4)}</td>
-                      <td className="px-4 py-3 tabular-nums text-zinc-400">{r.avgCost != null ? `$${fmt(r.avgCost)}` : '—'}</td>
-                      <td className="px-4 py-3 tabular-nums text-zinc-200">{r.price != null ? `$${fmt(r.price)}` : <span className="text-zinc-600">—</span>}</td>
-                      <td className="px-4 py-3 tabular-nums text-zinc-200">{r.mktValue != null ? `$${fmt(r.mktValue)}` : <span className="text-zinc-600">—</span>}</td>
-                      <td className={`px-4 py-3 font-medium tabular-nums ${r.gain == null ? 'text-zinc-600' : r.gain >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                        {r.gain != null ? fmtDollar(r.gain) : '—'}
+                    <tr key={r.symbol}>
+                      <td className="num font-semibold text-ink">{r.symbol}</td>
+                      <td className="num">{fmt(r.shares, r.shares % 1 === 0 ? 0 : 4)}</td>
+                      <td className="num text-ink-3">{r.avgCost != null ? `$${fmt(r.avgCost)}` : '—'}</td>
+                      <td className="num text-ink">
+                        {r.price != null ? `$${fmt(r.price)}` : <span className="text-ink-3">—</span>}
                       </td>
-                      <td className={`px-4 py-3 font-medium tabular-nums ${r.gainPct == null ? 'text-zinc-600' : r.gainPct >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                      <td className="num text-ink">
+                        {r.mktValue != null ? `$${fmt(r.mktValue)}` : <span className="text-ink-3">—</span>}
+                      </td>
+                      <td className={['num font-medium', r.gain == null ? 'text-ink-3' : r.gain >= 0 ? 'text-up' : 'text-down'].join(' ')}>
+                        {r.gain != null ? (
+                          <><span aria-hidden className="text-[9px]">{r.gain >= 0 ? '▲' : '▼'}</span> {fmtDollar(r.gain)}</>
+                        ) : '—'}
+                      </td>
+                      <td className={['num font-medium', r.gainPct == null ? 'text-ink-3' : r.gainPct >= 0 ? 'text-up' : 'text-down'].join(' ')}>
                         {r.gainPct != null ? `${r.gainPct >= 0 ? '+' : ''}${fmt(r.gainPct)}%` : '—'}
                       </td>
-                      <td className={`px-4 py-3 tabular-nums ${r.dayPct == null ? 'text-zinc-600' : r.dayPct >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                      <td className={['num', r.dayPct == null ? 'text-ink-3' : r.dayPct >= 0 ? 'text-up' : 'text-down'].join(' ')}>
                         {r.dayPct != null ? `${r.dayPct >= 0 ? '+' : ''}${fmt(r.dayPct)}%` : '—'}
                       </td>
-                      <td className="px-4 py-3 tabular-nums">
+                      <td>
                         {ratingsLoading && !r.rating ? (
-                          <span className="inline-block h-4 w-16 animate-pulse rounded bg-white/5" />
+                          <span className="skeleton inline-block h-4 w-16" aria-hidden />
                         ) : r.analystTarget != null ? (
                           <div className="flex items-center gap-2">
-                            <span className="text-zinc-200">${fmt(r.analystTarget)}</span>
+                            <span className="num text-ink">${fmt(r.analystTarget)}</span>
                             {r.analystUpside != null ? (
-                              <span className={`text-[11px] ${r.analystUpside >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                              <span className={['num text-[11px]', r.analystUpside >= 0 ? 'text-up' : 'text-down'].join(' ')}>
                                 {r.analystUpside >= 0 ? '+' : ''}{fmt(r.analystUpside, 1)}%
                               </span>
                             ) : null}
                             {r.rating?.consensus?.code ? <ConsensusPill code={r.rating.consensus.code} /> : null}
                           </div>
                         ) : (
-                          <span className="text-zinc-600">—</span>
+                          <span className="text-ink-3">—</span>
                         )}
                       </td>
-                      <td className="px-4 py-3">
+                      <td>
                         <button
                           type="button"
                           onClick={() => handleSell(r.symbol)}
                           title="Sell position (returns current market value to cash)"
-                          className="rounded px-2 py-1 text-[10px] font-medium text-zinc-600 ring-1 ring-white/10 transition hover:bg-rose-500/10 hover:text-rose-400 hover:ring-rose-500/20"
+                          className="rounded-md border border-down/25 bg-down/10 px-2.5 py-1 text-[11px] font-medium text-down outline-none transition-colors hover:bg-down/20 focus-visible:ring-2 focus-visible:ring-ember/60"
                         >
                           Sell
                         </button>
@@ -558,29 +639,29 @@ export function Portfolio() {
           )}
 
           {/* Portfolio actions */}
-          <div className="border-t border-white/[0.06] px-5 py-3 flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 border-t border-line px-4 py-3 sm:px-5">
             <button
               type="button"
               onClick={() => setShowResetConfirm(true)}
-              className="glass-btn inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-zinc-500 hover:text-amber-400"
+              className="btn-ghost h-8 px-3 text-xs hover:text-warn"
             >
-              <RotateCcw className="size-3" /> Reset portfolio
+              <RotateCcw className="size-3.5" aria-hidden /> Reset portfolio
             </button>
             {store.portfolios.length > 1 && (
               <button
                 type="button"
                 onClick={() => setShowDeleteConfirm(true)}
-                className="glass-btn inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-zinc-500 hover:text-rose-400"
+                className="btn-ghost h-8 px-3 text-xs hover:text-down"
               >
-                <Trash2 className="size-3" /> Delete portfolio
+                <Trash2 className="size-3.5" aria-hidden /> Delete portfolio
               </button>
             )}
           </div>
-        </div>
+        </section>
 
         {/* Allocation pie */}
-        <div className="dash-module-enter rounded-xl border border-white/[0.07] bg-white/[0.03] p-5" style={{ '--dash-stagger': 1 }}>
-          <h2 className="mb-4 text-sm font-semibold text-zinc-200">Allocation</h2>
+        <section className="panel panel-hover panel-pad">
+          <h2 className="eyebrow mb-4">Allocation</h2>
           {pieData.length > 0 ? (
             <>
               <ResponsiveContainer width="100%" height={190}>
@@ -593,70 +674,94 @@ export function Portfolio() {
                   <Tooltip content={<PieTooltip />} />
                 </PieChart>
               </ResponsiveContainer>
-              <div className="mt-2 space-y-1.5">
+              <div className="mt-3 space-y-1.5">
                 {pieData.map((d, i) => (
                   <div key={d.name} className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2">
-                      <span className="inline-block size-2.5 rounded-sm" style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }} />
-                      <span className={`font-medium ${d.name === 'Cash' ? 'text-zinc-400' : 'font-mono text-zinc-300'}`}>{d.name}</span>
+                      <span
+                        className="inline-block size-2.5 rounded-sm"
+                        style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }}
+                        aria-hidden
+                      />
+                      <span className={d.name === 'Cash' ? 'font-medium text-ink-2' : 'num font-medium text-ink'}>
+                        {d.name}
+                      </span>
                     </div>
-                    <span className="text-zinc-400">{d.value}%</span>
+                    <span className="num text-ink-2">{d.value}%</span>
                   </div>
                 ))}
               </div>
             </>
           ) : (
             <div className="flex h-48 items-center justify-center">
-              <p className="text-xs text-zinc-600">Add positions to see allocation</p>
+              <p className="text-xs text-ink-3">Add positions to see allocation</p>
             </div>
           )}
-        </div>
+        </section>
       </div>
 
       {/* Today's moves */}
       {rows.some((r) => r.dayPct != null) && (
-        <div className="dash-module-enter rounded-xl border border-white/[0.07] bg-white/[0.03] p-5" style={{ '--dash-stagger': 2 }}>
-          <h2 className="mb-3 text-sm font-semibold text-zinc-200">Today's moves</h2>
+        <section className="rise rise-5 panel panel-pad">
+          <h2 className="eyebrow mb-3">Today's moves</h2>
           <div className="flex flex-wrap gap-2">
             {[...rows].filter((r) => r.dayPct != null).sort((a, b) => b.dayPct - a.dayPct).map((r) => (
-              <div key={r.symbol} className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-xs ${r.dayPct >= 0 ? 'border-emerald-500/20 bg-emerald-500/[0.07]' : 'border-red-500/20 bg-red-500/[0.07]'}`}>
-                {r.dayPct >= 0 ? <TrendingUp className="size-3.5 text-emerald-400" /> : <TrendingDown className="size-3.5 text-red-400" />}
-                <span className="font-mono font-semibold text-zinc-100">{r.symbol}</span>
-                <span className={r.dayPct >= 0 ? 'text-emerald-400' : 'text-red-400'}>{r.dayPct >= 0 ? '+' : ''}{fmt(r.dayPct)}%</span>
+              <div
+                key={r.symbol}
+                className={[
+                  'flex items-center gap-2 rounded-lg border px-3 py-2 text-xs',
+                  r.dayPct >= 0 ? 'border-up/25 bg-up/10' : 'border-down/25 bg-down/10',
+                ].join(' ')}
+              >
+                {r.dayPct >= 0
+                  ? <TrendingUp className="size-3.5 text-up" aria-hidden />
+                  : <TrendingDown className="size-3.5 text-down" aria-hidden />}
+                <span className="num font-semibold text-ink">{r.symbol}</span>
+                <span className={['num', r.dayPct >= 0 ? 'text-up' : 'text-down'].join(' ')}>
+                  {r.dayPct >= 0 ? '+' : ''}{fmt(r.dayPct)}%
+                </span>
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
       {/* Modals */}
       {showNewModal && <NewPortfolioModal onClose={() => setShowNewModal(false)} onCreate={createPortfolio} />}
 
       {showResetConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="glass-bar w-80 rounded-2xl border border-white/10 p-6 shadow-2xl">
-            <h2 className="text-base font-semibold text-zinc-100">Reset portfolio?</h2>
-            <p className="mt-2 text-sm text-zinc-400">
-              All positions in <span className="font-semibold text-zinc-200">{active?.name}</span> will be cleared and cash will be restored to {fmtCash(active?.budget)}.
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="glass w-80 max-w-full rounded-[14px] border border-line-strong p-6 shadow-2xl shadow-black/50">
+            <h2 className="font-display text-base font-semibold text-ink">Reset portfolio?</h2>
+            <p className="mt-2 text-sm text-ink-2">
+              All positions in <span className="font-semibold text-ink">{active?.name}</span> will be cleared and cash
+              will be restored to <span className="num">{fmtCash(active?.budget)}</span>.
             </p>
             <div className="mt-5 flex gap-2">
-              <button onClick={resetPortfolio} className="flex-1 rounded-xl bg-amber-500 py-2 text-sm font-semibold text-zinc-950 transition hover:brightness-110">Reset</button>
-              <button onClick={() => setShowResetConfirm(false)} className="glass-btn rounded-xl px-4 py-2 text-sm">Cancel</button>
+              <button
+                type="button"
+                onClick={resetPortfolio}
+                className="btn flex-1 border border-warn/30 bg-warn/10 font-semibold text-warn hover:bg-warn/20"
+              >
+                Reset portfolio
+              </button>
+              <button type="button" onClick={() => setShowResetConfirm(false)} className="btn-ghost">Cancel</button>
             </div>
           </div>
         </div>
       )}
 
       {showDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="glass-bar w-80 rounded-2xl border border-white/10 p-6 shadow-2xl">
-            <h2 className="text-base font-semibold text-zinc-100">Delete portfolio?</h2>
-            <p className="mt-2 text-sm text-zinc-400">
-              <span className="font-semibold text-zinc-200">{active?.name}</span> will be permanently deleted. This cannot be undone.
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="glass w-80 max-w-full rounded-[14px] border border-line-strong p-6 shadow-2xl shadow-black/50">
+            <h2 className="font-display text-base font-semibold text-ink">Delete portfolio?</h2>
+            <p className="mt-2 text-sm text-ink-2">
+              <span className="font-semibold text-ink">{active?.name}</span> will be permanently deleted. This cannot
+              be undone.
             </p>
             <div className="mt-5 flex gap-2">
-              <button onClick={deletePortfolio} className="flex-1 rounded-xl bg-rose-600 py-2 text-sm font-semibold text-white transition hover:brightness-110">Delete</button>
-              <button onClick={() => setShowDeleteConfirm(false)} className="glass-btn rounded-xl px-4 py-2 text-sm">Cancel</button>
+              <button type="button" onClick={deletePortfolio} className="btn-danger flex-1">Delete portfolio</button>
+              <button type="button" onClick={() => setShowDeleteConfirm(false)} className="btn-ghost">Cancel</button>
             </div>
           </div>
         </div>

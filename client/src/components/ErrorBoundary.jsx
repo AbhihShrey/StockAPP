@@ -13,7 +13,6 @@ export class ErrorBoundary extends Component {
   componentDidCatch(error, info) {
     this.setState({ info })
     // Make it impossible to miss in the dev console
-    // eslint-disable-next-line no-console
     console.error('[ErrorBoundary] Render crash:', error, info?.componentStack)
   }
 
@@ -26,39 +25,43 @@ export class ErrorBoundary extends Component {
     const stack = err?.stack ?? ''
     const componentStack = this.state.info?.componentStack ?? ''
     return (
-      <div className="min-h-dvh bg-zinc-950 p-6 text-zinc-100">
-        <div className="mx-auto max-w-3xl space-y-4">
-          <h1 className="text-xl font-semibold text-rose-400">Something crashed.</h1>
-          <p className="text-sm text-zinc-400">
+      <div className="min-h-dvh bg-bg p-6 text-ink">
+        <div className="mx-auto max-w-3xl space-y-4 py-8">
+          <header>
+            <p className="eyebrow">Error · Render crash</p>
+            <h1 className="display mt-2 text-2xl text-down sm:text-3xl">Something crashed.</h1>
+            <div className="ember-rule mt-4" aria-hidden />
+          </header>
+          <p className="text-sm leading-relaxed text-ink-2">
             The React tree threw an exception. Copy this and send it back so it can be fixed.
           </p>
-          <div className="rounded-xl border border-rose-500/30 bg-rose-500/5 p-4">
-            <p className="font-mono text-sm text-rose-200">{message}</p>
+          <div className="panel border-down/25 p-4">
+            <p className="num text-sm text-down">{message}</p>
           </div>
           {stack ? (
-            <details open className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-              <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-zinc-500">Stack</summary>
-              <pre className="mt-2 overflow-auto whitespace-pre-wrap text-[11px] leading-relaxed text-zinc-400">{stack}</pre>
+            <details open className="panel panel-pad">
+              <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-ink-3">Stack</summary>
+              <pre className="mt-2 overflow-auto whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-ink-2">{stack}</pre>
             </details>
           ) : null}
           {componentStack ? (
-            <details className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-              <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-zinc-500">Component stack</summary>
-              <pre className="mt-2 overflow-auto whitespace-pre-wrap text-[11px] leading-relaxed text-zinc-400">{componentStack}</pre>
+            <details className="panel panel-pad">
+              <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-ink-3">Component stack</summary>
+              <pre className="mt-2 overflow-auto whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-ink-2">{componentStack}</pre>
             </details>
           ) : null}
           <div className="flex gap-2">
             <button
               type="button"
               onClick={this.reset}
-              className="glass-btn--accent rounded-lg px-3 py-1.5 text-sm font-semibold"
+              className="btn-primary"
             >
               Try again
             </button>
             <button
               type="button"
               onClick={() => window.location.reload()}
-              className="glass-btn rounded-lg px-3 py-1.5 text-sm font-medium"
+              className="btn-ghost"
             >
               Reload page
             </button>

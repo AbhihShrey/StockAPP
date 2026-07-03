@@ -15,6 +15,18 @@ const TABS = [
   { id: 'scanners', label: 'Scanners & flow' },
 ]
 
+/** Delta rendered per the data-color rules: up/down tint always paired with ▲▼. */
+function DeltaPct({ value }) {
+  const n = typeof value === 'number' && Number.isFinite(value) ? value : null
+  const tone = n == null || n === 0 ? 'text-ink-3' : n > 0 ? 'text-up' : 'text-down'
+  return (
+    <span className={`num inline-flex items-center justify-end gap-1 ${tone}`}>
+      {n != null && n !== 0 ? <span aria-hidden>{n > 0 ? '▲' : '▼'}</span> : null}
+      {formatPct(value)}
+    </span>
+  )
+}
+
 export function Markets() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
@@ -95,89 +107,96 @@ export function Markets() {
 
   const skeletonCards = (count) =>
     Array.from({ length: count }).map((_, i) => (
-      <div
-        key={i}
-        className="h-[5.5rem] animate-pulse rounded-xl border border-white/10 bg-white/[0.03]"
-        style={{ animationDelay: `${i * 40}ms` }}
-      />
+      <div key={i} className="skeleton h-[5.5rem] rounded-xl" />
     ))
 
   return (
-    <div className="app-page-enter space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">Markets</h1>
+    <div className="space-y-6">
+      <header className="rise">
+        <p className="eyebrow">Markets · Live macro &amp; flow</p>
+        <h1 className="display text-2xl sm:text-3xl">Markets</h1>
+        <div className="ember-rule mt-4" />
       </header>
 
       {loading ? (
-        <div className="rounded-2xl border border-border-subtle bg-surface-1/60 p-8 text-center text-sm text-zinc-500">
-          Loading markets…
+        <div className="rise rise-2 space-y-4" aria-busy aria-label="Loading markets">
+          <div className="panel panel-pad">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">{skeletonCards(8)}</div>
+          </div>
+          <div className="skeleton h-72 rounded-[14px]" />
         </div>
       ) : error ? (
-        <div className="rounded-2xl border border-rose-500/20 bg-rose-500/5 p-6 text-sm text-rose-200">
-          <p className="font-medium">Couldn’t load markets</p>
-          <p className="mt-1 text-rose-200/80">{error}</p>
+        <div className="rise rise-2 rounded-[14px] border border-down/25 bg-down/5 p-6 text-sm">
+          <p className="font-medium text-down">Couldn’t load markets</p>
+          <p className="mt-1 text-ink-2">{error}</p>
+          <button type="button" className="btn-ghost mt-4" onClick={() => load()}>
+            Try again
+          </button>
         </div>
       ) : (
         <>
           {/* 1. Global macro — mini terminals */}
-          <DashboardCard title="Global macro">
-            {!globalReady ? (
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">{skeletonCards(8)}</div>
-            ) : !anyGlobal ? (
-              <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                <p className="text-sm text-zinc-500">Market data loading…</p>
-              </div>
-            ) : (
-              <div className="space-y-6">
-              <section>
-                <h3 className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">Indices</h3>
-                <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
-                  {(groups?.indices ?? []).map((a, i) => (
-                    <MiniTerminalCard key={a.symbol} asset={a} staggerMs={120 + i * 40} />
-                  ))}
+          <section className="rise rise-2">
+            <DashboardCard title="Global macro">
+              {!globalReady ? (
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">{skeletonCards(8)}</div>
+              ) : !anyGlobal ? (
+                <div className="rounded-xl border border-line bg-surface-2 p-4">
+                  <p className="text-sm text-ink-3">Market data loading…</p>
                 </div>
-              </section>
-              <section>
-                <h3 className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">Yield curve</h3>
-                <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  {(groups?.yields ?? []).map((a, i) => (
-                    <MiniTerminalCard key={a.symbol} asset={a} staggerMs={320 + i * 40} />
-                  ))}
+              ) : (
+                <div className="space-y-6">
+                  <section>
+                    <h3 className="eyebrow">Indices</h3>
+                    <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                      {(groups?.indices ?? []).map((a, i) => (
+                        <MiniTerminalCard key={a.symbol} asset={a} staggerMs={120 + i * 40} />
+                      ))}
+                    </div>
+                  </section>
+                  <section>
+                    <h3 className="eyebrow">Yield curve</h3>
+                    <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      {(groups?.yields ?? []).map((a, i) => (
+                        <MiniTerminalCard key={a.symbol} asset={a} staggerMs={320 + i * 40} />
+                      ))}
+                    </div>
+                  </section>
+                  <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    <div>
+                      <h3 className="eyebrow">Commodities &amp; risk</h3>
+                      <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                        {(groups?.commodities ?? []).map((a, i) => (
+                          <MiniTerminalCard key={a.symbol} asset={a} staggerMs={520 + i * 40} />
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="eyebrow">Currencies</h3>
+                      <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        {(groups?.currencies ?? []).map((a, i) => (
+                          <MiniTerminalCard key={a.symbol} asset={a} staggerMs={680 + i * 40} />
+                        ))}
+                      </div>
+                    </div>
+                  </section>
                 </div>
-              </section>
-              <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <div>
-                  <h3 className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">Commodities & risk</h3>
-                  <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
-                    {(groups?.commodities ?? []).map((a, i) => (
-                      <MiniTerminalCard key={a.symbol} asset={a} staggerMs={520 + i * 40} />
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">Currencies</h3>
-                  <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    {(groups?.currencies ?? []).map((a, i) => (
-                      <MiniTerminalCard key={a.symbol} asset={a} staggerMs={680 + i * 40} />
-                    ))}
-                  </div>
-                </div>
-              </section>
-            </div>
-            )}
-          </DashboardCard>
+              )}
+            </DashboardCard>
+          </section>
 
-          <div className="flex flex-wrap gap-2 rounded-xl border border-border-subtle bg-surface-1/40 p-2">
+          <div className="rise rise-3 flex flex-wrap gap-1.5 rounded-[14px] border border-line bg-surface-1 p-1.5">
             {TABS.map((t) => (
               <button
                 key={t.id}
                 type="button"
                 onClick={() => setTab(t.id)}
+                aria-pressed={tab === t.id}
                 className={[
-                  'rounded-lg px-4 py-2 text-xs font-medium transition',
+                  'rounded-lg px-4 py-2 text-xs font-medium transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ember/60',
                   tab === t.id
-                    ? 'bg-accent-muted text-accent accent-inset'
-                    : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300',
+                    ? 'bg-ember/10 text-flame'
+                    : 'text-ink-3 hover:bg-surface-2 hover:text-ink-2',
                 ].join(' ')}
               >
                 {t.label}
@@ -186,27 +205,30 @@ export function Markets() {
           </div>
 
           {tab === 'overview' && (
-            <div className="space-y-4">
+            <div className="rise rise-4 space-y-4">
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:items-start">
                 <div className="space-y-4 lg:col-span-7">
                   <DashboardCard
                     title={chartSymbol}
                     action={
-                      <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 p-0.5">
+                      <div className="flex items-center gap-1 rounded-lg border border-line bg-surface-2 p-0.5">
                         {['SPY', 'QQQ'].map((s) => (
                           <button
                             key={s}
                             type="button"
                             onClick={() => setChartSymbol(s)}
+                            aria-pressed={chartSymbol === s}
                             className={[
-                              'rounded-md px-2.5 py-1 text-xs font-medium',
-                              chartSymbol === s ? 'bg-white/15 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300',
+                              'num rounded-md px-2.5 py-1 text-xs font-medium transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ember/60',
+                              chartSymbol === s
+                                ? 'bg-surface-3 text-flame'
+                                : 'text-ink-3 hover:text-ink-2',
                             ].join(' ')}
                           >
                             {s}
                           </button>
                         ))}
-                        <span className="px-2 text-[11px] text-zinc-600">1y · daily</span>
+                        <span className="num px-2 text-[11px] text-ink-3">1y · daily</span>
                       </div>
                     }
                   >
@@ -240,9 +262,9 @@ export function Markets() {
           )}
 
           {tab === 'scanners' && (
-            <div className="space-y-4">
+            <div className="rise rise-4 space-y-4">
               <TableShell title="Live scanners">
-                <div className="grid grid-cols-1 gap-4 p-5 xl:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 p-4 sm:p-5 xl:grid-cols-2">
                   <ScannerTopFiveTable
                     title="Volume rockets"
                     subtitle="Relative volume (today / avg)"
@@ -257,19 +279,15 @@ export function Markets() {
                         render: (r) => (
                           <span
                             className={[
-                              'inline-flex items-center gap-2 tabular-nums',
-                              r?.meetsThreshold ? 'text-emerald-200' : 'text-zinc-300',
+                              'num inline-flex items-center gap-2',
+                              r?.meetsThreshold ? 'text-ink' : 'text-ink-2',
                             ].join(' ')}
                           >
                             {formatVolRatio(r.volumeRatio)}
                             {r?.meetsThreshold ? (
-                              <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium ring-1 ring-emerald-500/20">
-                                Rocket
-                              </span>
+                              <span className="chip chip-ember">Rocket</span>
                             ) : (
-                              <span className="rounded-full bg-white/5 px-2 py-0.5 text-[11px] font-medium text-zinc-400 ring-1 ring-white/10">
-                                Top
-                              </span>
+                              <span className="chip">Top</span>
                             )}
                           </span>
                         ),
@@ -278,7 +296,7 @@ export function Markets() {
                         key: 'chg',
                         label: 'Chg%',
                         right: true,
-                        render: (r) => formatPct(r.changePercent),
+                        render: (r) => <DeltaPct value={r.changePercent} />,
                       },
                     ]}
                   />
@@ -293,13 +311,13 @@ export function Markets() {
                         key: 'gap',
                         label: 'Gap %',
                         right: true,
-                        render: (r) => formatPct(r.gapPercent),
+                        render: (r) => <DeltaPct value={r.gapPercent} />,
                       },
                       {
                         key: 'chg',
                         label: 'Day %',
                         right: true,
-                        render: (r) => formatPct(r.changePercent),
+                        render: (r) => <DeltaPct value={r.changePercent} />,
                       },
                     ]}
                   />
@@ -314,13 +332,13 @@ export function Markets() {
                         key: 'gap',
                         label: 'Gap %',
                         right: true,
-                        render: (r) => formatPct(r.gapPercent),
+                        render: (r) => <DeltaPct value={r.gapPercent} />,
                       },
                       {
                         key: 'chg',
                         label: 'Day %',
                         right: true,
-                        render: (r) => formatPct(r.changePercent),
+                        render: (r) => <DeltaPct value={r.changePercent} />,
                       },
                     ]}
                   />
@@ -335,7 +353,7 @@ export function Markets() {
                         key: 'v',
                         label: 'Vs VWAP',
                         right: true,
-                        render: (r) => formatPct(r.vwapDeviationPct),
+                        render: (r) => <DeltaPct value={r.vwapDeviationPct} />,
                       },
                     ]}
                   />
@@ -343,7 +361,7 @@ export function Markets() {
               </TableShell>
 
               <TableShell title="Liquidity leaders">
-                <div className="p-5">
+                <div className="p-4 sm:p-5">
                   <ScannerTopFiveTable
                     hideHeader
                     rows={scanners?.liquidityLeaders}
@@ -367,7 +385,7 @@ export function Markets() {
                         key: 'chg',
                         label: 'Chg%',
                         right: true,
-                        render: (r) => formatPct(r.changePercent),
+                        render: (r) => <DeltaPct value={r.changePercent} />,
                       },
                     ]}
                   />

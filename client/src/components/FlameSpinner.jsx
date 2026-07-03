@@ -1,12 +1,11 @@
-import { Flame } from 'lucide-react'
-
+/** Ember arc loading spinner (name kept for existing call sites). */
 export function FlameSpinner({ size = 22, className = '' }) {
   return (
-    <Flame
-      className={`flame-spinner ${className}`.trim()}
-      size={size}
-      strokeWidth={2}
-      aria-hidden="true"
+    <span
+      className={`ember-spinner inline-block ${className}`.trim()}
+      style={{ width: size, height: size }}
+      role="status"
+      aria-label="Loading"
     />
   )
 }
