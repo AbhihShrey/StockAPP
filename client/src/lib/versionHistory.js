@@ -17,6 +17,19 @@
 /** @type {Release[]} */
 export const VERSION_HISTORY = [
   {
+    version: '1.4.0',
+    date: 'Jul 2026',
+    type: 'minor',
+    title: 'New logo: flame + rising arrow',
+    summary: 'The brand mark is now a two-tongue flame with a rising chart arrow cut through its core.',
+    changes: [
+      'Flame silhouette with two tips and a jagged valley, orange-to-red gradient, warm cream core.',
+      'A dark zigzag chart arrow rises through the mark, ending in a bold arrowhead.',
+      'Wordmark is now lowercase “emberfinances” — “ember” in orange, “finances” in white.',
+      'Favicon and brand SVGs updated to match.',
+    ],
+  },
+  {
     version: '1.3.1',
     date: 'Jul 2026',
     type: 'patch',

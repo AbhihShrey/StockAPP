@@ -1,48 +1,44 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
-    <linearGradient id="ef" x1="50" y1="10" x2="50" y2="58.1" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#ff4a21"/>
-      <stop offset="55%" stop-color="#ff8434"/>
-      <stop offset="100%" stop-color="#ffbe5f"/>
+    <linearGradient id="ef" x1="32" y1="3.5" x2="32" y2="60.5" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f19238"/>
+      <stop offset="60%" stop-color="#e65a22"/>
+      <stop offset="100%" stop-color="#d33f16"/>
     </linearGradient>
-    <linearGradient id="ec" x1="50" y1="52.8" x2="50" y2="86.2" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#f56f2f"/>
-      <stop offset="45%" stop-color="#c8431c"/>
-      <stop offset="100%" stop-color="#99290f"/>
-    </linearGradient>
-    <linearGradient id="ek" x1="50" y1="32.5" x2="50" y2="55.6" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#fff1c6"/>
-      <stop offset="100%" stop-color="#ffd27f"/>
-    </linearGradient>
-    <radialGradient id="eg" cx="50%" cy="34%" r="75%">
-      <stop offset="0%" stop-color="rgba(255,120,40,0.18)"/>
-      <stop offset="62%" stop-color="rgba(255,120,40,0)"/>
-    </radialGradient>
   </defs>
 
-  <!-- Dark tile with a warm glow behind the mark -->
-  <rect width="100" height="100" rx="24" fill="#101010"/>
-  <rect width="100" height="100" rx="24" fill="url(#eg)"/>
-  <rect x="0.5" y="0.5" width="99" height="99" rx="23.5"
-        fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
+  <!-- Dark tile -->
+  <rect width="64" height="64" rx="15.5" fill="#0b0b0b"/>
+  <rect x="0.5" y="0.5" width="63" height="63" rx="15"
+        fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
 
-  <!-- Candle body -->
-  <rect x="35.3" y="52.8" width="29.4" height="33.4" rx="9.7" fill="url(#ec)"/>
+  <g transform="translate(3.84 3.84) scale(0.88)">
+    <!-- Flame body — two tips with a jagged valley between them -->
+    <path d="M 40 4.5
+             C 41.5 11 47 16.5 50.8 23.2
+             C 53.8 28.6 55.5 33.8 55.5 39.2
+             C 55.5 51.2 45.5 59.5 32 59.5
+             C 18.5 59.5 8.5 51.2 8.5 39.2
+             C 8.5 32.4 11.6 26.6 15.8 22
+             C 18.9 18.6 21.9 16 23.8 12.5
+             C 25.1 15.9 25.9 19.8 25.6 23
+             L 28.2 24
+             C 29.8 19.5 32.2 15.8 34.6 12.4
+             C 36.5 9.7 38.4 7.3 40 4.5 Z"
+          fill="url(#ef)"/>
 
-  <!-- Flame — base sinks into the molten top of the body -->
-  <path d="M 53.1 10
-           C 53.1 19.4 67.2 28.8 67.2 40
-           C 67.2 50.6 59.4 58.1 50 58.1
-           C 40.6 58.1 32.8 50.6 32.8 40
-           C 32.8 33.8 36.3 29.1 40 24.7
-           C 44.1 19.7 47.8 15.6 53.1 10 Z"
-        fill="url(#ef)"/>
+    <!-- Cream core -->
+    <path d="M 32 28.5
+             C 38.2 34 44.2 38.6 44.2 44.9
+             C 44.2 51.6 39 55.8 32 55.8
+             C 25 55.8 19.8 51.6 19.8 44.9
+             C 19.8 38.6 25.8 34 32 28.5 Z"
+          fill="#f5ca6a"/>
 
-  <!-- Inner core -->
-  <path d="M 50 32.5
-           C 55 38.1 58.1 42.5 58.1 46.9
-           C 58.1 52.2 54.7 55.6 50 55.6
-           C 45.3 55.6 41.9 52.2 41.9 46.9
-           C 41.9 42.5 45 38.1 50 32.5 Z"
-        fill="url(#ek)"/>
+    <!-- Chart arrow -->
+    <path d="M 18 47 L 26.6 38.4 L 31.2 43 L 42.6 31.6"
+          stroke="#0b0b0b" stroke-width="4.4"
+          stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 46.4 27.9 L 45.1 33.4 L 40.9 29.2 Z" fill="#0b0b0b"/>
+  </g>
 </svg>

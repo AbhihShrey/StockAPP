@@ -1,74 +1,79 @@
 import { useId } from 'react'
 
 const SIZES = {
-  xs: { box: 36, mark: 22, name: 15 },
-  sm: { box: 48, mark: 30, name: 17 },
-  md: { box: 72, mark: 46, name: 22 },
-  lg: { box: 96, mark: 60, name: 30 },
+  xs: { box: 36, mark: 26, name: 15 },
+  sm: { box: 48, mark: 34, name: 17 },
+  md: { box: 72, mark: 52, name: 22 },
+  lg: { box: 96, mark: 68, name: 30 },
 }
 
+/** Tile background — the notch and arrow are "cut" in this same color */
+const TILE_BG = '#0b0b0b'
+
 /**
- * Icon mark: a lit candle drawn as one fused, all-warm object.
- * All coordinates in a 32×32 viewBox.
+ * Icon mark: flame with a rising chart arrow, per the brand reference.
+ * All coordinates in a 64×64 viewBox.
  *
- * The flame's rounded base overlaps the candle body, and the body's own
- * gradient runs hottest at the top — so fire and wax melt into each other
- * instead of reading as two separate shapes. A cream core at the junction
- * bridges them. Single ember palette throughout (no cool colors).
+ * Layers, bottom to top:
+ *   1. Flame body — one outline with two tips: tall main tip right, shorter
+ *      tongue left, and a jagged valley opening from the top between them.
+ *   2. Cream core — rounded blob filling the lower half.
+ *   3. Chart arrow — tile-colored zigzag rising up-right with an arrowhead,
+ *      reading as a cutout through core and flame.
  */
 function EmberMark({ size, uid }) {
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 32 32"
+      viewBox="0 0 64 64"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden
     >
       <defs>
-        {/* Flame: red-hot tip cooling into amber where it meets the wax */}
-        <linearGradient id={`emf-${uid}`} x1="16" y1="3.2" x2="16" y2="18.6" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#ff4a21" />
-          <stop offset="55%" stopColor="#ff8434" />
-          <stop offset="100%" stopColor="#ffbe5f" />
-        </linearGradient>
-        {/* Body: molten at the rim, deep ember red at the base */}
-        <linearGradient id={`emc-${uid}`} x1="16" y1="16.9" x2="16" y2="27.6" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#f56f2f" />
-          <stop offset="45%" stopColor="#c8431c" />
-          <stop offset="100%" stopColor="#99290f" />
-        </linearGradient>
-        {/* Core: the brightest point, bridging flame and body */}
-        <linearGradient id={`emk-${uid}`} x1="16" y1="10.4" x2="16" y2="17.8" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#fff1c6" />
-          <stop offset="100%" stopColor="#ffd27f" />
+        <linearGradient id={`emf-${uid}`} x1="32" y1="3.5" x2="32" y2="60.5" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#f19238" />
+          <stop offset="60%" stopColor="#e65a22" />
+          <stop offset="100%" stopColor="#d33f16" />
         </linearGradient>
       </defs>
 
-      {/* Candle body */}
-      <rect x="11.3" y="16.9" width="9.4" height="10.7" rx="3.1" fill={`url(#emc-${uid})`} />
-
-      {/* Flame — its base sinks into the molten top of the body */}
+      {/* Flame body — two tips with a jagged valley between them */}
       <path
-        d="M 17 3.2
-           C 17 6.2 21.5 9.2 21.5 12.8
-           C 21.5 16.2 19 18.6 16 18.6
-           C 13 18.6 10.5 16.2 10.5 12.8
-           C 10.5 10.8 11.6 9.3 12.8 7.9
-           C 14.1 6.3 15.3 5 17 3.2 Z"
+        d="M 40 4.5
+           C 41.5 11 47 16.5 50.8 23.2
+           C 53.8 28.6 55.5 33.8 55.5 39.2
+           C 55.5 51.2 45.5 59.5 32 59.5
+           C 18.5 59.5 8.5 51.2 8.5 39.2
+           C 8.5 32.4 11.6 26.6 15.8 22
+           C 18.9 18.6 21.9 16 23.8 12.5
+           C 25.1 15.9 25.9 19.8 25.6 23
+           L 28.2 24
+           C 29.8 19.5 32.2 15.8 34.6 12.4
+           C 36.5 9.7 38.4 7.3 40 4.5 Z"
         fill={`url(#emf-${uid})`}
       />
 
-      {/* Inner core */}
+      {/* Cream core */}
       <path
-        d="M 16 10.4
-           C 17.6 12.2 18.6 13.6 18.6 15
-           C 18.6 16.7 17.5 17.8 16 17.8
-           C 14.5 17.8 13.4 16.7 13.4 15
-           C 13.4 13.6 14.4 12.2 16 10.4 Z"
-        fill={`url(#emk-${uid})`}
+        d="M 32 28.5
+           C 38.2 34 44.2 38.6 44.2 44.9
+           C 44.2 51.6 39 55.8 32 55.8
+           C 25 55.8 19.8 51.6 19.8 44.9
+           C 19.8 38.6 25.8 34 32 28.5 Z"
+        fill="#f5ca6a"
       />
+
+      {/* Chart arrow */}
+      <path
+        d="M 18 47 L 26.6 38.4 L 31.2 43 L 42.6 31.6"
+        stroke={TILE_BG}
+        strokeWidth="4.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M 46.4 27.9 L 45.1 33.4 L 40.9 29.2 Z" fill={TILE_BG} />
     </svg>
   )
 }
@@ -81,10 +86,8 @@ function IconTile({ s, uid }) {
       style={{
         width: s.box,
         height: s.box,
-        background:
-          'radial-gradient(120% 100% at 50% 34%, rgba(255,120,40,0.18), transparent 62%),' +
-          '#101010',
-        border: '1px solid rgba(255,255,255,0.09)',
+        background: TILE_BG,
+        border: '1px solid rgba(255,255,255,0.08)',
         borderRadius: r,
         display: 'flex',
         alignItems: 'center',
@@ -105,17 +108,15 @@ function Wordmark({ s }) {
       style={{
         fontFamily: "'DM Sans', system-ui, sans-serif",
         fontSize: s.name,
-        letterSpacing: '-0.015em',
+        fontWeight: 700,
+        letterSpacing: '-0.02em',
         userSelect: 'none',
         lineHeight: 1,
         whiteSpace: 'nowrap',
-        display: 'flex',
-        alignItems: 'baseline',
-        gap: '0.32ch',
       }}
     >
-      <span style={{ fontWeight: 700, color: '#f2ede7' }}>Ember</span>
-      <span style={{ fontWeight: 450, color: 'rgba(242,237,231,0.58)' }}>Finances</span>
+      <span style={{ color: '#e2652c' }}>ember</span>
+      <span style={{ color: '#f4f1ea' }}>finances</span>
     </div>
   )
 }
