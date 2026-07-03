@@ -17,6 +17,18 @@
 /** @type {Release[]} */
 export const VERSION_HISTORY = [
   {
+    version: '2.0.1',
+    date: 'Jul 2026',
+    type: 'patch',
+    title: 'Cleaner type, glossier finish',
+    summary: 'A smoother typeface set and a subtle glossy sheen across panels and buttons.',
+    changes: [
+      'New type: Sora for headings, Plus Jakarta Sans for text, JetBrains Mono for numbers — cleaner and smoother than before.',
+      'Panels and cards pick up a soft top light-catch and gentler corners for a glossy, premium feel.',
+      'Primary buttons now have a sheen highlight and a warm glow; inputs sit slightly inset for depth.',
+    ],
+  },
+  {
     version: '2.0.0',
     date: 'Jul 2026',
     type: 'major',

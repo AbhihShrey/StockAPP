@@ -36,15 +36,16 @@ Never hardcode hex values in JSX; never use Tailwind palette colors (`zinc-*`, `
 
 Brand gradient: `linear-gradient(135deg, #FF6B2C, #FFA53D)` — available as class `.bg-ember-grad`.
 
-## Typography
+## Typography (glossy, clean flow)
 
-- **Display / headings:** `font-display` → Archivo (variable width+weight). Page titles use
-  `.display` (expanded width, tight leading). Section labels use `.eyebrow` (11px uppercase,
-  0.18em tracking, ink-3, expanded).
-- **Body / UI:** `font-sans` → Instrument Sans.
-- **All numeric data:** `font-mono` → IBM Plex Mono with `tabular-nums`; use class `.num`.
+- **Display / headings:** `font-display` → Sora. Page titles use `.display` (bold, tight
+  −0.028em tracking, 1.08 leading). Section labels use `.eyebrow` (11px uppercase, 0.2em
+  tracking, ink-3, set in the body face).
+- **Body / UI:** `font-sans` → Plus Jakarta Sans.
+- **All numeric data:** `font-mono` → JetBrains Mono with `tabular-nums`; use class `.num`.
   Prices, percents, counts, timestamps — every number in a data context is `.num`.
 - Body text min 14px in app, 16px on marketing pages. Line-height 1.5–1.6 for prose.
+- No `font-stretch` — these faces are not width-variable; use weight + tracking for emphasis.
 
 ## Component classes (defined in index.css — use them, don't reinvent)
 

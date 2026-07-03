@@ -72,13 +72,13 @@ export function EmberLogo({
     <span className={layout === 'horizontal' ? 'flex min-w-0 flex-col justify-center' : 'flex flex-col items-center'}>
       <span
         className={`font-display font-bold leading-none text-ink ${s.word}`}
-        style={{ fontStretch: '118%', letterSpacing: '0.01em' }}
+        style={{ letterSpacing: '-0.02em' }}
       >
         Ember
       </span>
       <span
-        className={`font-display mt-1 font-semibold uppercase leading-none text-flame ${s.sub}`}
-        style={{ fontStretch: '125%', letterSpacing: '0.34em' }}
+        className={`font-sans mt-1 font-semibold uppercase leading-none text-flame ${s.sub}`}
+        style={{ letterSpacing: '0.34em' }}
       >
         Finance
       </span>
