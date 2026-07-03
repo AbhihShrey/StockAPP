@@ -17,6 +17,19 @@
 /** @type {Release[]} */
 export const VERSION_HISTORY = [
   {
+    version: '2.2.0',
+    date: 'Jul 2026',
+    type: 'minor',
+    title: 'Editorial serif, frosted glass, live chart backdrop',
+    summary: 'A serif, document-inspired typeface, frosted-glass surfaces, and an animated stock chart that drifts as you scroll.',
+    changes: [
+      'New type: Instrument Serif for large editorial titles and Newsreader for compact body text, with JetBrains Mono for labels and numbers — a refined, document-like feel.',
+      'Frosted glass: panels, tables, inputs, and secondary buttons are now translucent with a soft blur instead of solid fills.',
+      'The Welcome page has a live stock-chart animation in the background that drifts and parallaxes as you scroll (and holds still if you prefer reduced motion).',
+      'Bigger titles, smaller compact body text for a cleaner, less cluttered hierarchy.',
+    ],
+  },
+  {
     version: '2.1.0',
     date: 'Jul 2026',
     type: 'minor',

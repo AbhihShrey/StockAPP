@@ -36,23 +36,25 @@ Never hardcode hex values in JSX; never use Tailwind palette colors (`zinc-*`, `
 
 Brand gradient: `linear-gradient(135deg, #FF6B2C, #FFA53D)` — available as class `.bg-ember-grad`.
 
-## Typography (modern grotesk — Dropbox/humdocs-clean)
+## Typography (editorial serif — big titles, small compact body)
 
-- **Display / headings:** `font-display` → Space Grotesk. Page titles use `.display`
-  (semibold, −0.02em tracking, 1.1 leading). Section labels use `.eyebrow` (11px uppercase,
-  0.16em tracking, ink-3, set in the body face).
-- **Body / UI:** `font-sans` → Hanken Grotesk.
-- **All numeric data:** `font-mono` → JetBrains Mono with `tabular-nums`; use class `.num`.
-  Prices, percents, counts, timestamps — every number in a data context is `.num`.
-- Body text min 14px in app, 16px on marketing pages. Base line-height 1.55.
-- No `font-stretch` — these faces are not width-variable; use weight + tracking for emphasis.
+- **Display / titles:** `font-display` → Instrument Serif. Large and editorial; `.display`
+  (regular weight, −0.01em tracking, 1.02 leading). Make titles big — the type is the hero.
+- **Body / UI:** `font-sans` → Newsreader (a refined, Times-lineage serif). Kept SMALL and
+  compact: base 14px, line-height 1.45. The document/manuscript feel is intentional.
+- **Labels & numerals:** `font-mono` → JetBrains Mono. `.eyebrow` is mono (10px uppercase,
+  0.22em tracking) for crisp contrast against the serif. Every number is `.num` (mono).
+- Strong hierarchy: big serif title, small serif body, mono labels/data.
 
-## Finish: flat & spacious
+## Finish: frosted glass
 
-Surfaces are FLAT — no glossy gradients, no inset highlights. A panel is a solid
-`surface-1` fill with a single hairline border and generous padding (`.panel-pad` = p-5/p-6).
-Buttons are flat solid fills (primary = solid ember). Lean on whitespace and hierarchy, not
-shadows or sheen, to separate content — sections breathe.
+Surfaces are GLASS, not solid. Panels, tables, ghost buttons and inputs are translucent
+warm-dark fills with `backdrop-filter: blur(...)` and a faint top highlight — they frost
+whatever sits behind them. The primary button is a glassy ember gradient with a sheen (not a
+flat solid fill). On the Welcome page a live `MarketBackdrop` stock-chart canvas drifts and
+parallaxes on scroll behind the glass. Keep blur modest and reduced-motion respected so it
+stays smooth on any device; don't stack `backdrop-filter` on many tiny elements (chips use a
+plain translucent fill, sticky table headers use a near-opaque fill instead of blur).
 
 ## Component classes (defined in index.css — use them, don't reinvent)
 

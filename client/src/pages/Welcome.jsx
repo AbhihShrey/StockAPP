@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { MarketBackdrop } from '../components/MarketBackdrop'
 import { RevealOnScroll } from '../components/RevealOnScroll'
 import { WelcomeAuthModal } from '../components/WelcomeAuthModal'
 import { WelcomeMarketingNav } from '../components/WelcomeMarketingNav'
@@ -110,6 +111,9 @@ export function Welcome({ redirectIfAuthenticated = true }) {
         }}
       />
 
+      {/* Live stock-chart backdrop — drifts and parallaxes on scroll */}
+      <MarketBackdrop />
+
       <WelcomeMarketingNav onSignIn={openSignin} onGetStarted={openSignup} />
 
       <WelcomeAuthModal
@@ -123,10 +127,7 @@ export function Welcome({ redirectIfAuthenticated = true }) {
       <section className="relative z-10 flex min-h-[calc(100dvh-4rem)] flex-col">
         <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center px-4 pb-20 pt-14 text-center sm:px-6">
           <p className="eyebrow rise">Ember Finance · Market terminal</p>
-          <h1
-            className="display rise rise-1 mt-4 max-w-3xl text-balance text-4xl sm:text-6xl"
-            style={{ fontStretch: '118%' }}
-          >
+          <h1 className="display rise rise-1 mt-4 max-w-4xl text-balance text-5xl sm:text-7xl">
             The market, read in one dark terminal.
           </h1>
           <div className="ember-rule rise rise-2 mt-7 w-40" aria-hidden />

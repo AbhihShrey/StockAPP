@@ -32,8 +32,8 @@
   --color-warn: #ffc24b;
 
   /* Type */
-  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --font-sans: "Newsreader", Georgia, "Times New Roman", serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Motion */
@@ -49,8 +49,9 @@
 
   body {
     @apply bg-bg font-sans text-ink antialiased;
-    line-height: 1.55;
-    letter-spacing: -0.005em;
+    font-size: 14px;
+    line-height: 1.45;
+    font-optical-sizing: auto;
   }
 
   ::selection {
@@ -93,9 +94,14 @@
 /* ---------- Components ---------- */
 
 @layer components {
-  /* Panels — flat, clean, spacious (Dropbox/humdocs-modern) */
+  /* Panels — frosted glass over the warm-dark canvas */
   .panel {
-    @apply rounded-2xl border border-line bg-surface-1;
+    @apply rounded-2xl;
+    border: 1px solid rgba(244, 232, 216, 0.1);
+    background: rgba(30, 25, 21, 0.55);
+    backdrop-filter: blur(14px) saturate(120%);
+    -webkit-backdrop-filter: blur(14px) saturate(120%);
+    box-shadow: inset 0 1px 0 rgba(244, 232, 216, 0.06);
   }
   .panel-pad {
     @apply p-5 sm:p-6;
@@ -107,8 +113,11 @@
       background-color 220ms var(--ease-swift);
   }
   .panel-hover:hover {
-    border-color: color-mix(in srgb, var(--color-ember) 20%, var(--color-line));
-    background: var(--color-surface-2);
+    border-color: color-mix(in srgb, var(--color-ember) 24%, rgba(244, 232, 216, 0.1));
+    background: rgba(38, 32, 25, 0.62);
+    box-shadow:
+      inset 0 1px 0 rgba(244, 232, 216, 0.08),
+      0 10px 40px rgba(0, 0, 0, 0.35);
   }
 
   /* Glass — sticky bars, overlays, popovers */
@@ -118,15 +127,15 @@
     -webkit-backdrop-filter: blur(16px);
   }
 
-  /* Type treatments */
+  /* Type treatments — big editorial serif titles, small compact serif body */
   .display {
-    @apply font-display font-semibold text-ink;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
+    @apply font-display font-normal text-ink;
+    letter-spacing: -0.01em;
+    line-height: 1.02;
   }
   .eyebrow {
-    @apply font-sans text-[11px] font-semibold text-ink-3 uppercase;
-    letter-spacing: 0.16em;
+    @apply font-mono text-[10px] font-medium text-ink-3 uppercase;
+    letter-spacing: 0.22em;
   }
   .num {
     @apply font-mono;
@@ -169,23 +178,34 @@
   .btn-danger:disabled {
     @apply cursor-not-allowed opacity-50;
   }
-  /* Primary: clean solid ember, flat and confident */
+  /* Primary: glassy ember — gradient with a light sheen, not flat solid */
   .btn-primary {
     color: #1a0c04;
-    background: var(--color-ember);
+    background: linear-gradient(135deg, var(--color-ember), var(--color-flame));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.32),
+      0 2px 14px rgba(255, 107, 44, 0.24);
   }
   .btn-primary:hover:not(:disabled) {
-    background: var(--color-flame);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.4),
+      0 4px 22px rgba(255, 107, 44, 0.42);
   }
   .btn-primary:active:not(:disabled) {
-    background: var(--color-ember-deep);
+    background: linear-gradient(135deg, var(--color-ember-deep), var(--color-ember));
     transform: translateY(0.5px);
   }
+  /* Ghost: frosted glass */
   .btn-ghost {
-    @apply border border-line bg-surface-2 text-ink-2;
+    @apply text-ink-2;
+    border: 1px solid rgba(244, 232, 216, 0.12);
+    background: rgba(244, 232, 216, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
   .btn-ghost:hover:not(:disabled) {
-    @apply bg-surface-3 text-ink;
+    @apply text-ink;
+    background: rgba(244, 232, 216, 0.09);
     border-color: var(--color-line-strong);
   }
   .btn-danger {
@@ -201,7 +221,11 @@
   }
   .input,
   .select {
-    @apply h-9 w-full rounded-[10px] border border-line bg-surface-2 px-3 text-sm text-ink;
+    @apply h-9 w-full rounded-[10px] px-3 text-sm text-ink;
+    border: 1px solid rgba(244, 232, 216, 0.1);
+    background: rgba(244, 232, 216, 0.04);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     transition:
       border-color 180ms var(--ease-swift),
       box-shadow 180ms var(--ease-swift);
@@ -222,9 +246,11 @@
     background-position: right 0.65rem center;
   }
 
-  /* Chips */
+  /* Chips — translucent glass fill (no blur; many on screen) */
   .chip {
-    @apply inline-flex items-center gap-1 rounded-full border border-line bg-surface-2 px-2 py-0.5 text-[11px] font-medium text-ink-2;
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium text-ink-2;
+    border: 1px solid rgba(244, 232, 216, 0.1);
+    background: rgba(244, 232, 216, 0.05);
   }
   .chip-up {
     @apply border-up/25 bg-up/10 text-up;
@@ -241,13 +267,18 @@
 
   /* Tables */
   .tbl {
-    @apply overflow-x-auto rounded-2xl border border-line bg-surface-1;
+    @apply overflow-x-auto rounded-2xl;
+    border: 1px solid rgba(244, 232, 216, 0.1);
+    background: rgba(30, 25, 21, 0.55);
+    backdrop-filter: blur(14px) saturate(120%);
+    -webkit-backdrop-filter: blur(14px) saturate(120%);
   }
   .tbl table {
     @apply w-full border-collapse text-sm;
   }
   .tbl thead th {
-    @apply sticky top-0 z-10 bg-surface-1 px-3 py-2.5 text-left font-sans text-[11px] font-semibold text-ink-3 uppercase;
+    @apply sticky top-0 z-10 px-3 py-2.5 text-left font-mono text-[10px] font-medium text-ink-3 uppercase;
+    background: rgba(26, 22, 18, 0.96);
     letter-spacing: 0.16em;
     border-bottom: 1px solid var(--color-line-strong);
     white-space: nowrap;
