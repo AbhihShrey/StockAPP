@@ -650,7 +650,7 @@ export function Layout() {
           </header>
 
           <EmailVerificationBanner token={token} />
-          <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-5 lg:px-6 lg:py-8">
+          <main className="flex-1 overflow-x-hidden overflow-y-auto p-5 sm:p-7 lg:px-10 lg:py-10">
             <div key={location.pathname} className={`mx-auto w-full ${MAIN_MAX_W}`}>
               <Outlet />
             </div>

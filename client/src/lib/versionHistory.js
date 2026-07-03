@@ -17,6 +17,18 @@
 /** @type {Release[]} */
 export const VERSION_HISTORY = [
   {
+    version: '2.1.0',
+    date: 'Jul 2026',
+    type: 'minor',
+    title: 'Modern grotesk, flat and spacious',
+    summary: 'A cleaner grotesk typeface set and a flatter, roomier layout inspired by modern product design.',
+    changes: [
+      'New type: Space Grotesk for headings and Hanken Grotesk for text — a modern grotesk system, cleaner and less cluttered.',
+      'Flattened the look: panels and buttons dropped the glossy sheen for clean, solid surfaces.',
+      'More breathing room — wider page margins and roomier cards so the interface feels calmer.',
+    ],
+  },
+  {
     version: '2.0.1',
     date: 'Jul 2026',
     type: 'patch',

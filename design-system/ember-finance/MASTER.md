@@ -36,16 +36,23 @@ Never hardcode hex values in JSX; never use Tailwind palette colors (`zinc-*`, `
 
 Brand gradient: `linear-gradient(135deg, #FF6B2C, #FFA53D)` — available as class `.bg-ember-grad`.
 
-## Typography (glossy, clean flow)
+## Typography (modern grotesk — Dropbox/humdocs-clean)
 
-- **Display / headings:** `font-display` → Sora. Page titles use `.display` (bold, tight
-  −0.028em tracking, 1.08 leading). Section labels use `.eyebrow` (11px uppercase, 0.2em
-  tracking, ink-3, set in the body face).
-- **Body / UI:** `font-sans` → Plus Jakarta Sans.
+- **Display / headings:** `font-display` → Space Grotesk. Page titles use `.display`
+  (semibold, −0.02em tracking, 1.1 leading). Section labels use `.eyebrow` (11px uppercase,
+  0.16em tracking, ink-3, set in the body face).
+- **Body / UI:** `font-sans` → Hanken Grotesk.
 - **All numeric data:** `font-mono` → JetBrains Mono with `tabular-nums`; use class `.num`.
   Prices, percents, counts, timestamps — every number in a data context is `.num`.
-- Body text min 14px in app, 16px on marketing pages. Line-height 1.5–1.6 for prose.
+- Body text min 14px in app, 16px on marketing pages. Base line-height 1.55.
 - No `font-stretch` — these faces are not width-variable; use weight + tracking for emphasis.
+
+## Finish: flat & spacious
+
+Surfaces are FLAT — no glossy gradients, no inset highlights. A panel is a solid
+`surface-1` fill with a single hairline border and generous padding (`.panel-pad` = p-5/p-6).
+Buttons are flat solid fills (primary = solid ember). Lean on whitespace and hierarchy, not
+shadows or sheen, to separate content — sections breathe.
 
 ## Component classes (defined in index.css — use them, don't reinvent)
 
