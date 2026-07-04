@@ -6,30 +6,30 @@
    ============================================================ */
 
 @theme {
-  /* Canvas & surfaces (warm near-black — never blue/slate) */
-  --color-bg: #0a0807;
-  --color-surface-1: #14110e;
-  --color-surface-2: #1b1713;
-  --color-surface-3: #262019;
+  /* Canvas & surfaces — warm black, ember-gold luxury palette */
+  --color-bg: #0b0908;
+  --color-surface-1: #14100e;
+  --color-surface-2: #1d1714;
+  --color-surface-3: #241c18;
 
-  /* Hairlines */
-  --color-line: rgba(244, 232, 216, 0.08);
-  --color-line-strong: rgba(244, 232, 216, 0.16);
+  /* Hairlines — warm gold */
+  --color-line: rgba(189, 150, 92, 0.12);
+  --color-line-strong: rgba(189, 150, 92, 0.22);
 
-  /* Text */
-  --color-ink: #f4efe9;
-  --color-ink-2: #b5ab9f;
-  --color-ink-3: #837a6f;
+  /* Text — warm parchment */
+  --color-ink: #e8ded2;
+  --color-ink-2: #b8ac98;
+  --color-ink-3: #8b7f6d;
 
-  /* Brand heat */
-  --color-ember: #ff6b2c;
-  --color-flame: #ffa53d;
-  --color-ember-deep: #c2410c;
+  /* Brand — ember gold */
+  --color-ember: #c88738;
+  --color-flame: #e0b16b;
+  --color-ember-deep: #a56a2c;
 
   /* Market direction */
-  --color-up: #3ddc97;
-  --color-down: #ff6161;
-  --color-warn: #ffc24b;
+  --color-up: #48c78e;
+  --color-down: #d96c63;
+  --color-warn: #d9a441;
 
   /* Type */
   --font-display: "Newsreader", Georgia, "Times New Roman", serif;
@@ -62,18 +62,18 @@
   /* Slim warm scrollbars everywhere */
   * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(244, 232, 216, 0.14) transparent;
+    scrollbar-color: rgba(232, 222, 210, 0.14) transparent;
   }
   *::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
   *::-webkit-scrollbar-thumb {
-    background: rgba(244, 232, 216, 0.14);
+    background: rgba(232, 222, 210, 0.14);
     border-radius: 8px;
   }
   *::-webkit-scrollbar-thumb:hover {
-    background: rgba(244, 232, 216, 0.24);
+    background: rgba(232, 222, 210, 0.24);
   }
   *::-webkit-scrollbar-track {
     background: transparent;
@@ -97,11 +97,11 @@
   /* Panels — frosted glass over the warm-dark canvas */
   .panel {
     @apply rounded-2xl;
-    border: 1px solid rgba(244, 232, 216, 0.1);
-    background: rgba(30, 25, 21, 0.55);
+    border: 1px solid var(--color-line);
+    background: rgba(29, 23, 20, 0.55);
     backdrop-filter: blur(14px) saturate(120%);
     -webkit-backdrop-filter: blur(14px) saturate(120%);
-    box-shadow: inset 0 1px 0 rgba(244, 232, 216, 0.06);
+    box-shadow: inset 0 1px 0 rgba(232, 222, 210, 0.06);
   }
   .panel-pad {
     @apply p-5 sm:p-6;
@@ -113,16 +113,16 @@
       background-color 220ms var(--ease-swift);
   }
   .panel-hover:hover {
-    border-color: color-mix(in srgb, var(--color-ember) 24%, rgba(244, 232, 216, 0.1));
-    background: rgba(38, 32, 25, 0.62);
+    border-color: color-mix(in srgb, var(--color-ember) 24%, rgba(232, 222, 210, 0.1));
+    background: rgba(36, 28, 24, 0.62);
     box-shadow:
-      inset 0 1px 0 rgba(244, 232, 216, 0.08),
+      inset 0 1px 0 rgba(232, 222, 210, 0.08),
       0 10px 40px rgba(0, 0, 0, 0.35);
   }
 
   /* Glass — sticky bars, overlays, popovers */
   .glass {
-    background: rgba(20, 17, 14, 0.82);
+    background: rgba(20, 16, 13, 0.82);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
   }
@@ -151,7 +151,7 @@
       90deg,
       var(--color-ember) 0%,
       var(--color-flame) 32%,
-      rgba(255, 165, 61, 0.25) 60%,
+      rgba(224, 177, 107, 0.25) 60%,
       transparent 92%
     );
     background-size: 200% 100%;
@@ -184,12 +184,12 @@
     background: linear-gradient(135deg, var(--color-ember), var(--color-flame));
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.32),
-      0 2px 14px rgba(255, 107, 44, 0.24);
+      0 2px 14px rgba(200, 135, 56, 0.24);
   }
   .btn-primary:hover:not(:disabled) {
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.4),
-      0 4px 22px rgba(255, 107, 44, 0.42);
+      0 4px 22px rgba(200, 135, 56, 0.42);
   }
   .btn-primary:active:not(:disabled) {
     background: linear-gradient(135deg, var(--color-ember-deep), var(--color-ember));
@@ -198,14 +198,14 @@
   /* Ghost: frosted glass */
   .btn-ghost {
     @apply text-ink-2;
-    border: 1px solid rgba(244, 232, 216, 0.12);
-    background: rgba(244, 232, 216, 0.05);
+    border: 1px solid var(--color-line-strong);
+    background: rgba(232, 222, 210, 0.05);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
   }
   .btn-ghost:hover:not(:disabled) {
     @apply text-ink;
-    background: rgba(244, 232, 216, 0.09);
+    background: rgba(232, 222, 210, 0.09);
     border-color: var(--color-line-strong);
   }
   .btn-danger {
@@ -222,8 +222,8 @@
   .input,
   .select {
     @apply h-9 w-full rounded-[10px] px-3 text-sm text-ink;
-    border: 1px solid rgba(244, 232, 216, 0.1);
-    background: rgba(244, 232, 216, 0.04);
+    border: 1px solid var(--color-line);
+    background: rgba(232, 222, 210, 0.04);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     transition:
@@ -237,11 +237,11 @@
   .select:focus {
     outline: none;
     border-color: color-mix(in srgb, var(--color-ember) 50%, transparent);
-    box-shadow: 0 0 0 3px rgba(255, 107, 44, 0.15);
+    box-shadow: 0 0 0 3px rgba(200, 135, 56, 0.15);
   }
   .select {
     @apply cursor-pointer appearance-none pr-8;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23837a6f' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b7f6d' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.65rem center;
   }
@@ -249,8 +249,8 @@
   /* Chips — translucent glass fill (no blur; many on screen) */
   .chip {
     @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium text-ink-2;
-    border: 1px solid rgba(244, 232, 216, 0.1);
-    background: rgba(244, 232, 216, 0.05);
+    border: 1px solid var(--color-line);
+    background: rgba(232, 222, 210, 0.05);
   }
   .chip-up {
     @apply border-up/25 bg-up/10 text-up;
@@ -268,8 +268,8 @@
   /* Tables */
   .tbl {
     @apply overflow-x-auto rounded-2xl;
-    border: 1px solid rgba(244, 232, 216, 0.1);
-    background: rgba(30, 25, 21, 0.55);
+    border: 1px solid var(--color-line);
+    background: rgba(29, 23, 20, 0.55);
     backdrop-filter: blur(14px) saturate(120%);
     -webkit-backdrop-filter: blur(14px) saturate(120%);
   }
@@ -278,7 +278,7 @@
   }
   .tbl thead th {
     @apply sticky top-0 z-10 px-3 py-2.5 text-left font-mono text-[10px] font-medium text-ink-3 uppercase;
-    background: rgba(26, 22, 18, 0.96);
+    background: rgba(26, 20, 17, 0.96);
     letter-spacing: 0.16em;
     border-bottom: 1px solid var(--color-line-strong);
     white-space: nowrap;
@@ -321,7 +321,7 @@
     background: linear-gradient(
       100deg,
       transparent 20%,
-      rgba(244, 232, 216, 0.05) 50%,
+      rgba(232, 222, 210, 0.05) 50%,
       transparent 80%
     );
     background-size: 200% 100%;
@@ -372,7 +372,7 @@
   .nav-progress {
     height: 2px;
     background: linear-gradient(90deg, var(--color-ember), var(--color-flame));
-    box-shadow: 0 0 12px rgba(255, 107, 44, 0.6);
+    box-shadow: 0 0 12px rgba(200, 135, 56, 0.6);
     transform-origin: left;
   }
   .nav-progress--enter {
@@ -398,7 +398,7 @@
   /* Loading spinner: ember arc */
   .ember-spinner {
     border-radius: 9999px;
-    border: 2px solid rgba(244, 232, 216, 0.12);
+    border: 2px solid rgba(232, 222, 210, 0.12);
     border-top-color: var(--color-ember);
     border-right-color: var(--color-flame);
     animation: spin 800ms linear infinite;
@@ -432,14 +432,14 @@
 
 @keyframes ignite {
   0% {
-    text-shadow: 0 0 0 rgba(255, 165, 61, 0);
+    text-shadow: 0 0 0 rgba(224, 177, 107, 0);
     color: var(--color-flame);
   }
   35% {
-    text-shadow: 0 0 14px rgba(255, 165, 61, 0.55);
+    text-shadow: 0 0 14px rgba(224, 177, 107, 0.55);
   }
   100% {
-    text-shadow: 0 0 0 rgba(255, 165, 61, 0);
+    text-shadow: 0 0 0 rgba(224, 177, 107, 0);
   }
 }
 

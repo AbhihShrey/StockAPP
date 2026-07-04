@@ -23,7 +23,7 @@ export function TradingViewAdvancedChart({
   const fullSymbol = toTradingViewSymbol(ticker)
   const theme = useChartTheme()
   const isLight = theme === 'light'
-  const bg = isLight ? '#ffffff' : '#0f0c0a'
+  const bg = isLight ? '#ffffff' : '#14100e'
 
   useEffect(() => {
     const root = containerRef.current

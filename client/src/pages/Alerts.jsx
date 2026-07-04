@@ -260,7 +260,7 @@ function ToggleSwitch({ on, onToggle, label }) {
 function MiniChartPanel({ bars, loading, error, emptyMsg = 'No intraday data yet.' }) {
   const fmtTime = (str) => str?.split(' ')[1]?.slice(0, 5) ?? str
   // Chart palette per MASTER.md data-color rules
-  const priceColor = '#FF6B2C'
+  const priceColor = '#c88738'
   const vwapColor = '#B5AB9F'
 
   const yDomain = bars && bars.length > 0
@@ -282,8 +282,8 @@ function MiniChartPanel({ bars, loading, error, emptyMsg = 'No intraday data yet
       <ResponsiveContainer width="100%" height={260}>
         <LineChart data={bars} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(244,232,216,0.06)" />
-          <XAxis dataKey="time" tickFormatter={fmtTime} tick={{ fontSize: 10, fill: '#837A6F' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
-          <YAxis domain={yDomain} tick={{ fontSize: 10, fill: '#837A6F' }} axisLine={false} tickLine={false} width={56} tickFormatter={(v) => `$${Number(v).toFixed(2)}`} />
+          <XAxis dataKey="time" tickFormatter={fmtTime} tick={{ fontSize: 10, fill: '#8b7f6d' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+          <YAxis domain={yDomain} tick={{ fontSize: 10, fill: '#8b7f6d' }} axisLine={false} tickLine={false} width={56} tickFormatter={(v) => `$${Number(v).toFixed(2)}`} />
           <Tooltip
             contentStyle={{ background: '#14110E', border: '1px solid rgba(244,232,216,0.16)', borderRadius: 10, fontSize: 12, color: '#F4EFE9' }}
             labelFormatter={fmtTime}

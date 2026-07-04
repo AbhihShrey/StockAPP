@@ -6,8 +6,8 @@ import { apiUrl } from '../../lib/apiBase'
 const POLL_MS = 60_000
 
 // Chart-layer colors (JS chart config is the one allowed place for hex/rgba).
-const UP_RGB = '61, 220, 151' // #3DDC97
-const DOWN_RGB = '255, 97, 97' // #FF6161
+const UP_RGB = '61, 220, 151' // #48c78e
+const DOWN_RGB = '255, 97, 97' // #d96c63
 const NEUTRAL_FILL = 'rgba(244, 232, 216, 0.05)'
 const TILE_STROKE = 'rgba(244, 232, 216, 0.06)'
 const TILE_INK = 'rgba(244, 239, 233, 0.95)' // warm white, ≥4.5:1 on every tile intensity

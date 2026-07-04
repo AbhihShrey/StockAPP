@@ -16,25 +16,33 @@ Use these as Tailwind utilities (`bg-surface-1`, `text-ink-2`, `border-line`, `t
 Never hardcode hex values in JSX; never use Tailwind palette colors (`zinc-*`, `slate-*`,
 `emerald-*`, `rose-*`, `amber-*`, `white/N`) — they are the old system and are banned.
 
+Luxury ember-GOLD palette (not orange). Green/red are muted, institutional tones.
+
 | Token | Value | Use |
 |---|---|---|
-| `bg` | `#0A0807` | App canvas |
-| `surface-1` | `#14110E` | Panels, cards |
-| `surface-2` | `#1B1713` | Nested/raised surfaces, inputs |
-| `surface-3` | `#262019` | Hover fills, active rows |
-| `line` | `rgba(244,232,216,0.08)` | Hairline borders |
-| `line-strong` | `rgba(244,232,216,0.16)` | Emphasized borders, dividers |
-| `ink` | `#F4EFE9` | Primary text (warm white) |
-| `ink-2` | `#B5AB9F` | Secondary text |
-| `ink-3` | `#837A6F` | Faint text, placeholders |
-| `ember` | `#FF6B2C` | Brand accent — CTAs, active nav, key highlights ONLY |
-| `flame` | `#FFA53D` | Gradient partner of ember; small glows |
-| `ember-deep` | `#C2410C` | Pressed states, deep gradient stop |
-| `up` | `#3DDC97` | Positive change |
-| `down` | `#FF6161` | Negative change |
-| `warn` | `#FFC24B` | Warnings, pending states |
+| `bg` | `#0B0908` | App canvas |
+| `surface-1` | `#14100E` | Panels, cards |
+| `surface-2` | `#1D1714` | Nested/raised surfaces, inputs |
+| `surface-3` | `#241C18` | Hover fills, active rows |
+| `line` | `rgba(189,150,92,0.12)` | Hairline borders (warm gold) |
+| `line-strong` | `rgba(189,150,92,0.22)` | Emphasized borders, dividers |
+| `ink` | `#E8DED2` | Primary text (warm parchment) |
+| `ink-2` | `#B8AC98` | Secondary text |
+| `ink-3` | `#8B7F6D` | Faint text, placeholders |
+| `ember` | `#C88738` | Brand accent — CTAs, active nav, key highlights ONLY |
+| `flame` | `#E0B16B` | Highlight gold; gradient partner of ember; small glows |
+| `ember-deep` | `#A56A2C` | Secondary accent; pressed states, deep gradient stop |
+| `up` | `#48C78E` | Positive change |
+| `down` | `#D96C63` | Negative change |
+| `warn` | `#D9A441` | Warnings, pending states |
 
-Brand gradient: `linear-gradient(135deg, #FF6B2C, #FFA53D)` — available as class `.bg-ember-grad`.
+Brand gradient: `linear-gradient(135deg, #C88738, #E0B16B)` — available as class `.bg-ember-grad`.
+
+**Homepage backdrop:** `MarketBackdrop` (a single GPU canvas) renders the cinematic
+institutional background on Welcome — breathing radial ambience + drifting mesh, a faint
+Bloomberg grid, diagonal light rays, flowing bezier price lines, fading candle clusters,
+analytics connector lines, and ember-gold dust — with heavy mouse parallax, 60fps delta
+timing, tab-hidden pause, mobile scaling, and a reduced-motion still frame.
 
 ## Typography (editorial serif — big titles, small compact body)
 

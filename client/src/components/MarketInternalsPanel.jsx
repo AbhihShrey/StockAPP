@@ -15,10 +15,10 @@ import { SkeletonBlock } from './DataSkeleton'
 
 /* Chart colors are hex-in-JS by design-system exception. */
 const GRID = 'rgba(244,232,216,0.06)'
-const AXIS = '#837A6F'
+const AXIS = '#8b7f6d'
 const UP_FILL = 'rgba(61,220,151,0.55)'
 const DOWN_FILL = 'rgba(255,97,97,0.55)'
-const EMBER = '#FF6B2C'
+const EMBER = '#c88738'
 
 const TOOLTIP_STYLE = {
   background: 'rgba(27, 23, 19, 0.94)',

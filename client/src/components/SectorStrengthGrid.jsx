@@ -21,9 +21,9 @@ function lerpRgb(c1, c2, t) {
 function strengthToAccentRgb(score) {
   if (score === null || score === undefined || Number.isNaN(score)) return [131, 122, 111] // ink-3
   const s = Math.min(100, Math.max(0, score))
-  const down = [255, 97, 97] // #FF6161
+  const down = [255, 97, 97] // #d96c63
   const warn = [255, 194, 75] // #FFC24B
-  const up = [61, 220, 151] // #3DDC97
+  const up = [61, 220, 151] // #48c78e
   if (s <= 50) {
     const t = s / 50
     return lerpRgb(down, warn, t)

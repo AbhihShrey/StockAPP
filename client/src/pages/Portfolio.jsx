@@ -42,7 +42,7 @@ function blankPortfolio(id, name, budget) {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 // Chart config — the one allowed place for hex (warm allocation ramp).
-const PIE_COLORS = ['#FF6B2C', '#FFA53D', '#C2410C', '#3DDC97', '#B5AB9F', '#837A6F']
+const PIE_COLORS = ['#c88738', '#e0b16b', '#a56a2c', '#48c78e', '#B5AB9F', '#8b7f6d']
 
 function fmt(n, d = 2) {
   if (n == null || !Number.isFinite(n)) return '—'

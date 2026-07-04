@@ -40,11 +40,11 @@ function todayISODate() {
 
 /* Chart palette — hex allowed only in chart JS config (see design system). */
 const CHART_GRID = 'rgba(244,232,216,0.06)'
-const CHART_AXIS = '#837A6F'
-const CHART_EQUITY = '#FF6B2C'
-const CHART_BENCHMARK = '#837A6F'
-const PNL_GREEN = '#3DDC97'
-const PNL_RED = '#FF6161'
+const CHART_AXIS = '#8b7f6d'
+const CHART_EQUITY = '#c88738'
+const CHART_BENCHMARK = '#8b7f6d'
+const PNL_GREEN = '#48c78e'
+const PNL_RED = '#d96c63'
 
 const CHART_TOOLTIP_STYLE = {
   background: '#14110E',

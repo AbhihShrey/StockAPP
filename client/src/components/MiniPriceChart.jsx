@@ -3,8 +3,8 @@ import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'rec
 import { apiUrl } from '../lib/apiBase'
 
 /* Chart colors are hex-in-JS by design-system exception. */
-const UP_STROKE = '#3DDC97'
-const DOWN_STROKE = '#FF6161'
+const UP_STROKE = '#48c78e'
+const DOWN_STROKE = '#d96c63'
 
 const TOOLTIP_STYLE = {
   background: 'rgba(27, 23, 19, 0.94)',
@@ -105,7 +105,7 @@ export function MiniPriceChart({ symbol, height = 140 }) {
               <YAxis hide domain={['auto', 'auto']} />
               <Tooltip
                 contentStyle={TOOLTIP_STYLE}
-                labelStyle={{ color: '#837A6F' }}
+                labelStyle={{ color: '#8b7f6d' }}
                 formatter={(value) => (typeof value === 'number' ? value.toFixed(2) : value)}
               />
               <Line type="monotone" dataKey="close" stroke={stroke} strokeWidth={2} dot={false} />

@@ -101,13 +101,13 @@ export function Welcome({ redirectIfAuthenticated = true }) {
 
   return (
     <div className="relative min-h-dvh overflow-x-clip bg-bg text-ink antialiased">
-      {/* One ambient ember glow — fixed, cheap to render, no JS */}
+      {/* Base ember-gold ambience — fixed, cheap; the canvas backdrop layers over it */}
       <div
         aria-hidden
         className="pointer-events-none fixed inset-0 z-0"
         style={{
           background:
-            'radial-gradient(56rem 38rem at 50% -12%, rgba(255,107,44,0.07), transparent 70%)',
+            'radial-gradient(60rem 40rem at 50% -14%, rgba(200,135,56,0.06), transparent 72%)',
         }}
       />
 

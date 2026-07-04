@@ -24,12 +24,12 @@ import { apiUrl } from '../lib/apiBase'
 // ── Chart-layer palette (hex is allowed only in chart JS config) ─────────────
 
 const CHART = {
-  up: '#3DDC97',
+  up: '#48c78e',
   upSoft: 'rgba(61,220,151,0.72)',
-  down: '#FF6161',
+  down: '#d96c63',
   downSoft: 'rgba(255,97,97,0.72)',
   grid: 'rgba(244,232,216,0.06)',
-  axis: '#837A6F',
+  axis: '#8b7f6d',
   axisLine: 'rgba(244,232,216,0.16)',
   canvas: '#0A0807',
   surface: '#14110E',
@@ -38,10 +38,10 @@ const CHART = {
 }
 
 const QUAD = {
-  leading:   { label: 'Leading',   color: '#3DDC97', chip: 'chip chip-up' },
+  leading:   { label: 'Leading',   color: '#48c78e', chip: 'chip chip-up' },
   weakening: { label: 'Weakening', color: '#FFC24B', chip: 'chip chip-warn' },
-  lagging:   { label: 'Lagging',   color: '#FF6161', chip: 'chip chip-down' },
-  improving: { label: 'Improving', color: '#FF6B2C', chip: 'chip chip-ember' },
+  lagging:   { label: 'Lagging',   color: '#d96c63', chip: 'chip chip-down' },
+  improving: { label: 'Improving', color: '#c88738', chip: 'chip chip-ember' },
 }
 
 const TREND_STYLE = {

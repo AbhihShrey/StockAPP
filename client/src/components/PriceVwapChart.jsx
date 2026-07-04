@@ -11,10 +11,10 @@ import {
 } from 'recharts'
 import { apiUrl } from '../lib/apiBase'
 
-const CLOSE_STROKE = '#3DDC97'
-const VWAP_STROKE = '#FFA53D'
+const CLOSE_STROKE = '#48c78e'
+const VWAP_STROKE = '#e0b16b'
 const GRID_STROKE = 'rgba(244,232,216,0.06)'
-const AXIS_TEXT = '#837A6F'
+const AXIS_TEXT = '#8b7f6d'
 const TOOLTIP_STYLE = {
   background: 'rgba(20, 17, 14, 0.82)',
   border: '1px solid rgba(244, 232, 216, 0.16)',

@@ -30,18 +30,18 @@ export function EmberMark({ size = 40, className = '' }) {
     >
       <defs>
         <linearGradient id="em-trend" x1="10" y1="34" x2="38" y2="14" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#837A6F" />
-          <stop offset="0.55" stopColor="#C2410C" />
-          <stop offset="0.8" stopColor="#FF6B2C" />
-          <stop offset="1" stopColor="#FFA53D" />
+          <stop offset="0" stopColor="#8b7f6d" />
+          <stop offset="0.55" stopColor="#a56a2c" />
+          <stop offset="0.8" stopColor="#c88738" />
+          <stop offset="1" stopColor="#e0b16b" />
         </linearGradient>
         <radialGradient id="em-glow" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0" stopColor="#FFA53D" stopOpacity="0.5" />
-          <stop offset="1" stopColor="#FFA53D" stopOpacity="0" />
+          <stop offset="0" stopColor="#e0b16b" stopOpacity="0.5" />
+          <stop offset="1" stopColor="#e0b16b" stopOpacity="0" />
         </radialGradient>
       </defs>
-      <rect x="1" y="1" width="46" height="46" rx="12" fill="#14110E" />
-      <rect x="1" y="1" width="46" height="46" rx="12" stroke="rgba(244,232,216,0.14)" strokeWidth="1" />
+      <rect x="1" y="1" width="46" height="46" rx="12" fill="#14100E" />
+      <rect x="1" y="1" width="46" height="46" rx="12" stroke="rgba(189,150,92,0.25)" strokeWidth="1" />
       <path
         d="M10 34 L19 25 L24 30 L38 14"
         stroke="url(#em-trend)"
@@ -50,7 +50,7 @@ export function EmberMark({ size = 40, className = '' }) {
         strokeLinejoin="round"
       />
       <circle cx="38" cy="14" r="8" fill="url(#em-glow)" />
-      <circle cx="38" cy="14" r="3" fill="#FFA53D" />
+      <circle cx="38" cy="14" r="3" fill="#e0b16b" />
     </svg>
   )
 }

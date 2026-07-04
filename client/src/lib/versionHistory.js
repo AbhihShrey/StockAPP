@@ -17,6 +17,19 @@
 /** @type {Release[]} */
 export const VERSION_HISTORY = [
   {
+    version: '2.3.0',
+    date: 'Jul 2026',
+    type: 'minor',
+    title: 'Ember-gold palette & cinematic homepage backdrop',
+    summary: 'A refined ember-gold luxury palette across the platform, and a living institutional market animation behind the homepage.',
+    changes: [
+      'Refined the whole palette to warm ember gold with muted, institutional green/red — calmer and more premium than the previous orange.',
+      'New animated homepage background: softly glowing price lines, a faint Bloomberg-style grid, drifting candle clusters, analytics connectors, ambient light, and floating gold dust — all behind the content.',
+      'The background breathes and drifts continuously at 60fps, responds gently to your mouse, scales down on phones, and pauses when the tab is in the background.',
+      'Updated the logo, favicon, and in-app chart colors to match the new gold palette.',
+    ],
+  },
+  {
     version: '2.2.1',
     date: 'Jul 2026',
     type: 'patch',

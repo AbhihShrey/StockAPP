@@ -22,7 +22,7 @@ function downsample(points, maxPoints) {
 /* Chart colors are hex-in-JS by design-system exception. */
 function chartColors(isLight) {
   return {
-    textColor: isLight ? 'rgba(63,63,70,0.85)' : '#837A6F',
+    textColor: isLight ? 'rgba(63,63,70,0.85)' : '#8b7f6d',
     gridColor: isLight ? 'rgba(0,0,0,0.07)' : 'rgba(244,232,216,0.06)',
   }
 }
@@ -132,8 +132,8 @@ export function LightweightSpyChart({ symbol = 'SPY' }) {
 
     // Ember is reserved for the primary series — this is it.
     const seriesOpts = chartStyle === 'line'
-      ? { color: '#FF6B2C', lineWidth: 3 }
-      : { topColor: 'rgba(255,107,44,0.26)', bottomColor: 'rgba(255,107,44,0.02)', lineColor: '#FF6B2C', lineWidth: 2 }
+      ? { color: '#c88738', lineWidth: 3 }
+      : { topColor: 'rgba(255,107,44,0.26)', bottomColor: 'rgba(255,107,44,0.02)', lineColor: '#c88738', lineWidth: 2 }
     const area = chart.addSeries(chartStyle === 'line' ? LineSeries : AreaSeries, seriesOpts)
 
     chartRef.current = chart
