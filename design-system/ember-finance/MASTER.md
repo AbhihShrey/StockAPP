@@ -38,10 +38,11 @@ Brand gradient: `linear-gradient(135deg, #FF6B2C, #FFA53D)` — available as cla
 
 ## Typography (editorial serif — big titles, small compact body)
 
-- **Display / titles:** `font-display` → Instrument Serif. Large and editorial; `.display`
-  (regular weight, −0.01em tracking, 1.02 leading). Make titles big — the type is the hero.
-- **Body / UI:** `font-sans` → Newsreader (a refined, Times-lineage serif). Kept SMALL and
-  compact: base 14px, line-height 1.45. The document/manuscript feel is intentional.
+- **Display + body:** `font-display` and `font-sans` → Newsreader, a refined, NORMAL-WIDTH
+  Times-lineage serif (opsz optical sizing). Titles use `.display` (semibold, −0.005em
+  tracking, 1.16 leading) and should be big; body is small (base 14px) but with a comfortable
+  1.6 line-height. Do NOT use a condensed display face (e.g. Instrument Serif) — it reads as
+  squished sideways. Keep line-heights loose enough that lines never feel cramped.
 - **Labels & numerals:** `font-mono` → JetBrains Mono. `.eyebrow` is mono (10px uppercase,
   0.22em tracking) for crisp contrast against the serif. Every number is `.num` (mono).
 - Strong hierarchy: big serif title, small serif body, mono labels/data.

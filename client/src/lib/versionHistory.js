@@ -17,6 +17,17 @@
 /** @type {Release[]} */
 export const VERSION_HISTORY = [
   {
+    version: '2.2.1',
+    date: 'Jul 2026',
+    type: 'patch',
+    title: 'Fix squished type',
+    summary: 'Titles now use a normal-width serif with roomier spacing, so text no longer looks compressed.',
+    changes: [
+      'Replaced the condensed title font with Newsreader — wider, Times-like letterforms that no longer look squished on the sides.',
+      'Loosened line spacing on headings and body text so lines are no longer cramped vertically.',
+    ],
+  },
+  {
     version: '2.2.0',
     date: 'Jul 2026',
     type: 'minor',

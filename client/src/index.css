@@ -32,7 +32,7 @@
   --color-warn: #ffc24b;
 
   /* Type */
-  --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --font-display: "Newsreader", Georgia, "Times New Roman", serif;
   --font-sans: "Newsreader", Georgia, "Times New Roman", serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
@@ -50,7 +50,7 @@
   body {
     @apply bg-bg font-sans text-ink antialiased;
     font-size: 14px;
-    line-height: 1.45;
+    line-height: 1.6;
     font-optical-sizing: auto;
   }
 
@@ -129,9 +129,9 @@
 
   /* Type treatments — big editorial serif titles, small compact serif body */
   .display {
-    @apply font-display font-normal text-ink;
-    letter-spacing: -0.01em;
-    line-height: 1.02;
+    @apply font-display font-semibold text-ink;
+    letter-spacing: -0.005em;
+    line-height: 1.16;
   }
   .eyebrow {
     @apply font-mono text-[10px] font-medium text-ink-3 uppercase;
