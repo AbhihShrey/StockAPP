@@ -17,6 +17,17 @@
 /** @type {Release[]} */
 export const VERSION_HISTORY = [
   {
+    version: '2.3.1',
+    date: 'Jul 2026',
+    type: 'patch',
+    title: 'Refined typeface & financial numerals',
+    summary: 'Switched to Geist for a clean, precise institutional feel, with premium tabular figures for numbers.',
+    changes: [
+      'New typeface: Geist — a modern, precise sans that suits the luxury dark theme (no more serif).',
+      'Numbers now use elegant tabular figures that align in columns like professional financial data, instead of a coding-style monospace.',
+    ],
+  },
+  {
     version: '2.3.0',
     date: 'Jul 2026',
     type: 'minor',

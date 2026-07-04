@@ -44,16 +44,18 @@ Bloomberg grid, diagonal light rays, flowing bezier price lines, fading candle c
 analytics connector lines, and ember-gold dust — with heavy mouse parallax, 60fps delta
 timing, tab-hidden pause, mobile scaling, and a reduced-motion still frame.
 
-## Typography (editorial serif — big titles, small compact body)
+## Typography (modern precise sans — Geist)
 
-- **Display + body:** `font-display` and `font-sans` → Newsreader, a refined, NORMAL-WIDTH
-  Times-lineage serif (opsz optical sizing). Titles use `.display` (semibold, −0.005em
-  tracking, 1.16 leading) and should be big; body is small (base 14px) but with a comfortable
-  1.6 line-height. Do NOT use a condensed display face (e.g. Instrument Serif) — it reads as
-  squished sideways. Keep line-heights loose enough that lines never feel cramped.
-- **Labels & numerals:** `font-mono` → JetBrains Mono. `.eyebrow` is mono (10px uppercase,
-  0.22em tracking) for crisp contrast against the serif. Every number is `.num` (mono).
-- Strong hierarchy: big serif title, small serif body, mono labels/data.
+- **Display + body:** `font-display` and `font-sans` → Geist (Vercel's typeface — clean,
+  precise, normal-width, institutional-modern). Titles use `.display` (semibold, −0.021em
+  tracking, 1.08 leading) and should be big; body base 14px, line-height 1.6. Never a serif
+  and never a condensed face — both were rejected as "Times-ish" / "squished".
+- **Numerals — NOT a coding monospace.** The `--font-mono` token also resolves to Geist; the
+  `.num` class renders numbers with `font-variant-numeric: tabular-nums lining-nums` so digits
+  column-align like premium financial data (Stripe/Mercury/Bloomberg style) without the
+  "AI/terminal code" look of JetBrains/IBM Plex Mono. Every number is `.num`.
+- `.eyebrow` is Geist (10px uppercase, 0.18em tracking). Strong hierarchy: big sans title,
+  small sans body, tabular figures for data.
 
 ## Finish: frosted glass
 

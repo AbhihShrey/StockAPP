@@ -32,9 +32,10 @@
   --color-warn: #d9a441;
 
   /* Type */
-  --font-display: "Newsreader", Georgia, "Times New Roman", serif;
-  --font-sans: "Newsreader", Georgia, "Times New Roman", serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  /* "mono" role = Geist tabular figures (financial data, not coding monospace) */
+  --font-mono: "Geist", ui-sans-serif, system-ui, sans-serif;
 
   /* Motion */
   --ease-swift: cubic-bezier(0.22, 1, 0.36, 1);
@@ -127,20 +128,20 @@
     -webkit-backdrop-filter: blur(16px);
   }
 
-  /* Type treatments — big editorial serif titles, small compact serif body */
+  /* Type treatments — clean modern sans; precise financial figures */
   .display {
     @apply font-display font-semibold text-ink;
-    letter-spacing: -0.005em;
-    line-height: 1.16;
+    letter-spacing: -0.021em;
+    line-height: 1.08;
   }
   .eyebrow {
-    @apply font-mono text-[10px] font-medium text-ink-3 uppercase;
-    letter-spacing: 0.22em;
+    @apply font-sans text-[10px] font-semibold text-ink-3 uppercase;
+    letter-spacing: 0.18em;
   }
   .num {
     @apply font-mono;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums lining-nums;
+    letter-spacing: 0;
   }
 
   /* Signature: molten hairline */
